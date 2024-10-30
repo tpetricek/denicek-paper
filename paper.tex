@@ -1,7 +1,10 @@
 \documentclass[sigconf]{acmart}
 %\documentclass[sigconf,review,anonymous]{acmart}
 
+\usepackage{hhline,xcolor,colortbl}
+\usepackage{fontawesome}
 \usepackage{enumitem}
+\usepackage{fancyvrb}
 \setlist{leftmargin=1.5em}
 \setlength\itemsep{0.5em}
 
@@ -40,7 +43,7 @@ that construct or transform a document consisting of data and formulas. Denicek 
 primitive operations on series of edits, merging and conflict checking, that form the backbone
 of the implementation of the aforementioned programming experiences.
 
-We discuss the architecture of Denicek, document notable design considerations and elaborate
+We discuss the architecture of Denicek, document key design considerations and elaborate
 the implementation of the programming experiences listed above. To evaluate the proposed
 architecture, we use Denicek as the basis of a simple innovative data exploration environment.
 The case study shows that the Denicek computational substrate provides a pathway to the design
@@ -60,10 +63,13 @@ of richer and more accessible interactive programming systems.
 \maketitle
 
 \newpage
-~
-\newpage
+
 \section{Introduction}
-intro
+
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+TODO: Maybe do not talk about ``programs'' because this is more documents with formulas - not that fancy programs.
+Computational documents?
 
 \subsection{Programming Experiences}
 list
@@ -87,11 +93,186 @@ conference organizer
 
 3) Evaluation and maybe provenance
 
-\section{Architecture}
+\newpage
 
-also NAIVE REALISM
+% ==================================================================================================
+
+\arrayrulecolor{lightgray}
+\definecolor{ekgray}{gray}{0.90}
+
+\begin{figure}
+\newcommand{\seltablecol}[3]{
+\sffamily\small{\bfseries #2} & {\footnotesize #1} & \footnotesize #3\\
+}
+\newcommand{\ndtablecol}[4]{
+\raisebox{-0.2em}{#1} & \sffamily\small{\bfseries #2}\,\;\textit{\footnotesize #3}\\[-0.2em]
+&\sffamily\footnotesize #4\\[0.3em]
+}
+
+\begin{tabular}{|clp{18.08em}|}
+\hline
+\rowcolor{ekgray}
+&&\\[-1em]
+\rowcolor{ekgray}
+\sffamily\small{\bfseries Selector} & {\sffamily\footnotesize Notation} & \\[0.2em]
+\hline
+&&\\[-1em]
+\seltablecol{\Verb|field|}{Field}{Refers to record field of a given name}
+\seltablecol{\Verb|number|}{Index}{Refers to list element at a given index}
+\seltablecol{\Verb|*|}{Any}{Refers to all children of a list node}
+\hline
+\end{tabular}
+
+~\\[0.5em]
+
+\begin{tabular}{|cl|}
+\hline
+\rowcolor{ekgray}
+&\\[-1em]
+\rowcolor{ekgray}
+& \sffamily\small{\bfseries Node}\;\,\textit{\footnotesize arguments} \\[0.2em]
+\hline
+&\\[-1em]
+\ndtablecol{\faListUl}{List}{tag, child$_1$, $\ldots$, child$_n$}
+  {Ordered list of nodes, addressable by index. Renders as \Verb|<tag>| with children}
+\ndtablecol{\faFileO}{Record}{tag, field$_1$, child$_1$, $\ldots$, field$_n$, child$_n$}
+  {Record with children addressable by \textit{field} name. Renders as \Verb|<tag>|.}
+\ndtablecol{\faExternalLink}{Reference}{selectors}
+  {Reference to another document location. Displays the \Verb|/selectors| as a link.}
+\ndtablecol{\faFont}{Primitivie}{string \textnormal{or} number}
+  {Numerical or textual primitive value. Renders as an HTML text node.}
+\hline
+\end{tabular}
+\vspace{-0.5em}
+\caption{Structure of selectors and document nodes.}
+\label{fig:doc}
+\end{figure}
+
+% ==================================================================================================
+
+\section{The Denicek Substrate}
+\label{sec:system}
+Denicek represents programs as a sequence of edits construct a computational document.
+In this section, we describe the structure of documents and edits, as well as the
+operations that form the backbone of the system and are used to implement a range of
+interesting programming experiences, discussed in \S\ref{sec:impl}.
+
+\subsection{Selectors, Documents and Edits}
+Denicek follows the \emph{naive realism}~\cite{disessa-1986-boxer} principle and makes the entire
+computational document visible to the user, although parts can be collapsible or hidden using CSS.
+Records and lists are rendered as HTML elements of a specified tag with children becoming child
+elements. Field names are hidden in the rendered document.
+
+References to document location are used in both document itself (reference nodes) and in edits
+(target and a source). They are represented as a sequence of selectors (Fig.~\ref{fig:doc}).
+The document model assumes that lists are homogeneous and records heterogeneous. Thus the
+\textit{Any} selector makes it possible to refer to all children of a list, but there is no
+way to refer to all children of a record.
+
+\subsubsection*{Document Edits}
+The supported document edits and their behavior are listed in Fig.~\ref{fig:edits}. All edits
+require \emph{target} to which they are applied. The target is specified through selectors.
+Most edits can only be applied when the target is a node of a particular kind.
+
+The edit operations (Fig.~\ref{fig:edits}) are designed to allow any transformation of a document
+through a series of steps whose effect can be tracked by the substrate. As illustrated earlier,
+Denicek updates selectors when document structure changes. Fig.~\ref{fig:edits} distinguishes
+between edits that keep existing references in a document unchanged (above) and edits that affect
+references (below). When a selector is \emph{invalidated}, e.g., when deleting a field or a
+list item to which there is a reference, Denicek prevents the edit. Copying also invalidates
+selectors because it is ambiguous whether selectors referring to the original location should
+refer to the source or the target of the copying after the edit (and since reference can only
+refer to one location, duplicating it is not possible). Updating a field, wrapping or reordering
+requires changing existing references in document correspondingly.
+
+% ==================================================================================================
+
+\begin{figure}
+\newcommand{\ektablecol}[6]{
+\raisebox{-0.2em}{#1} & \sffamily\small{\bfseries #2}\,\;\textit{\footnotesize target, #3} & \sffamily\footnotesize #4 & \sffamily\footnotesize #5 \\[-0.2em]
+&\multicolumn{3}{l|}{\sffamily\footnotesize #6}\\[0.3em]
+}
+\begin{tabular}{|c|p{13em}rr|}
+\hline
+\rowcolor{ekgray}
+&&&\\[-1em]
+\rowcolor{ekgray}
+ & \sffamily\small{\bfseries Edit}\;\,\textit{\footnotesize arguments} & \sffamily\footnotesize\bfseries Target & \sffamily\footnotesize\bfseries Selectors \\[0.2em]
+\hline
+&&&\\[-1em]
+\ektablecol{\faPlus}{Add}{field, node}{Record}{Unchanged}
+  {Add \textit{node} as a \textit{field} to the specified record.}
+\ektablecol{\faAt}{Append}{node}{List}{Unchanged}
+  {Append \textit{node} to the end of the specified list.}
+\ektablecol{\faPaperclip}{AppendFrom}{selectors}{List}{Unchanged}
+  {Append node from \emph{selectors} to the end of the specified list.}
+\ektablecol{\faICursor}{PrimitiveEdit}{transform}{Primitive}{Unchanged}
+  {Apply primitive \textit{transform} to the specified primitive.}
+\ektablecol{\faCode}{UpdateTag}{old tag, new tag}{Tagged}{Unchanged}
+  {Change the tag of a specified list or record from \textit{old} to \textit{new}.}
+\hline
+&&&\\[-1em]
+\ektablecol{\faFont}{UpdateField}{old field, new field}{Record}{Update}
+  {Rename the field of a specified record from \textit{old} to \textit{new}.}
+\ektablecol{\faTimesCircle}{DeleteField}{field}{Record}{Invalidate}
+  {Delete the field \textit{field} of a specified record.}
+\ektablecol{\faMinusCircle}{DeleteItem}{index}{List}{Invalidate}
+  {Delete the item at a given \textit{index} of a specified list.}
+\ektablecol{\faSort}{Reorder}{permutation}{List}{Update}
+  {Reorder items of a specified list according to a \textit{permutation}.}
+\ektablecol{\faFileO}{WrapRecord}{tag, field}{Any}{Update}
+  {Wrap the specified node as a \textit{field} of a new record with \textit{tag}.}
+\ektablecol{\faListUl}{WrapList}{tag}{Any}{Update}
+  {Wrap the specified node as a sole element of a new list with \textit{tag}.}
+\ektablecol{\faCopy}{Copy}{selectors}{Any}{Invalidate}
+  {Copy nodes(s) from \textit{selectors}, replacing the specified target(s). }
+\hline
+\end{tabular}
+\vspace{-0.5em}
+\caption{Types of document edits.}
+\label{fig:edits}
+\end{figure}
+
+% ==================================================================================================
+
+\subsubsection*{Automatic Reference Update}
+There are three situations in which automatic update of references is undesirable. First, if
+an edit is not applied to all elements of a list (reference contains the \emph{index} selector),
+it should not affect references that refer into the list. Such edits may turn document into an
+inconsistent state, but they typically do so temporarily during document construction
+(checking such edits is discussed in \S\ref{sec:discuss-future}).
+
+Second, documents can contain values that can be of multiple different kinds (i.e., a union type).
+In such case, references should not be updated when the kind of the value changes. For example,
+a formula may be either unevaluated or evaluated. As discussed in \S\ref{sec:impl-eval}, evaluation
+involves wrapping, but this should not affect references to the formula.
+To support those cases, it is possible to specify that edits that normally affect selectors
+(Fig.~\ref{fig:edits}, below) should not do so. Moreover, this setting is required when the
+target reference contains the \emph{index} selector.
+
+\subsubsection*{Non-Conditionality of Edits.}
+NON-CONDITIONALITY effect does not depend on document state
+
+\subsection{Merging histories}
+is tricky in various ways
+
+
+
+\subsubsection*{Updating structure for structural edits}
+yay
+
+\subsection{Conflict detection}
+is pretty easy
+
+\subsection{Properties}
+
+PROPERTIES
+- can change any document to any other - sure, via remove add - but also more semantically
+(if it contained all values, can we do it without removing and adding them?)
+
 
 \section{Implementation}
+\label{sec:impl}
 (how each of the features is achieved)
 
 
@@ -101,17 +282,37 @@ also NAIVE REALISM
 
 3) Interaction (add button)
 
-4) Evaluation and invalidation
+\subsection{Evaluation and invalidation}
+\label{sec:impl-eval}
 
 5) Schema evolution
 
 \section{Design Discussion}
+
+
+Although Denicek does not explicitly track document structure (or schema, or type), all documents
+have an implicit structure.
+
+c.f. notes
+
+memory mapped graphics etc.
+
+unifying lists and records?
+
 \section{Case study}
 (data science environment)
 
 \section{Discussion}
 \subsection{Heuristic evaluation}
 \subsection{Limitations}
+\subsection{Future work}
+\label{sec:discuss-future}
+use type system to check temporarily invalid state
+
+ohter formal things
+* non-conditionality of edits
+* show that they can transform document from any to any without removing/readding values
+
 maybe
 
 
