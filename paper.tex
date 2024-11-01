@@ -71,11 +71,15 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 TODO: Maybe do not talk about ``programs'' because this is more documents with formulas - not that fancy programs.
 Computational documents?
 
+JUSTIFICATION - this is a technical paper but belongs here!
+
 \subsection{Programming Experiences}
 list
 
 \subsection{Substrate}
 how it works very roughly
+
+The coolest trick - almost everything (PBD, collaboration, evaluation) is done through merge!
 
 \subsection{Contributions}
 one main thing - substrate - with other things
@@ -109,7 +113,7 @@ conference organizer
 &\sffamily\footnotesize #4\\[0.3em]
 }
 
-\begin{tabular}{|clp{18.08em}|}
+\begin{tabular}{|llp{18.08em}|}
 \hline
 \rowcolor{ekgray}
 &&\\[-1em]
@@ -130,7 +134,7 @@ conference organizer
 \rowcolor{ekgray}
 &\\[-1em]
 \rowcolor{ekgray}
-& \sffamily\small{\bfseries Node}\;\,\textit{\footnotesize arguments} \\[0.2em]
+& \sffamily\small{\bfseries Kind}\;\,\textit{\footnotesize arguments} \\[0.2em]
 \hline
 &\\[-1em]
 \ndtablecol{\faListUl}{List}{tag, child$_1$, $\ldots$, child$_n$}
@@ -144,46 +148,49 @@ conference organizer
 \hline
 \end{tabular}
 \vspace{-0.5em}
-\caption{Structure of selectors and document nodes.}
+\caption{Structure of selectors and document nodes}
 \label{fig:doc}
+\vspace{-1em}
 \end{figure}
 
 % ==================================================================================================
 
 \section{The Denicek Substrate}
 \label{sec:system}
-Denicek represents programs as a sequence of edits construct a computational document.
-In this section, we describe the structure of documents and edits, as well as the
-operations that form the backbone of the system and are used to implement a range of
-interesting programming experiences, discussed in \S\ref{sec:impl}.
+Denicek represents programs as sequences of edits that construct and transform a computational
+document. In this section, we describe the structure of documents and edits, as well as the
+operations that form the backbone of the system and are used to implement a wide range of
+programming experiences, discussed in \S\ref{sec:impl}.
 
 \subsection{Selectors, Documents and Edits}
+A computational document is a tree, consisting of four kinds of nodes (Fig.~\ref{fig:doc}).
 Denicek follows the \emph{naive realism}~\cite{disessa-1986-boxer} principle and makes the entire
-computational document visible to the user, although parts can be collapsible or hidden using CSS.
+document visible to the user, although parts can be collapsible or hidden using CSS.
 Records and lists are rendered as HTML elements of a specified tag with children becoming child
 elements. Field names are hidden in the rendered document.
 
 References to document location are used in both document itself (reference nodes) and in edits
-(target and a source). They are represented as a sequence of selectors (Fig.~\ref{fig:doc}).
-The document model assumes that lists are homogeneous and records heterogeneous. Thus the
+(target of the edit). They are represented as a sequence of selectors (Fig.~\ref{fig:doc}).
+The document model assumes that lists are homogeneous and records heterogeneous, and so the
 \textit{Any} selector makes it possible to refer to all children of a list, but there is no
 way to refer to all children of a record.
 
 \subsubsection*{Document Edits}
 The supported document edits and their behavior are listed in Fig.~\ref{fig:edits}. All edits
-require \emph{target} to which they are applied. The target is specified through selectors.
-Most edits can only be applied when the target is a node of a particular kind.
+require \emph{target} to which they are applied. Target is a reference and can contain the
+\textit{Any} selector, in which case the edit is applied to multiple nodes simultaneously.
+Most edits can only be applied to target node(s) of a particular kind.
 
-The edit operations (Fig.~\ref{fig:edits}) are designed to allow any transformation of a document
+The edits are designed to allow any transformation of a document
 through a series of steps whose effect can be tracked by the substrate. As illustrated earlier,
-Denicek updates selectors when document structure changes. Fig.~\ref{fig:edits} distinguishes
+Denicek updates references when document structure changes. Fig.~\ref{fig:edits} distinguishes
 between edits that keep existing references in a document unchanged (above) and edits that affect
 references (below). When a selector is \emph{invalidated}, e.g., when deleting a field or a
-list item to which there is a reference, Denicek prevents the edit. Copying also invalidates
+list item to which there is a reference, Denicek rejects the edit. Copying also invalidates
 selectors because it is ambiguous whether selectors referring to the original location should
-refer to the source or the target of the copying after the edit (and since reference can only
-refer to one location, duplicating it is not possible). Updating a field, wrapping or reordering
-requires changing existing references in document correspondingly.
+refer to the source or the target of the copying after the edit (and references cannot refer to
+multiple structurally incompatible locations). Updating a field, wrapping, reordering or deleting
+a list item requires updating references in the document correspondingly.
 
 % ==================================================================================================
 
@@ -192,7 +199,7 @@ requires changing existing references in document correspondingly.
 \raisebox{-0.2em}{#1} & \sffamily\small{\bfseries #2}\,\;\textit{\footnotesize target, #3} & \sffamily\footnotesize #4 & \sffamily\footnotesize #5 \\[-0.2em]
 &\multicolumn{3}{l|}{\sffamily\footnotesize #6}\\[0.3em]
 }
-\begin{tabular}{|c|p{13em}rr|}
+\begin{tabular}{|cp{13em}rr|}
 \hline
 \rowcolor{ekgray}
 &&&\\[-1em]
@@ -216,7 +223,7 @@ requires changing existing references in document correspondingly.
   {Rename the field of a specified record from \textit{old} to \textit{new}.}
 \ektablecol{\faTimesCircle}{DeleteField}{field}{Record}{Invalidate}
   {Delete the field \textit{field} of a specified record.}
-\ektablecol{\faMinusCircle}{DeleteItem}{index}{List}{Invalidate}
+\ektablecol{\faMinusCircle}{DeleteItem}{index}{List}{Update}
   {Delete the item at a given \textit{index} of a specified list.}
 \ektablecol{\faSort}{Reorder}{permutation}{List}{Update}
   {Reorder items of a specified list according to a \textit{permutation}.}
@@ -229,46 +236,136 @@ requires changing existing references in document correspondingly.
 \hline
 \end{tabular}
 \vspace{-0.5em}
-\caption{Types of document edits.}
+\caption{Summary of document edit types in Denicek}
 \label{fig:edits}
+\vspace{-1em}
 \end{figure}
 
 % ==================================================================================================
 
 \subsubsection*{Automatic Reference Update}
-There are three situations in which automatic update of references is undesirable. First, if
-an edit is not applied to all elements of a list (reference contains the \emph{index} selector),
-it should not affect references that refer into the list. Such edits may turn document into an
-inconsistent state, but they typically do so temporarily during document construction
-(checking such edits is discussed in \S\ref{sec:discuss-future}).
+There are two situations in which automatic update of references is undesirable. If an edit is
+applied to a singular element of a list (reference contains the \textit{Index} selector),
+references that refer into any element of the list should be unchanged.  Such edits may turn
+document into an inconsistent state, but they typically do so temporarily during document
+construction (checking such edits is discussed in \S\ref{sec:discuss-future}).
 
-Second, documents can contain values that can be of multiple different kinds (i.e., a union type).
+Documents can also contain values that can be of multiple different kinds (i.e., a union type).
 In such case, references should not be updated when the kind of the value changes. For example,
 a formula may be either unevaluated or evaluated. As discussed in \S\ref{sec:impl-eval}, evaluation
 involves wrapping, but this should not affect references to the formula.
-To support those cases, it is possible to specify that edits that normally affect selectors
-(Fig.~\ref{fig:edits}, below) should not do so. Moreover, this setting is required when the
-target reference contains the \emph{index} selector.
+To support those cases, it is possible to annotate edits that normally affect selectors
+(Fig.~\ref{fig:edits}, below) as non-structural. This annotation is required when the
+target reference contains the \emph{Index} selector.
 
-\subsubsection*{Non-Conditionality of Edits.}
-NON-CONDITIONALITY effect does not depend on document state
+\subsubsection*{No Conditional Edits.}
+An important aspect of the design is that the effect an edit has on references inside
+the document does not depend on the current value of the document. This makes it possible to
+define merging solely in terms of edits, without reference to current document state.
+(The effect of \textit{Copy} depends only on the existing document structure, but not on its value;
+while \textit{AppendFrom} affects only single list element and is thus labelled as a
+non-structural edit.)
 
-\subsection{Merging histories}
-is tricky in various ways
+This design choice makes it impossible to encode computational logic directly in the edits
+(e.g., through conditional edits). As we will see in \S\ref{sec:impl-interaction}, such logic
+has to be provided as an additional  mechanism on top of the underlying Denicek substrate.
+
+\subsection{Primitive Operations}
+Denicek provides three primitive operations. A sequence of edits can be applied to a document, two
+sequences of edits can be checked for conflicts or merged. Denicek identifies edit histories by
+a (git-like) hash, computed from the hash of the parent and the current edit, which is used to identify
+common shared part of the history during conflict checking and merging.
+
+\subsubsection*{Applying Edits}
+When applying an edit, Denicek locates the target node and transform it according to the
+edit. If the edit may affect references in the document (Fig~\ref{fig:edits}, below), Denicek
+updates matching references in the document according to the rules shown in Fig.~\ref{fig:updates}
+provided that (i) the edit is not explicitly marked as non-structural, and (ii) the target
+reference does not contain \textit{Index} selector, i.e., it targets all elements of any involved
+lists. Also note that matching references in the document may be more specific than the edit
+target. For example, if we rename {\small\Verb|old|} to {\small\Verb|new|} at {\small\Verb|/foo/*|},
+a reference {\small\Verb|/foo/3/old|} will become {\small\Verb|/foo/3/new|}. If the document
+contains a reference that would be invalidated by an edit, the edit is rejected.
+
+\subsubsection*{Conflict Detection}
+Two edits are conflicting if the order in which they are applied matters. This is the case if
+they target the same node, or if one targets a node that is nested inside the node targetted by
+the other. For edits with dependencies (\textit{AppendFrom} and \textit{Copy}), a conflict also
+occurs if the other edit modifies the dependency.
+
+Given two edit histories, one way to resolve conflicts is by removing (or marking as disabled) all
+edits from one of the histories that conflict with edits done by the other history. To do this,
+we first collect all targets of edits in the other history. We then iterate over edits from the first
+history to see if they depend on or target any of the affected targets. If an edit is removed,
+its target reference is added to the set of affected targets, so that other subsequent edits that depend
+on its original result are also removed.
+
+\subsubsection*{Merging Edit Histories}
+Removing all conflicting edits is sometimes useful, but there are many cases where conflicting
+edits, in the above sense, can be reconcilliated. Say we have edit histories with
+the same common shared part $E, E_1$ and $E, E_2$. If the edits in $E_1$ and $E_2$ conflict,
+the results of applying $E, E_1, E_2$ and $E, E_2, E_1$ would be different. We can, however,
+construct edit histories $E_1'$ and $E_2'$ such that the results of applying $E, E_1, E_2'$ and
+$E, E_2, E_1'$ are the same.
+
+The key operation that enables such reconcilliation takes two individual edits that occurred
+indpendently, $e_1$ and $e_2$, and produces $e_1'$ that has the same logical effect as
+$e_1$, but can be applied after $e_2$. There are two aspects of such reconcilliation:
+
+\begin{enumerate}
+\item \emph{Apply Edit to Newly Added.} If $e_1$ is adding a new list item, but~$e_2$ is
+  changing elements of the target list, we apply the edit $e_2$ to the node added by $e_1$ so
+  that, when it is added after the transformation, the added node has the new structure.
+
+\item \emph{Transform Matching References.} If $e_1$ targets a node that is inside a node
+  whose structure is changed by $e_2$, the target reference in $e_1$ is updated in a way that
+  corresponds to the new structure. That is, using the same rules, shown in Fig.~\ref{fig:updates},
+  that apply when transforming references inside a document.
+\end{enumerate}
+
+Applying an edit to a newly added node involves a number of cases. When the new node is added
+using \textit{Add} or \textit{Copy}, but the target location is modified, this is an unresolvable
+conflict (because those two operations would overwrite existing nodes). When the new node is
+added as a new list item using \textit{Append}, it can be transformed (by applying the other
+edit direclty to the new node).
+
+Finally, when the new node is added using \textit{AppendFrom},
+it is copied from another document location. We cannot transform the node in the soource location
+(this would have unintended effects) or after adding it (we do not know its new index because of
+aforementioned \emph{non-conditionality} of edits). Denicek reconcilliates such edits by first
+copying the source node to a new temporary location, transforming it there and then using
+\textit{AppendFrom} from the temporary location.
 
 
+% ==================================================================================================
 
-\subsubsection*{Updating structure for structural edits}
-yay
+\begin{figure}
+\newcommand{\tttablecol}[5]{
+\small{\bfseries #1}\;\,\footnotesize\textit{#2}\,\; --\,\; #5\\[-0.1em]
+\quad \footnotesize #3 \;\;$\Rightarrow$\;\; #4 \\[0.3em]
+}
+\begin{tabular}{|l|}
+\hline
+\\[-1em]
+\tttablecol{UpdateField}{target, old field, new field}{\Verb|/target/old\_field/nested|}{\Verb|/target/new\_field/nested|}
+  {Replace Field for matching references.}
+\tttablecol{DeleteItem}{target, index}{\Verb|/target/n/nested|}{\Verb|/target/(n-1)/nested|}
+  {Decrement Index greater than $n$ in matching refs.}
+\tttablecol{Reorder}{target, permutation}{\Verb|/target/n/nested|}{\Verb|/target/permutation(n)/nested|}
+  {Update Index using permutation in matching refs.}
+\tttablecol{WrapRecord}{target, tag, field}{\Verb|/target/nested|}{\Verb|/target/field/nested|}
+  {Insert extra Field selector after matching prefix.}
+\tttablecol{WrapList}{target, tag}{\Verb|/target/nested|}{\Verb|/target/*/nested|}
+  {Insert extra All selector after matching prefix.}
+\hline
+\end{tabular}
+\vspace{-0.5em}
+\caption{How document edits transform references}
+\label{fig:updates}
+\vspace{-1em}
+\end{figure}
 
-\subsection{Conflict detection}
-is pretty easy
-
-\subsection{Properties}
-
-PROPERTIES
-- can change any document to any other - sure, via remove add - but also more semantically
-(if it contained all values, can we do it without removing and adding them?)
+% ==================================================================================================
 
 
 \section{Implementation}
@@ -280,7 +377,9 @@ PROPERTIES
 
 2) Merging (refactoring)
 
-3) Interaction (add button)
+\subsection{Interaction (add button + remove done)}
+\label{sec:impl-interaction}
+
 
 \subsection{Evaluation and invalidation}
 \label{sec:impl-eval}
@@ -299,6 +398,9 @@ memory mapped graphics etc.
 
 unifying lists and records?
 
+AppendFrom - hard to avoid! because recorded edits cannot know length
+(but having -1 in index would break too)
+
 \section{Case study}
 (data science environment)
 
@@ -312,6 +414,11 @@ use type system to check temporarily invalid state
 ohter formal things
 * non-conditionality of edits
 * show that they can transform document from any to any without removing/readding values
+
+
+PROPERTIES
+- can change any document to any other - sure, via remove add - but also more semantically
+(if it contained all values, can we do it without removing and adding them?)
 
 maybe
 
