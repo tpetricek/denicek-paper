@@ -48,18 +48,21 @@ let updateBib() =
   run ()
   updateTex ()
 
-type UpdateMessage = UpdateTex | UpdateBib 
+type UpdateMessage = UpdateTex | UpdateBib
 
 let agent = MailboxProcessor.Start(fun inbox -> async {
   while true do
-    match! inbox.Receive() with
-    | UpdateTex -> updateTex ()
-    | UpdateBib -> updateBib ()
+    try
+      match! inbox.Receive() with
+      | UpdateTex -> updateTex ()
+      | UpdateBib -> updateBib ()
+    with e ->
+      logf ConsoleColor.DarkRed "agent error %s" e.Message
 })
 
 let watchTex() =
   let fsw = new FileSystemWatcher(path,"*.tex",IncludeSubdirectories=true)
-  fsw.Changed.Add(fun e ->  
+  fsw.Changed.Add(fun e ->
     logf ConsoleColor.DarkGray "watchTex: %A [%A]" e.Name e.ChangeType
     agent.Post(UpdateTex) )
   fsw.EnableRaisingEvents <- true

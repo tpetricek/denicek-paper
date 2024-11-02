@@ -1,3 +1,10 @@
+% TODO: Figure out how to call those "programming experiences" (also is this a good name?)
+%   the text uses "concrete, collaborative, interactive" - but this is a silly list
+%   really, they are "cool" but how to say that.
+%
+% TODO: Also, what exactly goes into the list?
+%
+%
 \documentclass[sigconf]{acmart}
 %\documentclass[sigconf,review,anonymous]{acmart}
 
@@ -19,8 +26,8 @@
 \acmISBN{978-1-4503-XXXX-X/18/06}
 
 \begin{document}
-\title[Denicek: Programming Substrate for Concrete, Collaborative, Interactive
-  Programming]{{\scshape Denicek}: Programming Substrate for Concrete, \\Collaborative, Interactive Programming}
+\title[Denicek: Computational Substrate for Concrete, Collaborative, Interactive
+  Programming]{{\scshape Denicek}: Computational Substrate for Concrete, \\Collaborative, Interactive Programming}
 
 \author{Tomas Petricek}
 \email{tomas@tomasp.net}
@@ -33,8 +40,8 @@
 
 \begin{abstract}
 Research on interactive programming systems gave rise to a range of programming experiences,
-including programming by demonstration, local-first collaborative editing, structure
-editing, schema and code co-evolution, provenance tracking and output invalidation. Those
+including programming by demonstration, local-first collaborative editing, %structure editing,
+schema and code co-evo\-lution, provenance tracking and incremental recomputation. Those
 experiences are compelling, but they are hard to implement on the basis of existing programming
 languages and systems.
 
@@ -66,10 +73,13 @@ of richer and more accessible interactive programming systems.
 
 \section{Introduction}
 
+
 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 TODO: Maybe do not talk about ``programs'' because this is more documents with formulas - not that fancy programs.
 Computational documents?
+
+explain computational substrate
 
 JUSTIFICATION - this is a technical paper but belongs here!
 
@@ -370,21 +380,38 @@ copying the source node to a new temporary location, transforming it there and t
 
 \section{Implementation}
 \label{sec:impl}
-(how each of the features is achieved)
 
+The key claim of this paper is that the computational substrate described in the previous
+section makes it easy to support a range of experiences that make programming more concrete,
+collaborative and interactive. In this section, we describe how to use the substrate to support
+local-first collaborative editing (\S\ref{sec:impl-collab}), programming by
+demonstration (\S\ref{sec:impl-pbd} and \S\ref{sec:impl-interaction}),
+schema and code co-evolution (\S\ref{sec:impl-schema}), incremental recomputation
+(\S\ref{sec:impl-eval}), provenance tracking (\S\ref{sec:impl-provenance})
+and concrete programming via managed copy \& paste (\S\ref{sec:impl-copy}).
+We describe the programming experience in isolation in this section. Next section provides a
+more comprehensive evaluation through a case study that combines multiple of them together.
 
-1) PBD (create textbox but not button)
+\subsection{Merging (refactoring)}
+\label{sec:impl-collab}
 
-2) Merging (refactoring)
+\subsection{PBD (create textbox but not button)}
+\label{sec:impl-pbd}
 
 \subsection{Interaction (add button + remove done)}
 \label{sec:impl-interaction}
 
+\subsection{Schema code co-evolution}
+\label{sec:impl-schema}
 
-\subsection{Evaluation and invalidation}
+\subsection{Incremental recomputation}
 \label{sec:impl-eval}
 
-5) Schema evolution
+\subsection{Provenance tracking}
+\label{sec:impl-provenance}
+
+\subsection{Managed copy \& paste}
+\label{sec:impl-copy}
 
 \section{Design Discussion}
 
