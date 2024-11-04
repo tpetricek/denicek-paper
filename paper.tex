@@ -12,6 +12,23 @@
 \usepackage{fontawesome}
 \usepackage{enumitem}
 \usepackage{fancyvrb}
+\usepackage{tikz}
+\usepackage[breakable,theorems,skins]{tcolorbox}
+\usepackage{lettrine}
+
+\newcommand*\circled[1]{\textnormal{\footnotesize\sffamily\bfseries\protect\tikz[baseline=(char.base)]{
+  \node[shape=circle,fill=black,text=white,draw,inner sep=1pt] (char) {#1};}}}
+
+\DeclareRobustCommand{\keyideabox}[3]{\begin{tcolorbox}[breakable,
+  boxsep=5pt,left=0pt,right=0pt,top=0pt,bottom=0pt,width=\dimexpr\columnwidth\relax,
+  colback=gray!20,colframe=gray!20,
+  enlarge bottom by=0pt,enlarge top by=0pt,
+  arc=0pt,outer arc=0pt]
+\lettrine[lraise=0.3]{\LARGE #1}{~}
+\small \textbf{#2.} #3
+\end{tcolorbox}
+}
+
 \setlist{leftmargin=1.5em}
 \setlength\itemsep{0.5em}
 
@@ -98,16 +115,77 @@ one main thing - substrate - with other things
 \section{Background}
 all the references
 
-\section{Walkthrough}
-conference organizer
+% ==================================================================================================
 
-1) PBD and interaction
 
-2) Merging and schema evolution
-
-3) Evaluation and maybe provenance
+\begin{figure*}[t]
+\vspace{-0.5em}
+\includegraphics[width=0.95\textwidth,clip,trim=1cm 1cm 1cm 0.5cm]{fig/walkthrough.pdf}
+\vspace{-1em}
+\caption{Organizing a conference using Denicek. The Walkthrough shows construction of a user
+  interface for adding speakers (A, B, C); refactoring of the list and merging edits (D, E); and
+  formulas with schema and code co-evolution (F, G).}
+\label{fig:walkthrough}
+\end{figure*}
 
 \newpage
+
+
+\section{Walkthrough}
+To providea an overview of the programming experiences supported by the Denicek
+substrate, we use a web-based implementation of Denicek with a structure
+editor that supports navigation in document and issuing of edit commands. The editor
+implements support for a range of programming experiences, discussed in \S\ref{sec:impl}.
+
+\subsubsection*{\circled{A} Adding a Speaker}
+The user starts with an empty document, which is represented as a record. They add a field for
+each heading and a list \Verb_<ul>_ as a field named \Verb_speakers_. They use the command
+toolbox to add the first speaker.
+
+\subsubsection*{\circled{B} Creating a User Interface} To simplify adding of
+further speakers, the user creates a textbox and a button. They enter new speaker
+details, construct a temporary \Verb_<li>_ element outside of the main list, copy the value
+from the textbox into the new element using source view, and then copy the new element into the
+\Verb_speakers_ list.
+
+\subsubsection*{\circled{C} Saving the Interaction} After adding the speaker from the textbox,
+the user opens history view, selects edits that added the speaker and saves those as the
+\Verb_add-speaker_ interaction. They attach this as a handler for the \Verb_click_ event of the button.
+
+\keyideabox{\faLightbulbO}{Programming by Demonstration}{Denicek implements programming by
+demonstration (\S\ref{sec:impl-pbd}) by letting the user to save and replay past interactions,
+either directly or by attaching them to a UI event.}
+
+\subsubsection*{\circled{D} Refactoring Document Structure} Another user starts with the initial
+version of the document and turns the list into a table. This is done by invoking a series of
+commands that change tags, wrap elements, copy and transform values.
+
+\subsubsection*{\circled{E} Merging Edits} The two document versions can be automatically merged.
+The refactoring is applied to all existing speakers. New speakers added using the ``Add speaker!''
+button are also automatically turned into the new format.
+
+\keyideabox{\faLightbulbO}{Collaborative Editing and Interactivity}{Denicek's merging
+reapplies edits from another branch on top of the current history (\S\ref{sec:impl-collab}).
+Merging is asymmetic, but the order does not matter here. The same merging operation is used
+when handling user interaction (\S\ref{sec:impl-interaction}).}
+
+\subsubsection*{\circled{F} Adding Budget Calculation} A third user adds budget calculation to
+the initial document. Formulas are represented as special \Verb_x-formula_ nodes whose arguments
+are other nodes or references to other nodes or formulas (highlighted on mouse hover).
+
+\keyideabox{\faLightbulbO}{Incremental Recomputation}{Evaluating a formula yields additional
+edits that augment the document with the result. Those edits are kept
+at the top of the document history and are removed in case of a conflict (\S\ref{sec:impl-eval}),
+providing incremental recomputation.}
+
+\subsubsection*{\circled{G} Merging Formulas} When the budget calculation is merged with the
+other edits, references in formulas are automatically updated to point to the new list.
+Adding new speaker via the ``Add speaker!'' button invalidates the evaluated result.
+
+\keyideabox{\faLightbulbO}{Schema Code Co-Evolution}{References are understood
+by the substrate and so they are updated by structural edits (\S\ref{sec:impl-schema}). The
+evaluation mechanism can replace formulas with values, but also augment them to keep an evaluation
+trace for provenance analysis (\S\ref{sec:impl-provenance}).}
 
 % ==================================================================================================
 
@@ -392,8 +470,10 @@ and concrete programming via managed copy \& paste (\S\ref{sec:impl-copy}).
 We describe the programming experience in isolation in this section. Next section provides a
 more comprehensive evaluation through a case study that combines multiple of them together.
 
-\subsection{Merging (refactoring)}
+\subsection{Local-First Collaborative Editing}
 \label{sec:impl-collab}
+
+like git rebase
 
 \subsection{PBD (create textbox but not button)}
 \label{sec:impl-pbd}
@@ -401,11 +481,11 @@ more comprehensive evaluation through a case study that combines multiple of the
 \subsection{Interaction (add button + remove done)}
 \label{sec:impl-interaction}
 
-\subsection{Schema code co-evolution}
-\label{sec:impl-schema}
-
 \subsection{Incremental recomputation}
 \label{sec:impl-eval}
+
+\subsection{Schema code co-evolution}
+\label{sec:impl-schema}
 
 \subsection{Provenance tracking}
 \label{sec:impl-provenance}
