@@ -53,7 +53,9 @@ type UpdateMessage = UpdateTex | UpdateBib
 let agent = MailboxProcessor.Start(fun inbox -> async {
   while true do
     try
-      match! inbox.Receive() with
+      let! msg = inbox.Receive()
+      logf ConsoleColor.DarkBlue "agent got %A" msg
+      match msg with
       | UpdateTex -> updateTex ()
       | UpdateBib -> updateBib ()
     with e ->
@@ -66,6 +68,7 @@ let watchTex() =
     logf ConsoleColor.DarkGray "watchTex: %A [%A]" e.Name e.ChangeType
     agent.Post(UpdateTex) )
   fsw.EnableRaisingEvents <- true
+  fsw
 
 let watchBib() =
   let fsw = new FileSystemWatcher(path,"*.bib",IncludeSubdirectories=true)
@@ -73,6 +76,7 @@ let watchBib() =
     logf ConsoleColor.DarkGray "watchBib: %A [%A]" e.Name e.ChangeType
     agent.Post(UpdateBib) )
   fsw.EnableRaisingEvents <- true
+  fsw
 
 let ps =
   ProcessStartInfo
@@ -83,7 +87,7 @@ let ps =
 updateTex ()
 Process.Start(ps) |> ignore
 updateBib ()
-watchTex ()
-watchBib ()
+let f1 = watchTex ()
+let f2 = watchBib ()
 
 System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite)
