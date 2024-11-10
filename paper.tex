@@ -187,7 +187,7 @@ are other nodes or references to other nodes or formulas (highlighted on mouse h
 
 \keyideabox{\faLightbulbO}{Incremental Recomputation}{Evaluating a formula yields additional
 edits that augment the document with the result. Those edits are kept
-at the top of the document history and are removed in case of a conflict (\S\ref{sec:impl-eval}),
+at the top of the document history and are removed in case of a conflict (\S\ref{sec:impl-incremental}),
 providing incremental recomputation.}
 
 \subsubsection*{\circled{G} Merging Formulas} When the budget calculation is merged with the
@@ -478,10 +478,11 @@ collaborative and interactive. In this section, we describe how to use the subst
 local-first collaborative editing (\S\ref{sec:impl-collab}), programming by
 demonstration (\S\ref{sec:impl-pbd} and \S\ref{sec:impl-interaction}),
 schema and code co-evolution (\S\ref{sec:impl-schema}), incremental recomputation
-(\S\ref{sec:impl-eval}), provenance tracking (\S\ref{sec:impl-provenance})
+(\S\ref{sec:impl-eval} and \S\ref{sec:impl-incremental}), provenance tracking (\S\ref{sec:impl-provenance})
 and concrete programming via managed copy \& paste (\S\ref{sec:impl-copy}).
 We describe the programming experience in isolation in this section. Next section provides a
 more comprehensive evaluation through a case study that combines multiple of them together.
+
 
 \subsection{Local-First Collaborative Editing}
 \label{sec:impl-collab}
@@ -508,6 +509,7 @@ In the second case, the structural transformations are automatically applied to 
 As discussed in \S\ref{sec:system-ops}, conflicts during merging can be resolved either by
 removing conflicting edits or by letting the later edits overwrite the former ones.
 
+
 \begin{figure}[t]
 \includegraphics[width=0.9\columnwidth,clip,trim=1.7cm 6cm 7.8cm 1.5cm]{fig/merging.pdf}
 \vspace{-0.5em}
@@ -516,6 +518,14 @@ removing conflicting edits or by letting the later edits overwrite the former on
 \vspace{-0.5em}
 \end{figure}
 
+\begin{figure}[t]
+\includegraphics[width=0.9\columnwidth,clip,trim=0cm 7cm 9cm 0cm]{fig/pbd.pdf}
+\vspace{-0.5em}
+\caption{Programming by demonstration is implemented by selecting edits from the document
+history (1), saving them in the document (2) and replaying them (3).}
+\label{fig:pbd}
+\vspace{-0.5em}
+\end{figure}
 
 \subsection{Programming By Demonstration}
 \label{sec:impl-pbd}
@@ -546,28 +556,89 @@ transformed (when they are reconcilliated with other edits during merging). In t
 updates the saved edits (as discussed in \S\ref{sec:discuss}, this would not be needed if the
 history was stored as a graph, akin to ordinary git merging rather than rebasing).
 
-\subsection{Interaction (add button + remove done)}
+\begin{figure}[t]
+\includegraphics[width=1\columnwidth,clip,trim=0.5cm 8.5cm 8.5cm 0.5cm]{fig/interactive.pdf}
+\vspace{-1em}
+\caption{Using programming by demonstration to define a UI. The ``Add'' button (1) replays edits;
+the ``Remove completed'' button (2) modifies target and specifies a condition. }
+\label{fig:interactive}
+\vspace{-0.5em}
+\end{figure}
+
+\subsection{Interactive User Interfaces}
 \label{sec:impl-interaction}
 
-x
+Programming by demonstration can be used to define interactive elements in the document. In the
+simple case (Fig.~\ref{fig:interactive} (1)), the {\small\Verb_click_} event handler is set to a
+reference to a sequence of edits saved in the document. Clicking the button executes the edits
+using the mechanism discussed in \S\ref{sec:impl-pbd}, i.e., by appending them to a history at the
+time of saving and merging them with the current history.
+
+The Denicek substrate can be used to generalize the interactions saved through programming by
+demonstration. Our prototype illustrates this option in a limited way. As shown in
+Fig.~\ref{fig:interactive} (2), a button to remove all completed TODO items can be generalized
+from the {\small\Verb_remove-item_} interaction, which removes the list item at the index 0.
+In addition to the saved interaction, we manually specify (in the source view) that the edits
+should be applied to all elements selected by the {\small\Verb_/items/*_} selector, instead of
+the original {\small\Verb_/items/0_} selector (prefix) and that the edits should only be
+applied to elements for which the formula (which tests if the checkbox is checked) specified by a
+relative selector {\small\Verb_./condition/comp/result_} evaluates to true.
+
+Specifying such generalization manually is cumbersome, but a programming by demonstration system
+that implements typical heuristic for generalization from examples \cite{myers-2000-intelligence}
+would be able to infer and suggest such generalization to the user (possibly also automatically
+adding the formula based on positive and negative examples of selected items).
+
+\begin{figure}[t]
+\includegraphics[width=0.95\columnwidth,clip,trim=0cm 7cm 8cm 0cm]{fig/counter.pdf}
+\caption{Increment wraps the existing count in a formula that adds 1 to the
+previous value (1), (2). Evaluation produces the count (3), which is invalidated on subsequent clicks (4).}
+\label{fig:counter}
+\vspace{-0.5em}
+\end{figure}
+
+\subsection{Formula Language and Evaluation}
+\label{sec:impl-eval}
+
+Denicek documents can contain formulas inspired by the spreadsheet
+paradigm \cite{nardi-1990-spreadsheets}. Formulas can specify richer computations than
+what can be expressed using document edits. Formulas do not transform the document and their
+results are transient, although their evaluation also leverages the substrate operations,
+namely merging of edit histories.
+
+As illustrated in Fig.~\ref{fig:counter}, formulas are represented as document nodes with a
+special tag ({\small\Verb_<x-formula>_}). They are recognized by a formula evaluator and
+rendered in a special way (\circled{1} and \circled{4}), but they are created using ordinary
+edits and the Denicek substrate treates them as stnadard nodes.
+
+To evalaute formulas, the formula evaluator generates edits that turn the {\small\Verb_<x-formula>_}
+record into {\small\Verb_<x-evaluated>_} (\circled{2} and \circled{3}), which keeps the previous
+formula state in the {\small\Verb_formula_} field and the evaluation result in the {\small\Verb_result_} field.
+(Keeping the previous state of the formula is not necessary, but it enables provenance analysis
+as discussed in \S\ref{sec:impl-provenance}.) The way edits generated by evaluation are merged
+with the document is discussed in \S\ref{sec:impl-incremental}
+
+The counter example shown in Fig.~\ref{fig:counter} illustrates the interaction between formulas
+and programming by demonstration. To implement a counter, the Increment and Decrement buttons
+wrap the current counter value in a formula that adds or subtracts 1.
+
+\subsection{Incremental Recomputation}
+\label{sec:impl-incremental}
+
+xx
 
 \newpage
 
 \begin{figure}[t]
-\includegraphics[width=0.9\columnwidth,clip,trim=0cm 7cm 9cm 0cm]{fig/pbd.pdf}
-\vspace{-0.5em}
-\caption{Programming by demonstration is implemented by selecting edits from the document
-history (1), saving them in the document (2) and replaying them (3).}
-\label{fig:pbd}
-\vspace{-0.5em}
+  \includegraphics[width=1\columnwidth,clip,trim=0.1cm 5cm 5.1cm 0cm]{fig/incremental.pdf}
+  \vspace{-1em}
+  \caption{Budget calculation based on the number of speakers (1) and the result (2). When speaker
+  is added (3), only the results of affected formulas are invalidated.}
+  \label{fig:incremental}
+  \vspace{-0.5em}
 \end{figure}
 
-
-
-\subsection{Incremental recomputation}
-\label{sec:impl-eval}
-
-x
+\newpage
 
 \subsection{Schema code co-evolution}
 \label{sec:impl-schema}
@@ -577,6 +648,14 @@ x
 
 \subsection{Managed copy \& paste}
 \label{sec:impl-copy}
+
+% TODO: Start Implementation section with some overall description of the "formative prototype"
+% TODO: In operations - better conflict resolution in terms of effect analysis
+% (collect selectors with structure/data effects; merging structure x data effects is OK,
+% but data x data or structure x structure is not); - Implement this
+% TODO: Add a section after Local-First Editing on the new conflict resolution (with demos)
+% TODO: In implementation use effects to better replay saved edits
+% (push through new structural but not data edits)
 
 \section{Design Discussion}
 \label{sec:discuss}
