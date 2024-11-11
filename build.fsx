@@ -53,9 +53,7 @@ type UpdateMessage = UpdateTex | UpdateBib
 let agent = MailboxProcessor.Start(fun inbox -> async {
   while true do
     try
-      let! msg = inbox.Receive()
-      logf ConsoleColor.DarkBlue "agent got %A" msg
-      match msg with
+      match! inbox.Receive() with
       | UpdateTex -> updateTex ()
       | UpdateBib -> updateBib ()
     with e ->

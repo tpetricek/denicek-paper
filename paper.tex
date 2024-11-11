@@ -557,12 +557,13 @@ updates the saved edits (as discussed in \S\ref{sec:discuss}, this would not be 
 history was stored as a graph, akin to ordinary git merging rather than rebasing).
 
 \begin{figure}[t]
+\vspace{-0.5em}
 \includegraphics[width=1\columnwidth,clip,trim=0.5cm 8.5cm 8.5cm 0.5cm]{fig/interactive.pdf}
-\vspace{-1em}
+\vspace{-1.25em}
 \caption{Using programming by demonstration to define a UI. The ``Add'' button (1) replays edits;
 the ``Remove completed'' button (2) modifies target and specifies a condition. }
 \label{fig:interactive}
-\vspace{-0.5em}
+\vspace{-2em}
 \end{figure}
 
 \subsection{Interactive User Interfaces}
@@ -584,17 +585,18 @@ the original {\small\Verb_/items/0_} selector (prefix) and that the edits should
 applied to elements for which the formula (which tests if the checkbox is checked) specified by a
 relative selector {\small\Verb_./condition/comp/result_} evaluates to true.
 
-Specifying such generalization manually is cumbersome, but a programming by demonstration system
-that implements typical heuristic for generalization from examples \cite{myers-2000-intelligence}
-would be able to infer and suggest such generalization to the user (possibly also automatically
-adding the formula based on positive and negative examples of selected items).
+\keyideabox{\faMagic}{Generalization Heuristic}{Specifying generalization manually is cumbersome.
+Programming by demonstration systems typically implement heuristic for generalization
+\cite{myers-2000-intelligence} infers and suggests such generalizations. When integrated into
+a system based on Denicek, such heuristic may also be able to automatically add a formula
+based on positive and negative examples \cite{gulwani-2014-flash} (selected and deselected items).}
 
 \begin{figure}[t]
 \includegraphics[width=0.95\columnwidth,clip,trim=0cm 7cm 8cm 0cm]{fig/counter.pdf}
 \caption{Increment wraps the existing count in a formula that adds 1 to the
 previous value (1), (2). Evaluation produces the count (3), which is invalidated on subsequent clicks (4).}
 \label{fig:counter}
-\vspace{-0.5em}
+\vspace{-1em}
 \end{figure}
 
 \subsection{Formula Language and Evaluation}
@@ -622,26 +624,94 @@ The counter example shown in Fig.~\ref{fig:counter} illustrates the interaction 
 and programming by demonstration. To implement a counter, the Increment and Decrement buttons
 wrap the current counter value in a formula that adds or subtracts 1.
 
+\begin{figure}[t]
+\centering
+\vspace{-0.5em}
+\begin{minipage}{0.6\columnwidth}
+  ~\\[1em]
+  \includegraphics[width=0.9\columnwidth,clip,trim=0cm 14cm 21cm 0cm]{fig/eval.pdf}
+  \end{minipage}%
+  \begin{minipage}{0.4\columnwidth}
+    \caption{Evaluated edits (A, B) are kept at the top of the history. When they conflict with
+    ordinary edits (4), evaluated edits are removed (A).}
+    \label{fig:eval}
+  \end{minipage}
+  \vspace{-1em}
+\end{figure}
+
 \subsection{Incremental Recomputation}
 \label{sec:impl-incremental}
 
-xx
+As illustrated in Fig.~\ref{fig:incremental}, Denicek supports incremental re-computa\-tion.
+In the example, the cost of speaker travel depends on the number of speakers, but the cost
+of refreshments depends only on two constants. Edit that adds a speaker only invalidates the
+former.
 
-\newpage
+The evaluation mechanism is illustrated in Fig.~\ref{fig:eval}. When the formulas are evaluated,
+Denicek generates \emph{evaluated edits} that are appended to the top of the history.
+When subsequent edits are made, they are appended after all non-evaluated edits and the
+evaluated edits are pushed through the newly added edits. If the edits conflict (according to
+Denicek's conflict detection), affected evaluated edits and edits that depend on them are dropped.
+
+\keyideabox{\faRefresh}{Live Programming}{In the exploratory prototype, Denicek does not
+automatically evaluate formulas. This makes it easier to see and understand the evaluation
+mechanism, but a realistic system based on the substrate would likely automatically evaluate
+formulas to provide a live programming experience \cite{petricek-2020-foundations,rein-2019-live}.}
 
 \begin{figure}[t]
   \includegraphics[width=1\columnwidth,clip,trim=0.1cm 5cm 5.1cm 0cm]{fig/incremental.pdf}
-  \vspace{-1em}
+  \vspace{-0.5em}
   \caption{Budget calculation based on the number of speakers (1) and the result (2). When speaker
   is added (3), only the results of affected formulas are invalidated.}
   \label{fig:incremental}
-  \vspace{-0.5em}
+\end{figure}
+
+\begin{figure}[t]
+\includegraphics[width=0.9\columnwidth,clip,trim=0cm 9.5cm 8cm 0cm]{fig/coevolution.pdf}
+\caption{When an edit changes the document structure, references in formulas are updated accordingly.}
+\label{fig:coevolution}
+\end{figure}
+
+\subsection{Schema Code Co-evolution}
+\label{sec:impl-schema}
+
+The problem of schema evolution is that, when the schema used in a database or a program evolves,
+data and code that depend on the schema need to evolve correspondingly. The problem is well-known
+in database systems \cite{rahm-2006-schema} and has recently been studied in the context of
+programming systems \cite{edwards-2025-schema}.
+
+Although Denicek does not explicitly track document structure (schema or type), all documents
+have an implicit structure and some of the edits transform the document structure. As
+discussed in \S\ref{sec:system-ops}, Denicek automatically updates reference nodes in the
+document in this case. This enables a form of schema code co-evolution \cite{edwards-2025-schema}.
+The formulas embedded in Denicek documents use reference nodes to refer to both data sources
+(in the document) and the results of other computations. Consequently, if the document structure
+changes, the formulas are automatically updated.
+
+Consider the example in Fig.~\ref{fig:coevolution}. The original list {\small\Verb_<ul>_} is
+turned into {\small\Verb_<tbody>_} using \ident{UpdateTag} and wrapped inside {\small\Verb_<table>_}
+with a field {\small\Verb_body_} using \ident{WrapRecord}. For the latter, Denicek updates the
+reference accordingly turning the original {\small\Verb_/speaker_} reference in the formula
+into {\small\Verb_/speaker/body_}.
+
+As noted earier, evaluated edits transform the formula structure (wrapping it in the
+{\small\Verb_<x-evaluated>_} record). However, they are marked as non-structural and so
+references to formulas are not transformed when the formula is evaluated (otherwise, references
+to evaluated formulas would not point to the evaluated result, but to the original unevaluated
+definition).
+
+
+\begin{figure}[t]
+\includegraphics[width=1\columnwidth,clip,trim=0cm 8cm 5cm 0cm]{fig/provenance.pdf}
+\vspace{-1em}
+\caption{Using provenance tracking to highlight document parts that contributed to the
+calculation of refreshments costs (1), travel costs (2) and all costs (3).}
+\label{fig:provenance}
+\vspace{-0.5em}
 \end{figure}
 
 \newpage
 
-\subsection{Schema code co-evolution}
-\label{sec:impl-schema}
 
 \subsection{Provenance tracking}
 \label{sec:impl-provenance}
