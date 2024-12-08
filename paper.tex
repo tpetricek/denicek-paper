@@ -5,7 +5,7 @@
 % TODO: Also, what exactly goes into the list?
 %
 %
-\documentclass[sigconf]{acmart}
+\documentclass[sigconf,anonymous]{acmart}
 %\documentclass[sigconf,review,anonymous]{acmart}
 
 \usepackage{hhline,xcolor,colortbl}
@@ -34,19 +34,17 @@
 \setlist{leftmargin=1.5em}
 \setlength\itemsep{0.5em}
 
-\setcopyright{acmlicensed}
-\copyrightyear{2018}
-\acmYear{2018}
-\acmDOI{XXXXXXX.XXXXXXX}
+\setcopyright{none}
+\copyrightyear{2025}
+\acmYear{2025}
+\acmDOI{XXXX.XXXX}
 
-\acmConference[Conference acronym 'XX]{Make sure to enter the correct
-  conference title from your rights confirmation emai}{June 03--05,
-  2018}{Woodstock, NY}
+\acmConference[Conference acronym 'XX]{}{June 03--05, 2018}{Woodstock, NY}
 \acmISBN{978-1-4503-XXXX-X/18/06}
 
 \begin{document}
-\title[Denicek: Computational Substrate for Concrete, Collaborative, Interactive
-  Programming]{{\scshape Denicek}: Computational Substrate for Concrete, \\Collaborative, Interactive Programming}
+\title[Denicek: Computational Substrate for Document-Oriented End-User
+  Programming]{{\scshape Denicek}: Computational Substrate for\\ Document-Oriented End-User Programming}
 
 \author{Tomas Petricek}
 \email{tomas@tomasp.net}
@@ -58,27 +56,28 @@
 }
 
 \begin{abstract}
-Research on interactive programming systems gave rise to a range of compelling programming
-experiences, including local-first collaborative editing, programming by demonstration,
-incremental recomputation, schema and code co-evolution, provenance tracking and managed copy and
-paste. Those experiences advance the state of the art of programming, but they are hard to
-implement on the basis of existing programming languages and systems.
+Human-computer interaction research gave rise to a wide range of compelling programming experiences,
+including local-first collaborative editing, programming by demonstration, incremental
+recomputation, schema change control, end-user debugging and concrete programming.
+Those experiences advance the state of the art of end-user programming, but they are hard to
+implement on the basis of established programming languages and systems.
 
 We contribute Denicek, a computational substrate that reduces the complexity of
 implementing the aforementioned programming experiences. Denicek represents a program as a series of edits
-that construct and transform a document consisting of data and formulas. Denicek provides two
-primitive operations on series of edits, merging and conflict checking, that form the backbone
-of the implementation of a range of programming experiences.
+that construct and transform a document consisting of data and formulas. Denicek provides three
+primitive operations on series of edits, application, merging of histories and conflict checking.
+We show that the three operations form the backbone of an easy implementation of a range of
+programming experiences.
 
 We discuss the architecture of Denicek, document key design considerations and elaborate
 the implementation of the programming experiences listed above. To evaluate the proposed
 architecture, we use Denicek as the basis of a simple innovative data exploration environment.
-The case study shows that the Denicek computational substrate provides an appealign basis for the
-design of richer and more accessible interactive programming systems.
+The case study shows that the Denicek computational substrate provides an appealing basis for the
+design of rich, interactive end-user programming systems.
 \end{abstract}
 
-\keywords{Programming Systems, Computational Substrate, Programming by Demonstration,
-  Local-First Software}
+\keywords{Programming Systems, Computational Substrate, End-User Programming,
+  Programming by Demonstration, Local-First Software}
 
 %\begin{teaserfigure}
 %  \includegraphics[width=\textwidth]{sampleteaser}
@@ -89,50 +88,68 @@ design of richer and more accessible interactive programming systems.
 %\end{teaserfigure}
 \maketitle
 
-\newpage
-
 \section{Introduction}
 
 A computational substrate defines the basic structures using which programs are constructed, how
 the progam state is represented and how it is changed \cite{jakubovic-2022-ladder}. The choice of
-a substrate affects what programming experiences can be readily supported. For example,
+a substrate affects what programming experiences can be readily supported by a system. For example,
 object-oriented programming has been historically linked to graphical user
 interfaces~\cite{kay-1993-smalltalk}, while using lists as the basic substrate enabled Lisp to become
-a ``language laboratory'' \cite{steele-1993-lisp}.
+a language laboratory \cite{steele-1993-lisp}.
 
 In principle, any programming experience can be developed on top of any computational
-substrate. However, a program representation and operations for working with programs provided by
-a suitable substrate can eliminate much of the complexity of implementing an interesting
-programming experience. For example, the reflective capabilities of Smalltalk make it easy
-to provide rich debugging tools \cite{rauch-2019-babylonian} that would be difficult to provide
+substrate. However, a suitable program representation and operations for working with programs
+provided by the substrate can eliminate much of the complexity of implementing interesting
+programming experiences. For example, the reflective capabilities of Smalltalk make it easy
+to provide rich debugging tools \cite{rauch-2019-babylonian} that are difficult to provide
 for C/C++~\cite{kell-2024-debugging}.
 
 \subsubsection*{Programming Experiences}
 
-In this paper, we ask what would be the ideal programming substrate
-for making programming easier, collaborative and more transparent? We seek a programming
-substrate that makes it easy to develop programming experiences such as:
+What would be the ideal programming substrate for rich, interactive end-user programming systems?
+In this paper, we aim to design a programming substrate that makes it easy to develop a range of
+programming experiences \cite{myers-2006-eup}:
 
 \begin{itemize}
-\item \emph{Programming by demonstration} --
-  Allow non-programmers to construct simple programs by performing examples of the expected behaviour. \cite{leiva-2021-rapido,cypher-1993-pbd}.
-\item \emph{Local-first collaboration} --
-  Multiple users should be able to use and modify a single program, preferrably without requiring a central server. \cite{kleppmann-2019-local}
-\item \emph{Provenance tracking} --
-  The execution of the program should leave an understandable trace that lets the user understand why program resulted in a particular result.
-\item \emph{Schema evolution [extra-ish]} --
-  When the user evolves the structure of the program, data and code should co-evolve automatically to match the new structure.
-\item \emph{Notational freedom [extra-ish?]} --
-  Allow users to adapt the program using a notation that suits them and is appropriate for the programming task at hand. [Joel]
-\item \emph{Concrete programming [extra?]} --
-  It should be possible to reuse parts of program or program logic without constructing abstractions, for example by managed copy \& paste.\cite{edwards-2006-copypaste,edwards-2022-copypaste}
+\item \emph{Programming by Demonstration.} Allow users to construct simple programs by
+  demonstrating the steps of the expected behavior using concrete examples~\cite{leiva-2021-rapido,cypher-1993-pbd}.
+\item \emph{Local-First Collaboration.} Multiple users should be able to concurrently
+  modify a single document and merge their changes, preferrably without requiring a central server~\cite{kleppmann-2019-local,litt-2022-peritext}.
+\item \emph{End-User Debugging.} The user should be able to ask provenance questions~\cite{cheney-2009-provenance} --
+  why a computation resulted in a particular value and what inputs contributed to the result \cite{ko-2009-whyline}.
+\item \emph{Schema Change Control.} When the user evolves the structure of the document, affected
+  data and formulas should automatically co-evolve to match the new structure~\cite{litt-2020-cambria,edwards-2025-schema}.
+\item \emph{Concrete Programming.} It should be possible to reuse parts of program logic, or formulas,
+  without introducing abstractions, that is, program against concrete values \cite{edwards-2006-copypaste,edwards-2022-copypaste}.
 \end{itemize}
 
 \subsubsection*{Methodology}
+We use a two-stage research methodology. In the first stage, we identify a number
+of \emph{formative examples} -- simple programming tasks, drawn from literature, that manifest one or
+more of the desired programming experiences. Using those examples, we co-design the Denicek substrate
+and Webnicek (Section~\ref{sec:walk}), a simple web-based end-user programming environment based on the substrate.
+Although Webnicek can be used to complete end-user programming tasks, it is optimized for
+testing the underlying substrate rather than for usability.
 
-citizen programmers?
+In the second stage, we use the Denicek substrate as the basis of Datnicek, an end-user data
+exploration environment inspired by existing research systems\cite{kandel-2011-wrangler,drossos-2020-wrex}.
+We use the second stage to evaluate suitability of the Denicek substrate for the development of
+end-user programming systems and report the results of our evaluation (Section~\ref{sec:eval}).
 
-DESIGN PROCESS = formative examples + evaluation case study
+\subsubsection*{Substrate}
+how it works very roughly
+
+The coolest trick - almost everything (PBD, collaboration, evaluation) is done through merge!
+
+\subsubsection*{Contributions}
+one main thing - substrate - with other things
+
+
+\newpage
+
+% The problems include a counter app \cite{kiss-2014-7guis},
+% Todo list app and conference planning \cite{edwards-2025-schema}.
+
 
 ~
 
@@ -151,6 +168,9 @@ substrate as defined by \cite{jakubovic-2022-ladder}
 \cite{ricciotti-2017-imperative,perera-2012-functional}
 \cite{perera-2022-linked}
 
+
+% debugging
+% https://dl.acm.org/doi/pdf/10.1145/1133265.1133293
 
 % visualizations of results or execution
 % https://www.dcs.warwick.ac.uk/pvw04/p01.pdf
@@ -173,6 +193,7 @@ substrate as defined by \cite{jakubovic-2022-ladder}
 
 ~
 
+citizen programmers?
 
 
 TODO: Maybe do not talk about ``programs'' because this is more documents with formulas - not that fancy programs.
@@ -183,21 +204,17 @@ explain computational substrate
 JUSTIFICATION - this is a technical paper but belongs here!
 
 
-
-\subsection{Programming Experiences}
-list
-
-\subsection{Substrate}
-how it works very roughly
-
-The coolest trick - almost everything (PBD, collaboration, evaluation) is done through merge!
-
-\subsection{Contributions}
-one main thing - substrate - with other things
+METHODOLOGY (add somewhere belo) - table of "formative examples" and experiences they require?
++ SOURCE (literature?)
 
 
 \section{Background}
 all the references
+
+what is this about?
+end-user programming ? Cite % https://dl.acm.org/doi/pdf/10.1145/1125451.1125472
+but also Live, Interactive etc. - perhaps for a lack of better term use end-user
+(also notebooks)
 
 % ==================================================================================================
 
@@ -860,6 +877,10 @@ AppendFrom - hard to avoid! because recorded edits cannot know length
 \section{Case study}
 \label{sec:case}
 (data science environment)
+
+\section{Evaluation}
+\label{sec:eval}
+how well did Denicek work for implementing Datnicek
 
 \section{Discussion}
 \subsection{Heuristic evaluation}
