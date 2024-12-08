@@ -58,26 +58,27 @@
 }
 
 \begin{abstract}
-Research on interactive programming systems gave rise to a range of programming experiences,
-including programming by demonstration, local-first collaborative editing, %structure editing,
-schema and code co-evo\-lution, provenance tracking and incremental recomputation. Those
-experiences are compelling, but they are hard to implement on the basis of existing programming
-languages and systems.
+Research on interactive programming systems gave rise to a range of compelling programming
+experiences, including local-first collaborative editing, programming by demonstration,
+incremental recomputation, schema and code co-evolution, provenance tracking and managed copy and
+paste. Those experiences advance the state of the art of programming, but they are hard to
+implement on the basis of existing programming languages and systems.
 
-We contribute the Denicek computational substrate. Denicek represents a program as a series of edits
-that construct or transform a document consisting of data and formulas. Denicek provides two
+We contribute Denicek, a computational substrate that reduces the complexity of
+implementing the aforementioned programming experiences. Denicek represents a program as a series of edits
+that construct and transform a document consisting of data and formulas. Denicek provides two
 primitive operations on series of edits, merging and conflict checking, that form the backbone
-of the implementation of the aforementioned programming experiences.
+of the implementation of a range of programming experiences.
 
 We discuss the architecture of Denicek, document key design considerations and elaborate
 the implementation of the programming experiences listed above. To evaluate the proposed
 architecture, we use Denicek as the basis of a simple innovative data exploration environment.
-The case study shows that the Denicek computational substrate provides a pathway to the design
-of richer and more accessible interactive programming systems.
+The case study shows that the Denicek computational substrate provides an appealign basis for the
+design of richer and more accessible interactive programming systems.
 \end{abstract}
 
-\keywords{Do, Not, Us, This, Code, Put, the, Correct, Terms, for,
-  Your, Paper}
+\keywords{Programming Systems, Computational Substrate, Programming by Demonstration,
+  Local-First Software}
 
 %\begin{teaserfigure}
 %  \includegraphics[width=\textwidth]{sampleteaser}
@@ -92,13 +93,87 @@ of richer and more accessible interactive programming systems.
 
 \section{Introduction}
 
-Medium is the message
+A computational substrate defines the basic structures using which programs are constructed, how
+the progam state is represented and how it is changed \cite{jakubovic-2022-ladder}. The choice of
+a substrate affects what programming experiences can be readily supported. For example,
+object-oriented programming has been historically linked to graphical user
+interfaces~\cite{kay-1993-smalltalk}, while using lists as the basic substrate enabled Lisp to become
+a ``language laboratory'' \cite{steele-1993-lisp}.
+
+In principle, any programming experience can be developed on top of any computational
+substrate. However, a program representation and operations for working with programs provided by
+a suitable substrate can eliminate much of the complexity of implementing an interesting
+programming experience. For example, the reflective capabilities of Smalltalk make it easy
+to provide rich debugging tools \cite{rauch-2019-babylonian} that would be difficult to provide
+for C/C++~\cite{kell-2024-debugging}.
+
+\subsubsection*{Programming Experiences}
+
+In this paper, we ask what would be the ideal programming substrate
+for making programming easier, collaborative and more transparent? We seek a programming
+substrate that makes it easy to develop programming experiences such as:
+
+\begin{itemize}
+\item \emph{Programming by demonstration} --
+  Allow non-programmers to construct simple programs by performing examples of the expected behaviour. \cite{leiva-2021-rapido,cypher-1993-pbd}.
+\item \emph{Local-first collaboration} --
+  Multiple users should be able to use and modify a single program, preferrably without requiring a central server. \cite{kleppmann-2019-local}
+\item \emph{Provenance tracking} --
+  The execution of the program should leave an understandable trace that lets the user understand why program resulted in a particular result.
+\item \emph{Schema evolution [extra-ish]} --
+  When the user evolves the structure of the program, data and code should co-evolve automatically to match the new structure.
+\item \emph{Notational freedom [extra-ish?]} --
+  Allow users to adapt the program using a notation that suits them and is appropriate for the programming task at hand. [Joel]
+\item \emph{Concrete programming [extra?]} --
+  It should be possible to reuse parts of program or program logic without constructing abstractions, for example by managed copy \& paste.\cite{edwards-2006-copypaste,edwards-2022-copypaste}
+\end{itemize}
+
+\subsubsection*{Methodology}
+
+citizen programmers?
+
+DESIGN PROCESS = formative examples + evaluation case study
 
 ~
 
 ~
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+substrate as defined by \cite{jakubovic-2022-ladder}
+
+% pbd
+\cite{leiva-2021-rapido,cypher-1993-pbd}
+\cite{chen-2023-miwa}
+
+% lcoal first
+\cite{kleppmann-2019-local,klokmose-2024-mywebstrates}
+% provenance
+\cite{ko-2004-whyline,ko-2009-whyline,krebs-2023-probelog}
+\cite{ricciotti-2017-imperative,perera-2012-functional}
+\cite{perera-2022-linked}
+
+
+% visualizations of results or execution
+% https://www.dcs.warwick.ac.uk/pvw04/p01.pdf
+% https://dl.acm.org/doi/10.1145/3313831.3376494
+
+% previews - livelits
+
+% Schema evolution
+% our paper; see https://openproceedings.org/2023/conf/edbt/paper-160.pdf - good refs in 2.2
+
+% https://x.com/jonathoda/status/1185888711210389504
+
+% also cool: https://arxiv.org/pdf/2303.06777
+
+% Hazel family of things
+% structure editing - sandblocks
+
+
+~
+
+~
+
+
 
 TODO: Maybe do not talk about ``programs'' because this is more documents with formulas - not that fancy programs.
 Computational documents?
@@ -107,7 +182,6 @@ explain computational substrate
 
 JUSTIFICATION - this is a technical paper but belongs here!
 
-DESIGN PROCESS = formative examples + evaluation case study
 
 
 \subsection{Programming Experiences}
@@ -730,6 +804,44 @@ calculation of refreshments costs (1), travel costs (2) and all costs (3).}
 \section{Design Discussion}
 \label{sec:discuss}
 
+PRINCIPLES
+* merging of edits should not require looking at current document (non-computationality)
+* two ways of pushing edits should be equivalent, i.e.
+
+push e1 e2 e3 over b1 b2 b3 can be done via
+  push e1 over b1 = e1'; over b2 = e1''; over b3 = e1'''
+  then push e2, then push e3
+or
+  push e1, e2, e3 over b1, then over b2, then over b3
+(implies that no "extra" edits can be appended later)
+
+USE MRDTs for list order!
+
+DIFFICULTIRES
+* if you are not able to refer to newly added items, you cannot reasonably do PBD
+  => need non-numerical indices
+
+how to transform appends?
+* apply to added? (does not work for copy)
+* copy to doc and edit? (good because edits are isolated from other things, but messy code!)
+(if we edit in doc, it works and we also do not need indices for ListAppend)
+* keep nested edits for append op? also does not work, because of the tricky case
+
+Tricky case is:
+- add new list item
+- then set its fields
+  (this breaks things because if we push "add" through structural edits, they will not affect the new values added in the second step)
+
+TODO: Delete ListAppend
+
+// cf shadow dom v reactu
+// something like google forms!
+% https://gowthamk.github.io/docs/mrdt.pdf page 11
+
+
+TAG selectors - sound nice, but they break
+(you cannot tell if two selectors overlap e.g. when there is index >< tag)
+
 save graph of edits rather than list
 (would make replaying of saved edits easier because the histhash never changes)
 
@@ -789,12 +901,15 @@ discussion and limitations \\
 
 \newpage
 
-\section{Introduction}
+\section{Introduction old}
 
 The computational substrate using which software is built determines the capabilities that the
 software can provide. An imperative substrate that views programs as instructions modifying
 bytes in memory makes it almost impossible to allow end-user inspection or reprogramming of
 running software.
+
+substrate as defined by \cite{jakubovic-2022-ladder}
+
 
 A computational substrate defines what software is built from. This may be objects as in
 Smalltalk, lists as in Lisp, or memory with data and code as in UNIX/C.
@@ -810,6 +925,9 @@ the more difficult it will be to provide the experience and combine it with the 
 system and other programming experiences developed for the system. (One can implement support
 for programming-by-demonstration using C/C++, for example as part of a game scripting engine,
 but it will not work with the rest of the ordinary C/C++ ecosystem.)
+
+
+Medium is the message
 
 \subsection{Substrate}
 
@@ -1029,6 +1147,94 @@ REMAINING IMPLEMENTATION TODOs:
 
 \newpage
 ~
+
+
+append /speakers \#hamilton <li>
+addfld /speakers/\#hamilton speaker "Margaret Hamilton, hamilton@mit.edu"
+
+>>> wraprec /speakers body <table>
+
+[update selectors - add /body]
+append /speakers/body \#hamilton <li>
+[dtto]
+addfld /speakers/body\#hamilton speaker "Margaret Hamilton, hamilton@mit.edu"
+
+>>> retag /spekers/body <tbody>
+
+[na - out of scope]
+
+>>> retag /speakers/body/* <tr>
+
+[apply to added - update node (* => \#hamilton scoping)]
+append /speakers/body \#hamilton <li>
++ retag /speakers/body/\#hamilton <tr>
+[na - out of scope]
+addfld /speakers/body\#hamilton speaker "Margaret Hamilton, hamilton@mit.edu"
+
+>>> wraprec /speakers/body/*/speaker value <td>
+
+append /speakers/body \#hamilton <li>
++ retag /speakers/body/\#hamilton <tr>
++ wraprec /speakers/body/\#hamilton/speaker value <td> [ no op - it is not there]
+addfld /speakers/body/\#hamilton speaker "Margaret Hamilton, hamilton@mit.edu"
++ wraprec /speakers/body/\#hamilton/speaker value <td>
+
+>> updid /speakers/body/* speaker=>name
+
+append /speakers/body \#hamilton <li>
++ retag /speakers/body/\#hamilton <tr>
++ wraprec /speakers/body/\#hamilton/speaker value <td> [ no op - it is not there]
++ updid /speakers/body/\#hamilton speaker=>name [ no op - it is not there ]
+addfld /speakers/body \#hamilton speaker "Margaret Hamilton, hamilton@mit.edu"
++ wraprec /speakers/body/\#hamilton/speaker value <td>
++ updid /speakers/body/\#hamilton speaker=>name
+
+>>> addfld /speakers/body/* email ""
+
+append /speakers/body \#hamilton <li>
++ retag /speakers/body/\#hamilton <tr>
++ wraprec /speakers/body/\#hamilton/speaker value <td> [ no op - it is not there]
++ updid /speakers/body/\#hamilton speaker=>name [ no op - it is not there ]
++ addfld /speakers/body/\#hamilton email "" [ no op - it is not there ]
+addfld /speakers/body \#hamilton speaker "Margaret Hamilton, hamilton@mit.edu"
++ wraprec /speakers/body/\#hamilton/speaker value <td>
++ updid /speakers/body/\#hamilton speaker=>name
++ addfld /speakers/body/\#hamilton email ""
+
+...
+
+copy /speakers/body/*/name => /speakers/body/*/email
+edit /speakers/body/*/name (fn1)
+edit /speakers/body/*/email (fn2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \bibliographystyle{plain}
 \bibliography{paper}
