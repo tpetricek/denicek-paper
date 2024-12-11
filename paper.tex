@@ -5,7 +5,7 @@
 % TODO: Also, what exactly goes into the list?
 %
 %
-\documentclass[sigconf,anonymous]{acmart}
+\documentclass[sigconf,anonymous,screen]{acmart}
 %\documentclass[sigconf,review,anonymous]{acmart}
 
 \usepackage{hhline,xcolor,colortbl}
@@ -15,7 +15,7 @@
 \usepackage{tikz}
 \usepackage[breakable,theorems,skins]{tcolorbox}
 \usepackage{lettrine}
-
+\usepackage{hyperref}
 \newcommand{\ident}[1]{{\sffamily #1}}
 
 \newcommand*\circled[1]{\textnormal{\footnotesize\sffamily\bfseries\protect\tikz[baseline=(char.base)]{
@@ -56,22 +56,22 @@
 }
 
 \begin{abstract}
-Human-computer interaction research gave rise to a wide range of compelling programming experiences,
+User-centric programming research gave rise to a wide range of compelling programming experiences,
 including local-first collaborative editing, programming by demonstration, incremental
 recomputation, schema change control, end-user debugging and concrete programming.
 Those experiences advance the state of the art of end-user programming, but they are hard to
-implement on the basis of established programming languages and systems.
+implement on the basis of established programming language and system paradigms.
 
 We contribute Denicek, a computational substrate that reduces the complexity of
 implementing the aforementioned programming experiences. Denicek represents a program as a series of edits
 that construct and transform a document consisting of data and formulas. Denicek provides three
-primitive operations on series of edits, application, merging of histories and conflict checking.
-We show that the three operations form the backbone of an easy implementation of a range of
+primitive operations on series of edits, application of edits, merging of histories and conflict checking.
+We show that the three operations form the backbone of a direct implementation of a range of
 programming experiences.
 
 We discuss the architecture of Denicek, document key design considerations and elaborate
 the implementation of the programming experiences listed above. To evaluate the proposed
-architecture, we use Denicek as the basis of a simple innovative data exploration environment.
+architecture, we use Denicek as the basis of a simple end-user data exploration environment.
 The case study shows that the Denicek computational substrate provides an appealing basis for the
 design of rich, interactive end-user programming systems.
 \end{abstract}
@@ -95,14 +95,14 @@ the progam state is represented and how it is changed \cite{jakubovic-2022-ladde
 a substrate affects what programming experiences can be readily supported by a system. For example,
 object-oriented programming has been historically linked to graphical user
 interfaces~\cite{kay-1993-smalltalk}, while using lists as the basic substrate enabled Lisp to become
-a language laboratory \cite{steele-1993-lisp}.
+a ``language laboratory'' \cite{steele-1993-lisp}.
 
 In principle, any programming experience can be developed on top of any computational
 substrate. However, a suitable program representation and operations for working with programs
 provided by the substrate can eliminate much of the complexity of implementing interesting
 programming experiences. For example, the reflective capabilities of Smalltalk make it easy
 to provide rich debugging tools \cite{rauch-2019-babylonian} that are difficult to provide
-for C/C++~\cite{kell-2024-debugging}.
+for C/C++~\cite{kell-2018-unix,kell-2024-debugging}.
 
 \subsubsection*{Programming Experiences}
 
@@ -123,99 +123,125 @@ programming experiences \cite{myers-2006-eup}:
   without introducing abstractions, that is, program against concrete values \cite{edwards-2006-copypaste,edwards-2022-copypaste}.
 \end{itemize}
 
-\subsubsection*{Methodology}
-We use a two-stage research methodology. In the first stage, we identify a number
-of \emph{formative examples} -- simple programming tasks, drawn from literature, that manifest one or
-more of the desired programming experiences. Using those examples, we co-design the Denicek substrate
-and Webnicek (Section~\ref{sec:walk}), a simple web-based end-user programming environment based on the substrate.
-Although Webnicek can be used to complete end-user programming tasks, it is optimized for
-testing the underlying substrate rather than for usability.
+\subsubsection*{Two-Stage Methodology}
+Our approach is captured by the interior mode \cite{adam-2021-dsr} of design science research.
+To \emph{design} Denicek, we identify a number of \emph{formative examples} -- simple programming
+tasks that manifest one or more of the desired programming experiences.
+Using those examples, we co-design the Denicek substrate and Webnicek (Section~\ref{sec:walk}),
+a simple web-based end-user programming environment based on the substrate. Although Webnicek can
+be used to complete end-user programming tasks, it is optimized for testing the underlying
+substrate rather than for usability.
 
-In the second stage, we use the Denicek substrate as the basis of Datnicek, an end-user data
-exploration environment inspired by existing research systems\cite{kandel-2011-wrangler,drossos-2020-wrex}.
+To \emph{evaluate} Denicek, we use the substrate as the basis of Datnicek, an end-user data
+exploration environment inspired by existing systems~\cite{kandel-2011-wrangler,drossos-2020-wrex}.
 We use the second stage to evaluate suitability of the Denicek substrate for the development of
 end-user programming systems and report the results of our evaluation (Section~\ref{sec:eval}).
 
 \subsubsection*{Substrate}
-how it works very roughly
+The Denicek substrate brings together two central design ideas. First, it represents programs as
+document trees consisting of nodes that can represent data, formulas, evaluated results, as well as
+static content. Second, Denicek does not store the document tree itself, but instead, it maintains
+a sequence of edit operations through which the tree was constructed and transformed.
 
-The coolest trick - almost everything (PBD, collaboration, evaluation) is done through merge!
+The substrate then provides three primitive operations for working with sequences of edits.
+First, it can apply a series of edits to reconstruct a document. Second, it can merge two
+diverging edit histories. Finally, it can detect conflicts when merging histories and, for
+example, remove conflicting edits from one branch.
+
+The key insight that we present in this paper is that many of the programming experiences can
+be obtained by leveraging the uniform document representation alongside with a suitable combination
+of the three primitive operations.
+
+Changing data and formulas is done using the same primitive edit operations to
+manipulate the document structure. A user-interface may provide a specialized editor, but still
+trigger the pritive edits behind the scenes. However, interacting with elements in the document,
+such as a entering text in a textbox, also generates a document edit that can be merged or checked
+for conflicts (\S\ref{sec:impl-interaction}).
+
+As we will see, past edits that demonstrate an operation done to the
+document can be recorded, allowing programming by demonstration (\S\ref{sec:impl-pbd}).  Replaying
+such recorded edits is implemented using the merging operation, which means that recorded operations
+continue working even if the document structure later changes. Moreover, structural changes to the
+document can be done independently and then merged (\S\ref{sec:impl-collab}). Evaluation of formulas
+also generates document edits (\S\ref{sec:impl-eval}). If the evaluated edits conflict with manual
+edits done later by the user, the evaluated edits are removed, implementing an incremental
+recomputation (\S\ref{sec:impl-incremental}).
 
 \subsubsection*{Contributions}
-one main thing - substrate - with other things
+The structure and contributions of this paper are:
+
+\begin{itemize}
+\item We present the Denicek substrate (\S\ref{sec:system}) and provide a detailed description of its
+  document representation, edit operations and the key three operations.
+\item We explain how a wide range of end-user programming experiences can be readily implemented using
+  the substrate (\S\ref{sec:impl}) in the context of a simple web-based prototype (Webnicek).
+\item We document important design decisions and alternatives (\S\ref{sec:discuss}). The analysis
+  shows that the desired functionality requires a careful choice among interconnected design options.
+\item We develop an end-user data exploration system (Datnicek) on top of Denicek (\S\ref{sec:case})
+  and evaluate the extent to which the Denicek substrate enables such development (\S\ref{sec:eval}).
+\end{itemize}
+
+\noindent
+To enable others build on top of Denicek, we share our compact and documented
+source code at: \url{https://github.com/d3sprog/denicek}
 
 
-\newpage
+\section{Background}
+What is this about? end-user programming \cite{myers-2006-eup}
+but also programming systems \cite{jakubovic-2023-techdims},
+Live \cite{rein-2019-live}, Interactive etc. - perhaps for a lack of better term use end-user
+(also notebooks)
 
-% The problems include a counter app \cite{kiss-2014-7guis},
-% Todo list app and conference planning \cite{edwards-2025-schema}.
+explain computational substrate
+Substrate defined by \cite{jakubovic-2022-ladder}
+
+citizen programmers? Maybe do not talk about ``programs'' because this is more documents with
+formulas - not that fancy programs. Computational documents?
 
 
-~
 
-~
-
-substrate as defined by \cite{jakubovic-2022-ladder}
-
-% pbd
+programming by demonstration
 \cite{leiva-2021-rapido,cypher-1993-pbd}
 \cite{chen-2023-miwa}
 
-% lcoal first
+local first
 \cite{kleppmann-2019-local,klokmose-2024-mywebstrates}
-% provenance
+
+provenance/debugging
 \cite{ko-2004-whyline,ko-2009-whyline,krebs-2023-probelog}
 \cite{ricciotti-2017-imperative,perera-2012-functional}
 \cite{perera-2022-linked}
 
+end-user debugging
+\cite{kissinger-2006-debugging}
 
-% debugging
-% https://dl.acm.org/doi/pdf/10.1145/1133265.1133293
+visualizing results of execution
+projection boxes \cite{lerner-2020-boxes}
 
-% visualizations of results or execution
-% https://www.dcs.warwick.ac.uk/pvw04/p01.pdf
-% https://dl.acm.org/doi/10.1145/3313831.3376494
+livelits (provide editors)
+\cite{omar-2021-livelits}
 
-% previews - livelits
+edit calculus (based on tree navigation though)
+\cite{omar-2017-hazelnut}
 
-% Schema evolution
+structure editing see \cite{beckman-2023-sandblocks}
+
+Schema evolution
 % our paper; see https://openproceedings.org/2023/conf/edbt/paper-160.pdf - good refs in 2.2
 
+Also on substrate see
 % https://x.com/jonathoda/status/1185888711210389504
 
 % also cool: https://arxiv.org/pdf/2303.06777
 
-% Hazel family of things
-% structure editing - sandblocks
 
 
 ~
 
 ~
 
-citizen programmers?
-
-
-TODO: Maybe do not talk about ``programs'' because this is more documents with formulas - not that fancy programs.
-Computational documents?
-
-explain computational substrate
-
-JUSTIFICATION - this is a technical paper but belongs here!
-
-
-METHODOLOGY (add somewhere belo) - table of "formative examples" and experiences they require?
-+ SOURCE (literature?)
-
-
-\section{Background}
-all the references
-
-what is this about?
-end-user programming ? Cite % https://dl.acm.org/doi/pdf/10.1145/1125451.1125472
-but also Live, Interactive etc. - perhaps for a lack of better term use end-user
-(also notebooks)
-
+\newpage
+~
 % ==================================================================================================
 
 
@@ -312,8 +338,9 @@ trace for provenance analysis (\S\ref{sec:impl-provenance}).}
 \sffamily\small{\bfseries Selector} & {\sffamily\footnotesize Notation} & \\[0.2em]
 \hline
 &&\\[-1em]
+\seltablecol{\Verb|..|}{Parent}{Refers to a parent of a node}
 \seltablecol{\Verb|field|}{Field}{Refers to record field of a given name}
-\seltablecol{\Verb|number|}{Index}{Refers to list element at a given index}
+\seltablecol{\Verb|\#index|}{Index}{Refers to list element at a given index}
 \seltablecol{\Verb|*|}{Any}{Refers to all children of a list node}
 \hline
 \end{tabular}
@@ -328,12 +355,12 @@ trace for provenance analysis (\S\ref{sec:impl-provenance}).}
 & \sffamily\small{\bfseries Kind}\;\,\textit{\footnotesize arguments} \\[0.2em]
 \hline
 &\\[-1em]
-\ndtablecol{\faListUl}{List}{tag, child$_1$, $\ldots$, child$_n$}
-  {Ordered list of nodes, addressable by index. Renders as \Verb|<tag>| with children}
+\ndtablecol{\faListUl}{List}{tag, index$_1$, child$_1$, $\ldots$, index$_n$, child$_n$}
+  {Ordered list of nodes, addressable by \textit{index}. Renders as \Verb|<tag>| with children.}
 \ndtablecol{\faFileO}{Record}{tag, field$_1$, child$_1$, $\ldots$, field$_n$, child$_n$}
-  {Record with children addressable by \textit{field} name. Renders as \Verb|<tag>|.}
+  {Record with children addressable by \textit{field}. Renders as \Verb|<tag>| with children.}
 \ndtablecol{\faExternalLink}{Reference}{selectors}
-  {Reference to another document location. Displays the \Verb|/selectors| as a link.}
+  {Reference to another document location. Displays the \Verb|selectors| as a link.}
 \ndtablecol{\faFont}{Primitivie}{string \textnormal{or} number}
   {Numerical or textual primitive value. Renders as an HTML text node.}
 \hline
@@ -350,21 +377,22 @@ trace for provenance analysis (\S\ref{sec:impl-provenance}).}
 \label{sec:system}
 Denicek represents programs as sequences of edits that construct and transform a computational
 document. In this section, we describe the structure of documents and edits, as well as the
-operations that form the backbone of the system and are used to implement a wide range of
-programming experiences, discussed in \S\ref{sec:impl}.
+operations that form the backbone of the system and are used to implement a range of
+end-user programming experiences (\S\ref{sec:impl}).
 
 \subsection{Selectors, Documents and Edits}
 A computational document is a tree, consisting of four kinds of nodes (Fig.~\ref{fig:doc}).
-Denicek follows the \emph{naive realism}~\cite{disessa-1986-boxer} principle and makes the entire
-document visible to the user, although parts can be collapsible or hidden using CSS.
-Records and lists are rendered as HTML elements of a specified tag with children becoming child
-elements. Field names are hidden in the rendered document.
-
-References to document location are used in both document itself (reference nodes) and in edits
-(target of the edit). They are represented as a sequence of selectors (Fig.~\ref{fig:doc}).
+References to document locations can be relative or absolute. Both kinds can appear in a
+document (reference nodes) and absolute references are used in edits (to denote a target node).
+A reference is represented as a sequence of selectors (Fig.~\ref{fig:doc}).
 The document model assumes that lists are homogeneous and records heterogeneous, and so the
 \ident{Any} selector makes it possible to refer to all children of a list, but there is no
 way to refer to all children of a record.
+%
+Note that Denicek does not use implicit numerical indices for lists and indices of new items have
+to be supplied explicitly. The design choice simplifies merging and is discussed later
+(\S\ref{sec:discuss}).
+
 
 \subsubsection*{Document Edits}
 The supported document edits and their behavior are listed in Fig.~\ref{fig:edits}. All edits
@@ -562,6 +590,11 @@ copying the source node to a new temporary location, transforming it there and t
 
 \section{Programming Experiences Implementation}
 \label{sec:impl}
+
+Denicek follows the \emph{naive realism}~\cite{disessa-1986-boxer} principle and makes the entire
+document visible to the user, although parts can be collapsible or hidden using CSS.
+
+[webnicek?]
 
 The key claim of this paper is that the computational substrate described in the previous
 section makes it easy to support a range of experiences that make programming more concrete,
@@ -821,6 +854,9 @@ calculation of refreshments costs (1), travel costs (2) and all costs (3).}
 \section{Design Discussion}
 \label{sec:discuss}
 
+LISTS vs RECORDS
+- are they really different? also MRDT idea - needed for both
+
 PRINCIPLES
 * merging of edits should not require looking at current document (non-computationality)
 * two ways of pushing edits should be equivalent, i.e.
@@ -874,6 +910,7 @@ unifying lists and records?
 AppendFrom - hard to avoid! because recorded edits cannot know length
 (but having -1 in index would break too)
 
+
 \section{Case study}
 \label{sec:case}
 (data science environment)
@@ -883,6 +920,15 @@ AppendFrom - hard to avoid! because recorded edits cannot know length
 how well did Denicek work for implementing Datnicek
 
 \section{Discussion}
+
+
+
+table of "formative examples" and experiences they require?
++ SOURCE (literature?) => Appendix
+
+The problems include a counter app \cite{kiss-2014-7guis},
+Todo list app and conference planning \cite{edwards-2025-schema}.
+
 \subsection{Heuristic evaluation}
 \subsection{Limitations}
 \subsection{Future work}
