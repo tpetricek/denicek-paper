@@ -495,70 +495,65 @@ can be provided as an additional mechanism on top of the underlying Denicek subs
 Denicek provides three primitive operations. A sequence of edits can be applied to a document, two
 sequences of edits can be merged and also checked for conflicts. Denicek identifies edit histories by
 a (git-like) hash, computed from the hash of the parent and the current edit. The hash is used to
-identify common shared part of the history during conflict checking and merging.
+identify a common shared part of the history during conflict checking and merging.
 
 \subsubsection*{Applying Edits}
-When applying an edit, Denicek locates the target node and transform it according to the
-edit. If the edit may affect references in the document (Fig~\ref{fig:edits}, below), Denicek
-updates matching references in the document according to the rules shown in Fig.~\ref{fig:updates}
-provided that the reference behavior is not set to disable the updating (which is required when
-the target reference contains the \ident{Index} selector). Although \ident{WrapList} has to specify
-the index to be used for the newly created list item, the references in the document are updated to
-use the \ident{All} selector. We assume wrapping introduces a homogeneous list and references
-pointing to individual items should thus be generalized to point to all list items.
+When applying an edit, Denicek locates the target node and transform it according to the edit. If
+the edit can affect references in the document (Fig~\ref{fig:edits}, below), Denicek updates
+matching references in the document according to the rules shown in Fig.~\ref{fig:updates} provided
+that the reference behavior of the edit is not set to disable the updating (this is required when
+the target reference contains the \ident{Index} selector). Reference update behavior for
+\ident{WrapRecord} and \ident{WrapList} differs in that the updated references as a result of
+\ident{WrapList} use the \ident{All} selector. Although \ident{WrapList} specifies the index to
+be used for the newly created list item, we assume that the operation introduces a homogeneous
+list and the new reference should point to all eventual list items.
 
 Also note that affected references in the document may be more specific than the edit
 target. For example, if we rename {\small\Verb|old|} to {\small\Verb|new|} at {\small\Verb|/foo/*|},
-a reference {\small\Verb|/foo/3/old|} will become {\small\Verb|/foo/3/new|}. If the document
-contains a reference that would be invalidated by the \ident{Copy} or \ident{DeleteField} edit,
-the edit is rejected.
-
-~
-
-~
-
-todo
-
-~
-
-~
-
-
-\subsubsection*{Conflict Detection}
-Two edits are conflicting if the order in which they are applied matters. This is the case if
-they target the same node, or if one targets a node that is nested inside the node targetted by
-the other. For edits with dependencies (\ident{AppendFrom} and \ident{Copy}), a conflict also
-occurs if the other edit modifies the dependency.
-
-Given two edit histories, one way to resolve conflicts is by removing (or marking as disabled) all
-edits from one of the histories that conflict with edits done by the other history. To do this,
-we first collect all targets of edits in the other history. We then iterate over edits from the first
-history to see if they depend on or target any of the affected targets. If an edit is removed,
-its target reference is added to the set of affected targets, so that other subsequent edits that depend
-on its original result are also removed.
+a reference {\small\Verb|/foo/3/old|} will become {\small\Verb|/foo/3/new|}. (A reference in the
+document cannot be more general, because such edit would have to contain the \ident{Index} selector
+and this would require setting reference behavior to not trigger reference update.) Finally,
+if the document contains a reference that would be invalidated by the \ident{Copy} or
+\ident{DeleteField} edit, the edit is rejected.
 
 \subsubsection*{Merging Edit Histories}
-Removing all conflicting edits is sometimes useful, but there are many cases where conflicting
-edits, in the above sense, can be reconcilliated. Say we have edit histories with
-the same common shared part $E, E_1$ and $E, E_2$. If the edits in $E_1$ and $E_2$ conflict,
-the results of applying $E, E_1, E_2$ and $E, E_2, E_1$ would be different. We can, however,
-construct edit histories $E_1'$ and $E_2'$ such that the results of applying $E, E_1, E_2'$ and
-$E, E_2, E_1'$ are the same.
+
+Merging edit histories is used when two users edit document independently, but also
+when replaying edits in programming by demonstration. The
+operation works on two edit histories, $E, E_1$ and $E, E_2$, that have a shared prefix $E$.
+The merging operation is akin to git rebase. It turns edits $E_2$ into edits $E_2'$ that
+can be reapplied on top of the other edit history, resulting in a new history $E, E_1, E_2'$.
+Note that the operation is not symmetric. If there are conflicts among the edits in $E_1$ and
+$E_2$, the result of $E, E_1, E_2'$ will differ from the result of $E, E_2, E_1'$.
+We return to this problem in the next section when discussing conflict detection.
 
 The key operation that enables such reconcilliation takes two individual edits that occurred
-indpendently, $e_1$ and $e_2$, and produces $e_1'$ that has the same logical effect as
-$e_1$, but can be applied after $e_2$. There are two aspects of such reconcilliation:
+indpendently, $e_1$ and $e_2$, and produces a sequence of edits $e_2', e_2'', \ldots$ that
+can be applied after $e_1$ and have the effect of $e_2$, modified to respect the effects of $e_1$.
+There are two aspects of such reconcilliation:
 
 \begin{enumerate}
-\item \emph{Apply Edit to Newly Added.} If $e_1$ is adding a new list item, but~$e_2$ is
-  changing elements of the target list, we apply the edit $e_2$ to the node added by $e_1$ so
-  that, when it is added after the transformation, the added node has the new structure.
+\item \emph{Apply to Newly Added.} If $e_2$ is adding new nodes to the document, but
+  $e_1$ modified the document through a selector that would also affect the new nodes added by $e_2$,
+  we need to apply the transformation represented by $e_1$ to the nodes newly added by $e_2$.
+  This is done by generating an additional edit, to be applied after $e_2$, that is based on
+  $e_1$ but targets only the newly added nodes (more details can be found in \S\ref{app:merge-apply-to-added}).
 
-\item \emph{Transform Matching References.} If $e_1$ targets a node that is inside a node
-  whose structure is changed by $e_2$, the target reference in $e_1$ is updated in a way that
-  corresponds to the new structure. That is, using the same rules, shown in Fig.~\ref{fig:updates},
-  that apply when transforming references inside a document.
+\item \emph{Transform Matching References.} If $e_2$ targets a node that is inside a node
+  whose structure is changed by $e_1$, the target reference in $e_2$ is updated in a way that
+  corresponds to the new structure. This is done using the rules shown in Fig.~\ref{fig:updates},
+  that apply when transforming references inside a document, although we also support the case
+  when $e1$ is \ident{Copy} (see \S\ref{app:merge-transform-refs} for details).
 \end{enumerate}
+
+
+
+
+no longer
+
+~
+
+~
 
 Applying an edit to a newly added node involves a number of cases. When the new node is added
 using \ident{Add} or \ident{Copy}, but the target location is modified, this is an unresolvable
@@ -573,6 +568,39 @@ aforementioned \emph{non-conditionality} of edits). Denicek reconcilliates such 
 copying the source node to a new temporary location, transforming it there and then using
 \ident{AppendFrom} from the temporary location.
 
+
+
+~
+
+~
+
+todo
+
+~
+
+~
+
+Removing all conflicting edits is sometimes useful, but there are many cases where conflicting
+edits, in the above sense, can be reconcilliated.
+
+If the edits in $E_1$ and $E_2$ conflict,
+the results of applying $E, E_1, E_2$ and $E, E_2, E_1$ would be different. We can, however,
+construct edit histories $E_1'$ and $E_2'$ such that the results of applying $E, E_1, E_2'$ and
+$E, E_2, E_1'$ are the same.
+
+
+\subsubsection*{Conflict Detection}
+Two edits are conflicting if the order in which they are applied matters. This is the case if
+they target the same node, or if one targets a node that is nested inside the node targetted by
+the other. For edits with dependencies (\ident{AppendFrom} and \ident{Copy}), a conflict also
+occurs if the other edit modifies the dependency.
+
+Given two edit histories, one way to resolve conflicts is by removing (or marking as disabled) all
+edits from one of the histories that conflict with edits done by the other history. To do this,
+we first collect all targets of edits in the other history. We then iterate over edits from the first
+history to see if they depend on or target any of the affected targets. If an edit is removed,
+its target reference is added to the set of affected targets, so that other subsequent edits that depend
+on its original result are also removed.
 
 % ==================================================================================================
 
@@ -956,6 +984,85 @@ PROPERTIES
 \bibliographystyle{plain}
 \bibliography{paper}
 
+
+\newpage
+~
+\newpage
+
+
+
+\appendix
+\section{Formative Examples}
+\label{app:examples}
+
+The design the Denicek substrate, we identified five formative examples shown in
+Fig.~\ref{fig:examples}. The examples range from established industry benchmarks
+(Todo and Counter apps) to problems posed as schema change challenges \cite{edwards-2025-schema}.
+The Denicek substrate then co-evolved with Webnicek, a simple web-based programming environment
+built (as directly as possible) on top of the substrate and was used to solve implement the
+formative examples.
+
+Many of the formative examples include a small programming challenge, such as adding
+user interface to add a new speaker, a new list item or modify the count. Our aim was for
+the substrate to enable solving  those through programming by demonstration.
+Programming by Demonstration is often used in data wrangling
+\cite{gulwani-2012-spreadsheet,drossos-2020-wrex,gulwani-2014-flash}. Our Hello World example
+is only a minimalistic illustration of such use, loosely inspired by earlier work \cite{miller-2001-simult}.
+
+\section{Merging Edit Histories}
+Recall that merging takes two edit histories, $E, E_1$ and $E, E_2$,
+transforms edits $E_2$ into $E_2'$ that can be reapplied on top of the first history
+resulting in $E, E_1, E_2'$. The key operation takes two individual edits, $e_1$ and $e_2$
+and produces a sequence of edits $e_2', e_2'', \ldots$ that can be applied after $e_1$,
+and combine the two edits. This section provides details about the two aspects of this operation.
+
+\subsection{Apply to Newly Added}
+\label{app:merge-apply-to-added}
+
+Assume that edits $e_1$ and $e_2$ occurred independently. We want to modify $e_2$ so that
+it can be placed after $e_1$. If the edit $e_2$ added new nodes to the document that the
+edit $e_1$ would affect, we generate an additional edit that apply the transformation of $e_1$
+to the newly added nodes (and only to those).
+
+The only edits that add new document nodes are \ident{Add}, \ident{Append}, \ident{Copy} and
+so we consider this case if the edit $e_2$ is one of those. If so, we check
+whether the target of $e_1$ is within the target of $e_2$, i.e., the list of selectors that
+forms the target of $e_2$ is a prefix of the list of selectors that forms the target of $e_1$.
+
+Along the way, we compute a \emph{more specific prefix}. If the target of $e_1$ contains
+the \ident{All} selector, it can be matched against a specific \ident{Index} selector in the
+target of $e_2$ (if the selector of $e_1$ is more specific than that of $e_2$, the targets
+are not matched). We then replace the original prefix in $e_1$ with the \emph{more specific prefix}
+that contains \ident{Index} selector in places where the original edit contained \ident{All}.
+This way, we obtain $e_1'$ which is a focused version of $e_1$ that applies only to the
+nodes newly added by $e_2$. The edit $e_2$ thus becomes a pair of edits $e_2, e_1'$.
+The final document will contain edits $e_1, e_2, e_1'$ -- that is, it will first apply the edit
+$e_1$ to nodes already in the document, then add new nodes and then apply the transformation
+represented by $e_1$ to the newly added nodes.
+
+\subsection{Transform Matching References}
+\label{app:merge-transform-refs}
+
+As above, assume that edits $e_1$ and $e_2$ occurred independently. We want to
+modify $e_2$ so that it can be placed after $e_1$. If $e_1$ is any of the three edits
+listed in Fig.~\ref{fig:updates} (\ident{RenameField}, \ident{WrapRecord}, \ident{WrapList}),
+we collect all references that appear inside $e_2$ (the target, the source of \ident{Copy}
+and any references occurring in the nodes added by \ident{Add} or \ident{Append}).
+If the target of $e_1$ is a prefix of any of those references, we update the references
+accordingly and obtain a new edit $e_2'$. Note that it would be an error to match specific
+\ident{Index} in $e_1$ with more general \ident{All} in $e_2$, but this cannot happen --
+reference updating is not done when the target of $e_1$ contains \ident{Index}.
+
+Now consider the case when $e_1$ is \ident{Copy} and the edit $e_2$ targets a node that is
+the source node of the copy operation (or any of its children). In this case, it is reasonable
+to require that the edit $e_2$ is applied to both the source and the target of the copy.
+(This is required by the refactoring done in the Conference Budget example.)
+We handle the case by creating a copy of $e_2$ with transformed selectors (target and, if $e_2$
+is also \ident{Copy}, also its source). To transform the selectors, we replace the prefix
+formed by the source of the \ident{Copy} by a new prefix, formed by the target target of
+the \ident{Copy}. We then add the new operation as $e_2'$ if at least one of its selectors
+was transformed (typically target, but possibly also source).
+
 \begin{figure}
 \newcommand{\extablecol}[5]{
 \small{\bfseries #1} #2\,\; --\,\; #3\\[-0.1em]
@@ -976,17 +1083,17 @@ PROPERTIES
   {Adding an item must correctly merge with independently added functionality to \\[-0.2em]\quad\footnotesize
    compute which items are completed and remove them based on a formula result.}
   {Programming by Demonstration, Local-First Collaboration, Incremental Recomputation}
-\extablecol{Conference list}{\cite{edwards-2025-schema}}
+\extablecol{Conference List}{\cite{edwards-2025-schema}}
   {Manage a list of invited conference speakers.}
   {Adding speakers to a list through an in-document user interface merges with \\[-0.2em]\quad\footnotesize
    refactoring that turns the list into a table and separates name from an email.}
   {Local-First Collaboration, Programming by Demonstration}
-\extablecol{Conference budget}{\cite{edwards-2025-schema}}
+\extablecol{Conference Budget}{\cite{edwards-2025-schema}}
   {Calculate budget based on a speaker list.}
   {References are updated  when the list is refactored. Only affected formulas\\[-0.2em]\quad\footnotesize
    are recomputed and the user can view elements on which the result depends.}
   {Local-First Collaboration, Incremental Recomputation, End-User Debugging}
-\extablecol{Hello world}{\cite{miller-2001-simult}}
+\extablecol{Hello World}{\cite{miller-2001-simult}}
   {Normalize the capitalization of two word messages.}
   {An operation to normalize the text in a list item can be recorded and applied to\\[-0.2em]\quad\footnotesize
    all list items or, alternatively, applied directly to all list items.}
@@ -994,26 +1101,11 @@ PROPERTIES
 \hline
 \end{tabular}
 
-\caption{Structure of selectors and document nodes}
+\caption{Formative examples used in Denicek design}
 \label{fig:examples}
 \vspace{-1em}
 \end{figure}
 
-\appendix
-\section{Formative Examples}
-\label{app:examples}
-
-hello world is only loosely
-
-table of "formative examples" and experiences they require?
-+ SOURCE (literature?) => Appendix
-
-The problems include a counter app \cite{kiss-2014-7guis},
-Todo list app and conference planning \cite{edwards-2025-schema}.
-
-\cite{osmani-2024-todomvc}
-
-xx
 \newpage
 xx
 
