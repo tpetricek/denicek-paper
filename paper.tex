@@ -16,7 +16,10 @@
 \usepackage[breakable,theorems,skins]{tcolorbox}
 \usepackage{lettrine}
 \usepackage{hyperref}
+
 \newcommand{\ident}[1]{{\sffamily #1}}
+\newcommand{\srcid}[1]{\textnormal{\sffamily #1}}
+\newcommand{\srckvd}[1]{\textnormal{\sffamily\bfseries #1}}
 
 \newcommand*\circled[1]{\textnormal{\footnotesize\sffamily\bfseries\protect\tikz[baseline=(char.base)]{
   \node[shape=circle,fill=black,text=white,draw,inner sep=1pt] (char) {#1};}}}
@@ -65,7 +68,7 @@ implement on the basis of established programming language and system paradigms.
 We contribute Denicek, a computational substrate that reduces the complexity of
 implementing the aforementioned programming experiences. Denicek represents a program as a series of edits
 that construct and transform a document consisting of data and formulas. Denicek provides three
-primitive operations on series of edits, application of edits, merging of histories and conflict checking.
+primitive operations on series of edits, application of edits, merging of histories and conflict resolution.
 We show that the three operations form the backbone of a direct implementation of a range of
 programming experiences.
 
@@ -87,6 +90,8 @@ design of rich, interactive end-user programming systems.
 %  \label{fig:teaser}
 %\end{teaserfigure}
 \maketitle
+
+% ==================================================================================================
 
 \section{Introduction}
 
@@ -187,6 +192,7 @@ The structure and contributions of this paper are:
 To enable others build on top of Denicek, we share our compact and documented
 source code at: \url{https://github.com/d3sprog/denicek}
 
+% ==================================================================================================
 
 \section{Background}
 What is this about? end-user programming \cite{myers-2006-eup}
@@ -240,6 +246,12 @@ Also on substrate see
 % also cool: https://arxiv.org/pdf/2303.06777
 
 
+Webnicek follows the \emph{naive realism}~\cite{disessa-1986-boxer} principle and makes the entire
+document visible to the user, although parts can be collapsible or hidden using CSS.
+
+
+Merging - c.f. mywebstrates - we need more than Automerge (cite)
+which has a bunch of pre-built structures
 
 ~
 
@@ -260,6 +272,8 @@ Also on substrate see
 \end{figure*}
 
 \newpage
+
+% ==================================================================================================
 
 \section{Walkthrough}
 \label{sec:walk}
@@ -382,38 +396,38 @@ document. In this section, we describe the structure of documents and edits, as 
 operations that form the backbone of the system and are used to implement the
 end-user programming experiences discussed in \S\ref{sec:impl}.
 
+% ==================================================================================================
+
 \subsection{Selectors, Documents and Edits}
 A computational document is a tree, consisting of four kinds of nodes (Fig.~\ref{fig:doc}).
 References to document locations can be relative or absolute. Both kinds can appear in a
-document (reference nodes) and absolute references are also used in edits (to denote a target~node).
+document (reference nodes); absolute references are used in edits (to denote a target~node).
 
 A reference is represented as a sequence of selectors (Fig.~\ref{fig:doc}).
 The document model assumes that lists are homogeneous and records heterogeneous, and so the
 \ident{Any} selector makes it possible to refer to all children of a list, but there is no
 way to refer to all children of a record. Note that Denicek does not use implicit numerical
-indices for lists. The index of a new item has to be supplied explicitly. The design choice
-simplifies merging and is discussed in \S\ref{sec:discuss}.
-
+indices for lists. The index of a new item has to be supplied explicitly. The reasoning behind
+this design choice is discussed in \S\ref{sec:discuss}.
 
 \subsubsection*{Document Edits}
 The supported document edits and their behavior are listed in Fig.~\ref{fig:edits}. All edits
 require \emph{target} to which they are applied. Target is an absolute reference not containing the
 \ident{Parent} selector. It can contain the \ident{Any} selector, in which case the edit is applied
-to multiple nodes simultaneously. Most edits can only be applied to target node(s) of a particular
-kind.
+to multiple nodes simultaneously. Most edits can only be applied to target node(s) of a specified
+kind. As discussed in \S\ref{sec:discuss}, both fields of a record and list elements are ordered
+and edits that add a new item take the index or field name of a previous node.
 
-The edits are designed to allow any transformation of a document
-through a series of steps whose effect can be tracked by the substrate. As illustrated earlier,
-Denicek updates references when document structure changes. Fig.~\ref{fig:edits} distinguishes
-between edits that keep existing references in a document unchanged (above) and edits that affect
-references (below).
+The edits allow any transformation of a document through a series of steps whose effect can be
+tracked by the substrate. As we saw, Denicek updates references when document structure changes.
+Fig.~\ref{fig:edits} distinguishes between edits that keep references in a document unchanged
+(above) and edits that affect references (below).
 
 Renaming a field or wrapping a node require corresponding change to references in the document
 (\S\ref{sec:system-ops}). When deleting a field to which there is a reference in the document, Denicek
 rejects the edit. A copy edit can also be rejected, because it is ambiguous whether references
 referring to the original location should continue referring to the source or should be changed to
-point to the target of the copying after the edit (a reference cannot refer to two structurally
-independent locations).
+point to the target of the copying (a reference cannot refer to two locations).
 
 % ==================================================================================================
 
@@ -422,7 +436,7 @@ independent locations).
 \raisebox{-0.2em}{#1} & \sffamily\small{\bfseries #2}\,\;\textit{\footnotesize target, #3} & \sffamily\footnotesize #4 \\[-0.2em]
 &\multicolumn{2}{l|}{\sffamily\footnotesize #5}\\[0.3em]
 }
-\begin{tabular}{|cp{17em}r|}
+\begin{tabular}{|cp{16em}r|}
 \hline
 \rowcolor{ekgray}
 &&\\[-1em]
@@ -438,7 +452,7 @@ independent locations).
   {Reorder items of a specified list according to a \textit{permutation}.}
 \ektablecol{\faMinusCircle}{DeleteItem}{index}{List}
   {Delete the item at a given \textit{index} of a specified list.}
-\ektablecol{\faCode}{UpdateTag}{tag}{Tagged}
+\ektablecol{\faCode}{UpdateTag}{tag}{List or Record}
   {Change the tag of a specified list or record from to a new \textit{tag}.}
 \ektablecol{\faICursor}{PrimitiveEdit}{transform}{Primitive}
   {Apply primitive \textit{transform} to the specified primitive.}
@@ -490,12 +504,14 @@ This design choice makes it impossible to encode computational logic directly in
 (e.g., through conditional edits). As we will see in \S\ref{sec:impl-interaction}, such logic
 can be provided as an additional mechanism on top of the underlying Denicek substrate.
 
+% ==================================================================================================
+
 \subsection{Primitive Operations}
 \label{sec:system-ops}
 Denicek provides three primitive operations. A sequence of edits can be applied to a document, two
 sequences of edits can be merged and also checked for conflicts. Denicek identifies edit histories by
 a (git-like) hash, computed from the hash of the parent and the current edit. The hash is used to
-identify a common shared part of the history during conflict checking and merging.
+identify a common shared part of the history during conflict resolution and merging.
 
 \subsubsection*{Applying Edits}
 When applying an edit, Denicek locates the target node and transform it according to the edit. If
@@ -517,7 +533,6 @@ if the document contains a reference that would be invalidated by the \ident{Cop
 \ident{DeleteField} edit, the edit is rejected.
 
 \subsubsection*{Merging Edit Histories}
-
 Merging edit histories is used when two users edit document independently, but also
 when replaying edits in programming by demonstration. The
 operation works on two edit histories, $E, E_1$ and $E, E_2$, that have a shared prefix $E$.
@@ -546,62 +561,6 @@ There are two aspects of such reconcilliation:
   when $e1$ is \ident{Copy} (see \S\ref{app:merge-transform-refs} for details).
 \end{enumerate}
 
-
-
-
-no longer
-
-~
-
-~
-
-Applying an edit to a newly added node involves a number of cases. When the new node is added
-using \ident{Add} or \ident{Copy}, but the target location is modified, this is an unresolvable
-conflict (because those two operations would overwrite existing nodes). When the new node is
-added as a new list item using \ident{Append}, it can be transformed (by applying the other
-edit direclty to the new node).
-
-Finally, when the new node is added using \ident{AppendFrom},
-it is copied from another document location. We cannot transform the node in the soource location
-(this would have unintended effects) or after adding it (we do not know its new index because of
-aforementioned \emph{non-conditionality} of edits). Denicek reconcilliates such edits by first
-copying the source node to a new temporary location, transforming it there and then using
-\ident{AppendFrom} from the temporary location.
-
-
-
-~
-
-~
-
-todo
-
-~
-
-~
-
-Removing all conflicting edits is sometimes useful, but there are many cases where conflicting
-edits, in the above sense, can be reconcilliated.
-
-If the edits in $E_1$ and $E_2$ conflict,
-the results of applying $E, E_1, E_2$ and $E, E_2, E_1$ would be different. We can, however,
-construct edit histories $E_1'$ and $E_2'$ such that the results of applying $E, E_1, E_2'$ and
-$E, E_2, E_1'$ are the same.
-
-
-\subsubsection*{Conflict Detection}
-Two edits are conflicting if the order in which they are applied matters. This is the case if
-they target the same node, or if one targets a node that is nested inside the node targetted by
-the other. For edits with dependencies (\ident{AppendFrom} and \ident{Copy}), a conflict also
-occurs if the other edit modifies the dependency.
-
-Given two edit histories, one way to resolve conflicts is by removing (or marking as disabled) all
-edits from one of the histories that conflict with edits done by the other history. To do this,
-we first collect all targets of edits in the other history. We then iterate over edits from the first
-history to see if they depend on or target any of the affected targets. If an edit is removed,
-its target reference is added to the set of affected targets, so that other subsequent edits that depend
-on its original result are also removed.
-
 % ==================================================================================================
 
 \begin{figure}
@@ -609,7 +568,7 @@ on its original result are also removed.
 \small{\bfseries #1}\;\,\footnotesize\textit{#2}\,\; --\,\; #5\\[-0.1em]
 \quad \footnotesize #3 \;\;$\Rightarrow$\;\; #4 \\[0.3em]
 }
-\begin{tabular}{|l|}
+\begin{tabular}{|p{27em}|}
 \hline
 \\[-1em]
 \tttablecol{RenameField}{target, old field, new field}{\Verb|/target/old\_field/nested|}{\Verb|/target/new\_field/nested|}
@@ -628,98 +587,182 @@ on its original result are also removed.
 
 % ==================================================================================================
 
+\begin{figure}
+\newcommand{\eftablecol}[3]{
+\small{\bfseries #1}\;\footnotesize\textit{target}\,\; --\,\; {\footnotesize #2}\\[-0.1em]
+\quad \small #3\\[0.3em]
+}
+\begin{tabular}{|p{27em}|}
+\hline
+\\[-1em]
+\eftablecol{StructureEffect}{Affects fields or structure of the target node.}
+  {\ident{RenameField}, \ident{DeleteField}, \ident{WrapRecord}, \ident{WrapList}, \ident{Copy}}
+\eftablecol{ValueEffect}{Transforms value, modifies list or adds an additional field.}
+  {\ident{Add}, \ident{Append}, \ident{Reorder}, \ident{DeleteItem}, \ident{PrimitiveEdit}}
+\eftablecol{TagEffect}{Modifies the tage of the target node.}
+  {\ident{UpdateTag}}
+\hline
+\end{tabular}
+\vspace{-0.5em}
+\caption{Effects of individual edit operations}
+\label{fig:effects}
+\vspace{-1em}
+\end{figure}
+
+% ==================================================================================================
+
+To illustrate merging, consider a case where we created a list of work items {\small\Verb|/todo|}.
+In one branch, we add an additional item to the list ($e_2$). In another branch, we wrap the
+list in an extra \ident{<div>} element ($e_1$) and add a checkbox to each work item ($e_1'$):
+%
+\begin{equation*}
+\arraycolsep=2pt
+\begin{array}{rcl}
+e_2 &=& \srckvd{Append}(\textnormal{\small\Verb|/todo|}, \#1, \#0, \srcid{<li>Do some work</li>})\\[0.5em]
+e_1 &=& \srckvd{WrapRecord}(\textnormal{\small\Verb|/todo|}, \srcid{<div>}, \srcid{items})\\
+e_1' &=& \srckvd{Add}(\textnormal{\small\Verb|/todo/items/*|}, \srcid{done}, \srckvd{nil}, \srcid{<input type="checkbox"/>})\\
+\end{array}
+\end{equation*}
+%
+If we want to append the edit $e_2$ after edits $e_1, e_1'$, we need to update its target to
+reflect the additional wrapping (2) and we need to create and additional \ident{Add} operation
+that will add the checkbox to the new item (1). The result is two edits $e_2', e_2''$:
+%
+\begin{equation*}
+\arraycolsep=2pt
+\begin{array}{rcl}
+e_2'  &=& \srckvd{Append}(\textnormal{\small\Verb|/todo/items|}, \#1, \#0, \srcid{<li>Do some work</li>})\\
+e_2'' &=& \srckvd{Add}(\textnormal{\small\Verb|/todo/items/\#1|}, \srcid{done}, \srckvd{nil}, \srcid{<input type="checkbox"/>})\\
+\end{array}
+\end{equation*}
+%
+If we performed the merge operation in the other order, we would simply append $e_1, e_1'$ after
+$e_2$. Although this is not the case in general, the result will be the same regardless of the order here.
+
+\subsubsection*{Conflict Resolution}
+When merging two sequences of edits, $E, E_1$ and $E, E_2$, it is sometimes possible to construct
+edit histories $E_1'$ and $E_2'$ such that the results of applying $E, E_1, E_2'$ and
+$E, E_2, E_1'$ are the same. However, this is not always the case. Two edits can conflict if
+they both modify the same value, if they transfrom the structure of a node in incompatible ways
+or if one modifies a node nested inside a node replaced or deleted by the other.
+Detected conflicts can be reported to the user, but we also use conflict detection to
+implement incremental evaluation (\S\ref{sec:impl-incremental}).
+
+The Denicek substrate implements a conflict detection mechanism inspired by effect
+systems~\cite{lucassen-1988-effects}. The mechanism is simple and tractable, but over-approximates
+conflicts, i.e.~it may report a conflict even if two edits can be merged successfully
+(see \S\ref{sec:discuss-future}). An effects describe how an edit affects the document structure
+and we distinguish between three types of effects as shown in Fig.~\ref{fig:effects}.
+
+We say that a set of effects $F_1$ conflicts with another set of effects $F_2$ if there
+are effects $f_1\in F_1$ and $f_2\in F_2$ such that they are of the same kind and the target
+of $f_1$ is a prefix of the target of $f_2$ or vice versa (allowing specific \ident{Index} to
+match against \ident{All} in any direction).
+
+Given two edit histories $E, E_1$ and $E, E_2$, Denicek can use conflict detection to remove
+all conflicting edits from $E_2$ and produce a sequence of remaining edits $e_2', e_2'', \ldots$
+that can be added after $E, E_1$ and do not conflict with edits in $E_1$.
+
+To do this, we iterate over edits $e_2$ from $E_2$ and check if the dependencies of $e_2$
+conflict with effects of (1) any of the effect $e_1$ from $E_1$ or (2) effects of any of the
+previously removed edits. Here, the dependencies of $e_2$ include its target, but also source
+of \ident{Copy} and additional dependencies recorded explicitly as discussed in
+\S\ref{sec:impl-incremental}. If a conflict is detected, the edit $e_2$ is removed and its effect
+is recorded, so that we remove any subsequent edits that would depend on the removed edit.
+
+% ==================================================================================================
 
 \section{Programming Experiences Implementation}
 \label{sec:impl}
 
-Denicek follows the \emph{naive realism}~\cite{disessa-1986-boxer} principle and makes the entire
-document visible to the user, although parts can be collapsible or hidden using CSS.
+The key claim of this paper is that the Denicek computational substrate
+makes it easy to support a range of experiences that make programming more concrete,
+collaborative and interactive.
 
-[webnicek?]
-
-The key claim of this paper is that the computational substrate described in the previous
-section makes it easy to support a range of experiences that make programming more concrete,
-collaborative and interactive. In this section, we describe how to use the substrate to support
-local-first collaborative editing (\S\ref{sec:impl-collab}), programming by
-demonstration (\S\ref{sec:impl-pbd} and \S\ref{sec:impl-interaction}),
-schema and code co-evolution (\S\ref{sec:impl-schema}), incremental recomputation
-(\S\ref{sec:impl-eval} and \S\ref{sec:impl-incremental}), provenance tracking (\S\ref{sec:impl-provenance})
+In this section, we describe how Webnicek uses the substrate
+to support local-first collaboration (\S\ref{sec:impl-collab}), programming by
+demonstration (\S\ref{sec:impl-pbd}, \S\ref{sec:impl-interaction}), incremental recomputation
+(\S\ref{sec:impl-eval}, \S\ref{sec:impl-incremental}), schema change control (\S\ref{sec:impl-schema}),
+end-user debugging via provenance tracking (\S\ref{sec:impl-provenance})
 and concrete programming via managed copy \& paste (\S\ref{sec:impl-copy}).
-We describe the programming experience in isolation in this section. Next section provides a
+
+We describe the programming experience in isolation in this section. The next section provides a
 more comprehensive evaluation through a case study that combines multiple of them together.
 
+% ==================================================================================================
 
-\subsection{Local-First Collaborative Editing}
+\begin{figure}[t]
+\includegraphics[width=0.9\columnwidth,clip,trim=1.7cm 6cm 7.8cm 1.5cm]{fig/merging.pdf}
+\caption{Merging of two independently done sequences of edits. Two ways of merging B and C result in the same D.}
+\label{fig:merging}
+\end{figure}
+
+% ==================================================================================================
+
+\subsection{Local-First Collaboratation}
 \label{sec:impl-collab}
 
-The Denicek representation enables \emph{local-first} collaboration~\cite{kleppmann-2019-local},
-as illustrated in \S\ref{sec:walk}E. If a document is edited by multiple users, they can
-each make edits to their local copy and eventually merge document variants using the operation to
+The Denicek representation enables local-first collaboration~\cite{kleppmann-2019-local},
+as illustrated previously in \S\ref{sec:walk} (E). If a document is edited by multiple users, they can
+each make edits to their local copy and eventually merge the variants using the operation to
 merge edit histories.
 
 Merging of histories behaves akin to git rebase in that it keeps a linear history. Synchronization
 in a distributed system thus requires first reapplying local edits on top of the remote history,
 before updating the remote history. Denicek thus implements the \emph{convergence model} of
 document variants \cite{edwards-2025-schema}, i.e., the user cannot, for example, maintain their
-own local document structure and import new data from another variant (this would require an
-inverse of the edit reconcilliation operation).
+own local document structure and import new data from another variant (an alternative discussed
+in \S\ref{sec:discuss}).
 
-Merging of edit histories is not symmetric. Document $D$ in Fig.~\ref{fig:merging}
+Recall that merging of edit histories is not symmetric. Document $D$ in Fig.~\ref{fig:merging}
 can be obtained either by appending $C'$ (produced by the edit reconcilliation operation)
-on top of $A,B$ or by appending $B'$ on top of $A,C$. Although the two edits are conflicting,
-$C$ only affects data and $B$ only affects structure and so the resulting document is the same
-in both cases. However, the histories differ. In the first case, the new node added by the
-\ident{Append} edit is transformed (from primitive string to a record representing table row).
+on top of $A,B$ or by appending $B'$ on top of $A,C$. According to our effect analysis, the two
+operations are conflicting. Although $B$ primarily affects the document structure, it also adds
+a new field to the record (email), which is a \ident{ValueEffect}, conflicting with
+\ident{ValueEffect} of $C$. In this scenario, the conflict can be ignored and the resulting document
+is the same in both cases.
+
+However, the resulting two histories will differ. In the first case, the
+\ident{Append} edit that adds a new node is supplemented by further focused edits that transform
+the added node from a list item to a new table row.
 In the second case, the structural transformations are automatically applied to all rows.
 As discussed in \S\ref{sec:system-ops}, conflicts during merging can be resolved either by
 removing conflicting edits or by letting the later edits overwrite the former ones.
 
 
 \begin{figure}[t]
-\includegraphics[width=0.9\columnwidth,clip,trim=1.7cm 6cm 7.8cm 1.5cm]{fig/merging.pdf}
-\vspace{-0.5em}
-\caption{Merging of two independently done sequences of edits. Two ways of merging B and C result in the same D.}
-\label{fig:merging}
-\vspace{-0.5em}
-\end{figure}
-
-\begin{figure}[t]
 \includegraphics[width=0.9\columnwidth,clip,trim=0cm 7cm 9cm 0cm]{fig/pbd.pdf}
-\vspace{-0.5em}
 \caption{Programming by demonstration is implemented by selecting edits from the document
 history (1), saving them in the document (2) and replaying them (3).}
 \label{fig:pbd}
-\vspace{-0.5em}
 \end{figure}
 
 \subsection{Programming By Demonstration}
 \label{sec:impl-pbd}
 
-In \emph{programming by demonstration} \cite{cypher-1993-pbd}, the user demonstrates a task to the
+In programming by demonstration \cite{cypher-1993-pbd}, the user demonstrates a task to the
 system and the system then repeats it, directly or in a generalized way. To use direct
 repetition with Denicek (Fig.~\ref{fig:pbd}), the user can select edits from the edit history,
-name them and replay them. In case of general-purpose document editing (in our formative prototype),
-this requires certain forethought (e.g., constructing a new list item in a temporary document
-field before appending it), but as illustrated in \S\ref{sec:case}, the mechanism is effective in
-a restricted domain such as data wrangling \cite{kandel-2011-wrangler}.
+name them and replay them. In case of general-purpose document editing in Webnicek, this requires
+certain forethought, but as illustrated in \S\ref{sec:case}, the mechanism is very effective in
+a domain such as data wrangling \cite{kandel-2011-wrangler}.
 
-There are two notable aspects of our implementation. First, Deni\-cek saves edits in the document
-itself (by representing individual edits as nodes and storing them in list inside a
-{\small\Verb_<saved-interactions>_} field). This means that no other implementation mechanism
-outside of the system is needed and also that the stored edits can be modified by the user
-(or tools working with the document).
+There are two notable aspects of our implementation of programming by demonstration in Webnicek.
+First, Webnicek records edits in the document itself (by representing individual edits as nodes and
+storing them in list inside a {\small\Verb_/saved-interactions_} field). This means that no other
+implementation mechanism outside of the system is needed and also that the stored edits can be
+modified by the user or tools working with the document.
 
-Second, to replay edits, Denicek does not simply append them on top of the current history.
-When saving edits, it records the hash of the history at the time of saving. When replaying edits,
-it appends the saved edits to the top of the original history (at the time of saving) and merges this new
-sequence with the current history. This pushes the saved edits through all subsequent edits made
-by the user. The result can be seen in Fig.~\ref{fig:walkthrough} (E), where a newly added speaker
-is transformed from a primitive string to a table row.
+Second, to replay edits, Webniceks does not append the recorded edits on top of the current history.
+When saving edits, it stores the hash of the history at the time of saving. When replaying,
+it appends the recorded edits to the top of the original history (at the time of saving) and merges
+this new sequence of edits with the current history. This pushes the recorded edits through all
+subsequent edits made by the user. The result can be seen in Fig.~\ref{fig:walkthrough} (E), where
+a newly added speaker is transformed from a list item to a table row.
 
-The implementation also has to account for the case where edits saved in the document are themselves
+Webnicek also accounts for the case where edits recorded in the document are themselves
 transformed (when they are reconcilliated with other edits during merging). In this case, Denicek
-updates the saved edits (as discussed in \S\ref{sec:discuss}, this would not be needed if the
-history was stored as a graph, akin to ordinary git merging rather than rebasing).
+updates the recorded edits (an alternative approach is discussed in \S\ref{sec:discuss}).
 
 \begin{figure}[t]
 \vspace{-0.5em}
@@ -736,15 +779,15 @@ the ``Remove completed'' button (2) modifies target and specifies a condition. }
 
 Programming by demonstration can be used to define interactive elements in the document. In the
 simple case (Fig.~\ref{fig:interactive} (1)), the {\small\Verb_click_} event handler is set to a
-reference to a sequence of edits saved in the document. Clicking the button executes the edits
+reference to a sequence of edits recorded in the document. Clicking the button executes the edits
 using the mechanism discussed in \S\ref{sec:impl-pbd}, i.e., by appending them to a history at the
 time of saving and merging them with the current history.
 
-The Denicek substrate can be used to generalize the interactions saved through programming by
+The Denicek substrate can be used to generalize the interactions recorded through programming by
 demonstration. Our prototype illustrates this option in a limited way. As shown in
 Fig.~\ref{fig:interactive} (2), a button to remove all completed TODO items can be generalized
 from the {\small\Verb_remove-item_} interaction, which removes the list item at the index 0.
-In addition to the saved interaction, we manually specify (in the source view) that the edits
+In addition to the recorded interaction, we manually specify (in the source view) that the edits
 should be applied to all elements selected by the {\small\Verb_/items/*_} selector, instead of
 the original {\small\Verb_/items/0_} selector (prefix) and that the edits should only be
 applied to elements for which the formula (which tests if the checkbox is checked) specified by a
@@ -755,14 +798,6 @@ Programming by demonstration systems typically implement heuristic for generaliz
 \cite{myers-2000-intelligence} infers and suggests such generalizations. When integrated into
 a system based on Denicek, such heuristic may also be able to automatically add a formula
 based on positive and negative examples \cite{gulwani-2014-flash} (selected and deselected items).}
-
-\begin{figure}[t]
-\includegraphics[width=0.95\columnwidth,clip,trim=0cm 7cm 8cm 0cm]{fig/counter.pdf}
-\caption{Increment wraps the existing count in a formula that adds 1 to the
-previous value (1), (2). Evaluation produces the count (3), which is invalidated on subsequent clicks (4).}
-\label{fig:counter}
-\vspace{-1em}
-\end{figure}
 
 \subsection{Formula Language and Evaluation}
 \label{sec:impl-eval}
@@ -788,6 +823,15 @@ with the document is discussed in \S\ref{sec:impl-incremental}
 The counter example shown in Fig.~\ref{fig:counter} illustrates the interaction between formulas
 and programming by demonstration. To implement a counter, the Increment and Decrement buttons
 wrap the current counter value in a formula that adds or subtracts 1.
+
+
+\begin{figure}[t]
+\includegraphics[width=0.95\columnwidth,clip,trim=0cm 7cm 8cm 0cm]{fig/counter.pdf}
+\caption{Increment wraps the existing count in a formula that adds 1 to the
+previous value (1), (2). Evaluation produces the count (3), which is invalidated on subsequent clicks (4).}
+\label{fig:counter}
+\vspace{-1em}
+\end{figure}
 
 \begin{figure}[t]
 \centering
@@ -889,7 +933,7 @@ calculation of refreshments costs (1), travel costs (2) and all costs (3).}
 % (collect selectors with structure/data effects; merging structure x data effects is OK,
 % but data x data or structure x structure is not); - Implement this
 % TODO: Add a section after Local-First Editing on the new conflict resolution (with demos)
-% TODO: In implementation use effects to better replay saved edits
+% TODO: In implementation use effects to better replay recorded edits
 % (push through new structural but not data edits)
 
 \section{Design Discussion}
@@ -951,6 +995,11 @@ unifying lists and records?
 AppendFrom - hard to avoid! because recorded edits cannot know length
 (but having -1 in index would break too)
 
+divergence model of challenges paper - requires inverse operation for moving edits backwards
+
+alternative approache is discussed in \S\ref{sec:discuss}
+=> PBD - updates the recorded edits this would not be needed if the
+history was stored as a graph, akin to ordinary git merging rather than rebasing).
 
 \section{Case study}
 \label{sec:case}
@@ -970,6 +1019,8 @@ how well did Denicek work for implementing Datnicek
 \subsection{Future work}
 \label{sec:discuss-future}
 use type system to check temporarily invalid state
+
+better effect system
 
 ohter formal things
 * non-conditionality of edits
