@@ -132,7 +132,7 @@ programming experiences \cite{myers-2006-eup}:
 
 \subsubsection*{Two-Stage Methodology}
 Our approach is captured by the interior mode \cite{adam-2021-dsr} of design science research.
-To \emph{design} Denicek, we identify a number of \emph{formative examples} -- simple programming
+To \emph{design} Denicek, we identify six \emph{formative examples} -- simple programming
 tasks that manifest one or more of the desired programming experiences (\S\ref{app:examples}).
 Using those examples, we co-design the Denicek substrate and Webnicek (\S\ref{sec:walk}),
 a simple web-based end-user programming environment based on the substrate. Although Webnicek can
@@ -258,8 +258,8 @@ which has a bunch of pre-built structures
 ~
 
 ~
-% ==================================================================================================
 
+% --------------------------------------------------------------------------------------------------
 
 \begin{figure*}[t]
 \vspace{-0.5em}
@@ -278,10 +278,10 @@ which has a bunch of pre-built structures
 \section{Walkthrough}
 \label{sec:walk}
 
-In this section, we use Webnicek, our simple web-based prototype, to illustrate the programming
+In this section, we use the web-based prototype Webnicek to illustrate programming
 experiences enabled by the Denicek substrate (\S\ref{sec:impl}). Webnicek is based on a structure
-editor that supports navigation in the document and issuing of edit commands. We show two
-formative examples (\S\ref{app:examples}) related to conference organization.
+editor that supports navigation in the document and issuing of edit commands. We follow two
+formative examples (\S\ref{app:examples}) related to conference planning.
 
 \subsubsection*{\circled{A} Adding a Speaker}
 The user starts with an empty document, which is represented as a record. They add a field for
@@ -332,7 +332,7 @@ the document and updates them when applying structural edits (\S\ref{sec:impl-sc
 Evaluation can replace formulas with values, but also augment them to enable
 end-user debugging via provenance analysis (\S\ref{sec:impl-provenance}).}
 
-% ==================================================================================================
+% --------------------------------------------------------------------------------------------------
 
 \arrayrulecolor{lightgray}
 \definecolor{ekgray}{gray}{0.90}
@@ -396,7 +396,7 @@ document. In this section, we describe the structure of documents and edits, as 
 operations that form the backbone of the system and are used to implement the
 end-user programming experiences discussed in \S\ref{sec:impl}.
 
-% ==================================================================================================
+% --------------------------------------------------------------------------------------------------
 
 \subsection{Selectors, Documents and Edits}
 A computational document is a tree, consisting of four kinds of nodes (Fig.~\ref{fig:doc}).
@@ -429,7 +429,7 @@ rejects the edit. A copy edit can also be rejected, because it is ambiguous whet
 referring to the original location should continue referring to the source or should be changed to
 point to the target of the copying (a reference cannot refer to two locations).
 
-% ==================================================================================================
+% --------------------------------------------------------------------------------------------------
 
 \begin{figure}
 \newcommand{\ektablecol}[5]{
@@ -476,7 +476,7 @@ point to the target of the copying (a reference cannot refer to two locations).
 \vspace{-1em}
 \end{figure}
 
-% ==================================================================================================
+% --------------------------------------------------------------------------------------------------
 
 \subsubsection*{Automatic Reference Update}
 There are two situations in which automatic update of references is undesirable. If an edit is
@@ -504,7 +504,7 @@ This design choice makes it impossible to encode computational logic directly in
 (e.g., through conditional edits). As we will see in \S\ref{sec:impl-interaction}, such logic
 can be provided as an additional mechanism on top of the underlying Denicek substrate.
 
-% ==================================================================================================
+% --------------------------------------------------------------------------------------------------
 
 \subsection{Primitive Operations}
 \label{sec:system-ops}
@@ -561,7 +561,7 @@ There are two aspects of such reconcilliation:
   when $e1$ is \ident{Copy} (see \S\ref{app:merge-transform-refs} for details).
 \end{enumerate}
 
-% ==================================================================================================
+% --------------------------------------------------------------------------------------------------
 
 \begin{figure}
 \newcommand{\tttablecol}[5]{
@@ -585,7 +585,7 @@ There are two aspects of such reconcilliation:
 \vspace{-1em}
 \end{figure}
 
-% ==================================================================================================
+% --------------------------------------------------------------------------------------------------
 
 \begin{figure}
 \newcommand{\eftablecol}[3]{
@@ -609,7 +609,7 @@ There are two aspects of such reconcilliation:
 \vspace{-1em}
 \end{figure}
 
-% ==================================================================================================
+% --------------------------------------------------------------------------------------------------
 
 To illustrate merging, consider a case where we created a list of work items {\small\Verb|/todo|}.
 In one branch, we add an additional item to the list ($e_2$). In another branch, we wrap the
@@ -689,7 +689,7 @@ and concrete programming via managed copy \& paste (\S\ref{sec:impl-copy}).
 We describe the programming experience in isolation in this section. The next section provides a
 more comprehensive evaluation through a case study that combines multiple of them together.
 
-% ==================================================================================================
+% --------------------------------------------------------------------------------------------------
 
 \begin{figure}[t]
 \includegraphics[width=0.9\columnwidth,clip,trim=1.7cm 6cm 7.8cm 1.5cm]{fig/merging.pdf}
@@ -697,7 +697,7 @@ more comprehensive evaluation through a case study that combines multiple of the
 \label{fig:merging}
 \end{figure}
 
-% ==================================================================================================
+% --------------------------------------------------------------------------------------------------
 
 \subsection{Local-First Collaboratation}
 \label{sec:impl-collab}
@@ -729,6 +729,7 @@ In the second case, the structural transformations are automatically applied to 
 As discussed in \S\ref{sec:system-ops}, conflicts during merging can be resolved either by
 removing conflicting edits or by letting the later edits overwrite the former ones.
 
+% --------------------------------------------------------------------------------------------------
 
 \begin{figure}[t]
 \includegraphics[width=0.9\columnwidth,clip,trim=0cm 7cm 9cm 0cm]{fig/pbd.pdf}
@@ -736,6 +737,8 @@ removing conflicting edits or by letting the later edits overwrite the former on
 history (1), saving them in the document (2) and replaying them (3).}
 \label{fig:pbd}
 \end{figure}
+
+% --------------------------------------------------------------------------------------------------
 
 \subsection{Programming By Demonstration}
 \label{sec:impl-pbd}
@@ -761,8 +764,10 @@ subsequent edits made by the user. The result can be seen in Fig.~\ref{fig:walkt
 a newly added speaker is transformed from a list item to a table row.
 
 Webnicek also accounts for the case where edits recorded in the document are themselves
-transformed (when they are reconcilliated with other edits during merging). In this case, Denicek
+transformed (when they are reconcilliated with other edits during merging). In this case, Webnicek
 updates the recorded edits (an alternative approach is discussed in \S\ref{sec:discuss}).
+
+% --------------------------------------------------------------------------------------------------
 
 \begin{figure}[t]
 \vspace{-0.5em}
@@ -774,19 +779,30 @@ the ``Remove completed'' button (2) modifies target and specifies a condition. }
 \vspace{-2em}
 \end{figure}
 
+% --------------------------------------------------------------------------------------------------
+
 \subsection{Interactive User Interfaces}
 \label{sec:impl-interaction}
 
-Programming by demonstration can be used to define interactive elements in the document. In the
-simple case (Fig.~\ref{fig:interactive} (1)), the {\small\Verb_click_} event handler is set to a
-reference to a sequence of edits recorded in the document. Clicking the button executes the edits
-using the mechanism discussed in \S\ref{sec:impl-pbd}, i.e., by appending them to a history at the
-time of saving and merging them with the current history.
+Programming by demonstration can be used to define interactive elements in the document. In a
+simple scenario, illustrated in Fig.~\ref{fig:interactive}~(1), the {\small\Verb_click_} event
+handler is set to a reference to a sequence of edits recorded in the document. Clicking the button
+executes the edits using the mechanism discussed in \S\ref{sec:impl-pbd}, i.e., Webnicek appends
+the edits to a history at the time when the edits were recorded and merges the edits with the
+current history.
+
+The use of merging when replaying recorded edits is crucial in both the Todo App example and the
+Conference List example (see \S\ref{app:examples}). In both cases, it makes it possible to define
+a user interface for adding items (new Todo items, new speakers) and later change the document
+structure (refactor speaker list to a table) or add functionality (formula to evaluate whether a
+Todo item has been completed) without having to recreate the user interface for adding items.
+The use of merging ensures that new items are added in a correct format or with the additional
+functionality.
 
 The Denicek substrate can be used to generalize the interactions recorded through programming by
 demonstration. Our prototype illustrates this option in a limited way. As shown in
-Fig.~\ref{fig:interactive} (2), a button to remove all completed TODO items can be generalized
-from the {\small\Verb_remove-item_} interaction, which removes the list item at the index 0.
+Fig.~\ref{fig:interactive}~(2), a button to remove all completed Todo items can be created by
+generalising the {\small\Verb_remove-item_} interaction, which removes the list item at the index 0.
 In addition to the recorded interaction, we manually specify (in the source view) that the edits
 should be applied to all elements selected by the {\small\Verb_/items/*_} selector, instead of
 the original {\small\Verb_/items/0_} selector (prefix) and that the edits should only be
@@ -795,9 +811,11 @@ relative selector {\small\Verb_./condition/comp/result_} evaluates to true.
 
 \keyideabox{\faMagic}{Generalization Heuristic}{Specifying generalization manually is cumbersome.
 Programming by demonstration systems typically implement heuristic for generalization
-\cite{myers-2000-intelligence} infers and suggests such generalizations. When integrated into
-a system based on Denicek, such heuristic may also be able to automatically add a formula
+\cite{myers-2000-intelligence} infers and suggests such generalizations. If integrated into
+a system based on Webnicek, such heuristic could automatically construct a formula
 based on positive and negative examples \cite{gulwani-2014-flash} (selected and deselected items).}
+
+% --------------------------------------------------------------------------------------------------
 
 \subsection{Formula Language and Evaluation}
 \label{sec:impl-eval}
@@ -818,84 +836,100 @@ record into {\small\Verb_<x-evaluated>_} (\circled{2} and \circled{3}), which ke
 formula state in the {\small\Verb_formula_} field and the evaluation result in the {\small\Verb_result_} field.
 (Keeping the previous state of the formula is not necessary, but it enables provenance analysis
 as discussed in \S\ref{sec:impl-provenance}.) The way edits generated by evaluation are merged
-with the document is discussed in \S\ref{sec:impl-incremental}
+with the document is discussed in the next section.
 
-The counter example shown in Fig.~\ref{fig:counter} illustrates the interaction between formulas
+The Counter App example shown in Fig.~\ref{fig:counter} illustrates the interaction between formulas
 and programming by demonstration. To implement a counter, the Increment and Decrement buttons
 wrap the current counter value in a formula that adds or subtracts 1.
 
+\keyideabox{\faSuperscript}{Formula Language}{
+Webnicek exposes the underlying representation of formulas to the user, but the same representation
+can be edited through a user-friendly mechanism such as a block-based editor
+\cite{jansen-2019-xlblocks} or a calculation view \cite{sarkar-2018-calc}. The key point
+is that Denicek's tree structure makes it easy to embed formulas in document in a uniform
+way, edit them and merge them with other changes.}
+
+% --------------------------------------------------------------------------------------------------
 
 \begin{figure}[t]
+\vspace{-0.5em}
 \includegraphics[width=0.95\columnwidth,clip,trim=0cm 7cm 8cm 0cm]{fig/counter.pdf}
+\vspace{-0.5em}
 \caption{Increment wraps the existing count in a formula that adds 1 to the
 previous value (1), (2). Evaluation produces the count (3), which is invalidated on subsequent clicks (4).}
 \label{fig:counter}
 \vspace{-1em}
 \end{figure}
 
+% --------------------------------------------------------------------------------------------------
+
 \begin{figure}[t]
 \centering
 \vspace{-0.5em}
-\begin{minipage}{0.6\columnwidth}
+\begin{minipage}{0.55\columnwidth}
   ~\\[1em]
   \includegraphics[width=0.9\columnwidth,clip,trim=0cm 14cm 21cm 0cm]{fig/eval.pdf}
   \end{minipage}%
-  \begin{minipage}{0.4\columnwidth}
+  \begin{minipage}{0.45\columnwidth}
     \caption{Evaluated edits (A, B) are kept at the top of the history. When they conflict with
-    ordinary edits (4), evaluated edits are removed (A).}
+    ordinary edits (4), they are removed (A).}
     \label{fig:eval}
   \end{minipage}
   \vspace{-1em}
 \end{figure}
 
+% --------------------------------------------------------------------------------------------------
+
 \subsection{Incremental Recomputation}
 \label{sec:impl-incremental}
 
-As illustrated in Fig.~\ref{fig:incremental}, Denicek supports incremental re-computa\-tion.
+As illustrated in Fig.~\ref{fig:incremental}, Webnicek supports incremental re-computa\-tion.
 In the example, the cost of speaker travel depends on the number of speakers, but the cost
 of refreshments depends only on two constants. Edit that adds a speaker only invalidates the
 former.
 
 The evaluation mechanism is illustrated in Fig.~\ref{fig:eval}. When the formulas are evaluated,
-Denicek generates \emph{evaluated edits} that are appended to the top of the history.
+Webnicek generates \emph{evaluated edits} that are appended to the top of the history.
 When subsequent edits are made, they are appended after all non-evaluated edits and the
 evaluated edits are pushed through the newly added edits. If the edits conflict (according to
-Denicek's conflict detection), affected evaluated edits and edits that depend on them are dropped.
+conflict detection discussed in \S\ref{sec:system-ops}), affected evaluated edits and edits that
+depend on them are dropped.
 
-\keyideabox{\faRefresh}{Live Programming}{In the exploratory prototype, Denicek does not
-automatically evaluate formulas. This makes it easier to see and understand the evaluation
-mechanism, but a realistic system based on the substrate would likely automatically evaluate
-formulas to provide a live programming experience \cite{petricek-2020-foundations,rein-2019-live}.}
+\keyideabox{\faRefresh}{Live Programming}{The Webnicek prototype does not automatically
+evaluate formulas. This makes it easier to understand the evaluation
+mechanism, but a realistic system based on the substrate could automatically evaluate
+formulas to provide a live programming experience \cite{petricek-2020-foundations,rein-2019-live}
+and use incremental recomputation for performance~reasons.}
+
+% --------------------------------------------------------------------------------------------------
 
 \begin{figure}[t]
   \includegraphics[width=1\columnwidth,clip,trim=0.1cm 5cm 5.1cm 0cm]{fig/incremental.pdf}
-  \vspace{-0.5em}
+  \vspace{-1em}
   \caption{Budget calculation based on the number of speakers (1) and the result (2). When speaker
   is added (3), only the results of affected formulas are invalidated.}
   \label{fig:incremental}
+  \vspace{-1em}
 \end{figure}
 
-\begin{figure}[t]
-\includegraphics[width=0.9\columnwidth,clip,trim=0cm 9.5cm 8cm 0cm]{fig/coevolution.pdf}
-\caption{When an edit changes the document structure, references in formulas are updated accordingly.}
-\label{fig:coevolution}
-\end{figure}
+% --------------------------------------------------------------------------------------------------
 
-\subsection{Schema Code Co-evolution}
+\subsection{Schema Change Control}
 \label{sec:impl-schema}
 
-The problem of schema evolution is that, when the schema used in a database or a program evolves,
-data and code that depend on the schema need to evolve correspondingly. The problem is well-known
-in database systems \cite{rahm-2006-schema} and has recently been studied in the context of
-programming systems \cite{edwards-2025-schema}.
+Document structure often needs to evolve \cite{burnett-2014-silos}, as illustrated by our
+Conference List example where a list is transformed into a table. When this happens,
+data and code that depend on the structure of the document need to evolve correspondingly.
+The problem is well-known in database systems \cite{rahm-2006-schema} and has recently been
+studied in the context of programming systems \cite{edwards-2025-schema}.
 
 Although Denicek does not explicitly track document structure (schema or type), all documents
-have an implicit structure and some of the edits transform the document structure. As
+have an implicit structure and some edits transform this structure. As
 discussed in \S\ref{sec:system-ops}, Denicek automatically updates reference nodes in the
-document in this case. This enables a form of schema code co-evolution \cite{edwards-2025-schema}.
-The formulas embedded in Denicek documents use reference nodes to refer to both data sources
-(in the document) and the results of other computations. Consequently, if the document structure
-changes, the formulas are automatically updated.
+document when edits modify the document structure. This enables a form of schema code
+co-evolution \cite{edwards-2025-schema}. Formulas embedded in Denicek documents use reference
+nodes to refer to both data sources (in the document) and the results of other computations.
+Consequently, if the document structure changes, the formulas are automatically updated.
 
 Consider the example in Fig.~\ref{fig:coevolution}. The original list {\small\Verb_<ul>_} is
 turned into {\small\Verb_<tbody>_} using \ident{UpdateTag} and wrapped inside {\small\Verb_<table>_}
@@ -906,9 +940,17 @@ into {\small\Verb_/speaker/body_}.
 As noted earier, evaluated edits transform the formula structure (wrapping it in the
 {\small\Verb_<x-evaluated>_} record). However, they are marked as non-structural and so
 references to formulas are not transformed when the formula is evaluated (otherwise, references
-to evaluated formulas would not point to the evaluated result, but to the original unevaluated
-definition).
+would be updated to point to the original unevaluated formulas).
 
+% --------------------------------------------------------------------------------------------------
+
+\begin{figure}[t]
+\includegraphics[width=0.9\columnwidth,clip,trim=0cm 9.5cm 8cm 0cm]{fig/coevolution.pdf}
+\caption{When an edit changes the document structure, references in formulas are updated accordingly.}
+\label{fig:coevolution}
+\end{figure}
+
+% --------------------------------------------------------------------------------------------------
 
 \begin{figure}[t]
 \includegraphics[width=1\columnwidth,clip,trim=0cm 8cm 5cm 0cm]{fig/provenance.pdf}
@@ -919,45 +961,119 @@ calculation of refreshments costs (1), travel costs (2) and all costs (3).}
 \vspace{-0.5em}
 \end{figure}
 
-\newpage
+% --------------------------------------------------------------------------------------------------
 
-
-\subsection{Provenance tracking}
+\subsection{End-User Debugging}
 \label{sec:impl-provenance}
 
-\subsection{Managed copy \& paste}
+The most common kind of end-user programming question is determining whether a value they observe
+is right or wrong \cite{kissinger-2006-debugging}. One way to help users answer the question is
+to provide an explanation how a value was obtained \cite{ko-2009-whyline}. Webnicek provides a basic
+mechanism that highlights document nodes that contributed to a specific computed result,
+illustrated in Figure~\ref{fig:provenance}.
+
+The implementation leverages the fact that evaluation keeps the original formula, as discussed
+in \S\ref{sec:impl-eval}. When a formula is evaluated, the final {\small\Verb_<x-evaluated>_}
+document node contains the result, but also sub-tree that represents a full evaluation trace
+\cite{perera-2012-functional}. We analyse the trace, collect all reference nodes in the trace and
+highlight all nodes referred to in the computation. Denicek makes this easy as we
+only need to collect reference nodes nested in a formula node.
+
+\keyideabox{\faBarChart}{Explanations and Linked Visualizations}{In Webnicek, we implement
+provenance analysis to show inputs involved in computation, but information from the execution
+trace collected by the Denicek substrate can also be used to provide a detailed
+explanation~\cite{perera-2012-functional} or to automatically generate linked visualizations~\cite{perera-2022-linked}.}
+
+% --------------------------------------------------------------------------------------------------
+
+\subsection{Concrete Programming}
 \label{sec:impl-copy}
 
-% TODO: Start Implementation section with some overall description of the "formative prototype"
-% TODO: In operations - better conflict resolution in terms of effect analysis
-% (collect selectors with structure/data effects; merging structure x data effects is OK,
-% but data x data or structure x structure is not); - Implement this
-% TODO: Add a section after Local-First Editing on the new conflict resolution (with demos)
-% TODO: In implementation use effects to better replay recorded edits
-% (push through new structural but not data edits)
+Abstraction is an essential feature of programming, but it has a high cognitive
+cost~\cite{blackwell-2002-attention}. Programming by demonstration (\S\ref{sec:impl-pbd})
+offers one way of reducing the cost. Another way of making programming more
+concrete~\cite{edwards-2004-example,smith-1975-pygmalion} is to support copying of functionality
+as in prototype-based object-oriented programming~\cite{randall-1995-self}.
+
+Webnicek supports a functionality akin to managed copy \&
+paste~\cite{edwards-2006-copypaste,edwards-2022-copypaste} for formulas. Rather than introducing
+abstractions (functions), users can copy and modify formulas to reuse them. However, when the user
+discovers an error in the original formula, Webnicek lets them use the merging mechanism to correct
+the error in the original formula and all its copies.
+
+The mechanism is shown in Figure~\ref{fig:copypaste}. The user copies an incorrect formula using
+the \ident{Copy} edit and then modifies it to use a different data source. They then navigate back
+in history to the point before the copying and create a temporary fork of the document. In the
+fork, they use \ident{RenameField} to switch the argument of the division. When they merge the
+temporary fork into the original document, the \emph{Apply to Newly Added} logic of the merge
+operation (\S\ref{sec:system-ops}) duplicates the \ident{RenameField} edits and applies them also
+to the copied formula. In other words, the \ident{Copy} edit of the Denicek substrate, alongside
+with the fact that formulas are ordinary document nodes, provide keys component for a
+straightforward implementation of the managed copy \& paste functionality.
+
+\keyideabox{\faClipboard}{Linked Editing}{Webnicek currently requires users to explicitly
+manipulate history to correct error across multiple code clones. Research on managing duplicated
+code resulted in multiple tools \cite{toomim-2004-linked,duala-ekoko-2008-clone} with dedicated
+user interface to manage clones. The Denicek substrate provides the underlying mechanism that
+could be used to implement a more user-friendly interface inspired by those systems.}
+
+% --------------------------------------------------------------------------------------------------
+
+\begin{figure}[t]
+\includegraphics[width=1\columnwidth,clip,trim=0cm 5.5cm 1cm 0cm]{fig/copypaste.pdf}
+\vspace{-1em}
+\caption{Correcting an incorrect formula. The user uses Copy to create the second
+formula (1). They notice an error (2), go back in history to switch left and right argument (3),
+merge the change and re-evaluate both formulas (4).}
+\label{fig:copypaste}
+\vspace{-0.5em}
+\end{figure}
+
+% ==================================================================================================
 
 \section{Design Discussion}
 \label{sec:discuss}
 
-LISTS vs RECORDS
-- are they really different? also MRDT idea - needed for both
+\subsection{Design principles}
+\label{sec:discuss-principles}
 
 PRINCIPLES
 * merging of edits should not require looking at current document (non-computationality)
-* two ways of pushing edits should be equivalent, i.e.
 
-push e1 e2 e3 over b1 b2 b3 can be done via
-  push e1 over b1 = e1'; over b2 = e1''; over b3 = e1'''
-  then push e2, then push e3
-or
-  push e1, e2, e3 over b1, then over b2, then over b3
-(implies that no "extra" edits can be appended later)
 
-USE MRDTs for list order!
+\subsection{Design considerations}
+\label{sec:discuss-considerations}
 
+\subsubsection*{explicit indices}
 DIFFICULTIRES
 * if you are not able to refer to newly added items, you cannot reasonably do PBD
   => need non-numerical indices
+
+unifying lists and records?
+
+\subsubsection*{mrdts and ordering}
+LISTS vs RECORDS
+- are they really different? also MRDT idea - needed for both
+
+% https://gowthamk.github.io/docs/mrdt.pdf page 11
+
+USE MRDTs for list order!
+
+\subsubsection*{two-way merging}
+divergence model of challenges paper - requires inverse operation for moving edits backwards
+
+\subsubsection*{keeping git tree}
+
+save graph of edits rather than list
+(would make replaying of saved edits easier because the histhash never changes)
+
+=> PBD - updates the recorded edits this would not be needed if the
+history was stored as a graph, akin to ordinary git merging rather than rebasing).
+
+\subsubsection*{Better apply to added}
+
+not so easy because of the non-computationality principle
+(we cannot know what will need to happen)
 
 how to transform appends?
 * apply to added? (does not work for copy)
@@ -972,34 +1088,32 @@ Tricky case is:
 
 TODO: Delete ListAppend
 
-// cf shadow dom v reactu
-// something like google forms!
-% https://gowthamk.github.io/docs/mrdt.pdf page 11
-
-
-TAG selectors - sound nice, but they break
-(you cannot tell if two selectors overlap e.g. when there is index >< tag)
-
-save graph of edits rather than list
-(would make replaying of saved edits easier because the histhash never changes)
-
-Although Denicek does not explicitly track document structure (or schema, or type), all documents
-have an implicit structure.
-
-c.f. notes
-
-memory mapped graphics etc.
-
-unifying lists and records?
-
 AppendFrom - hard to avoid! because recorded edits cannot know length
 (but having -1 in index would break too)
 
-divergence model of challenges paper - requires inverse operation for moving edits backwards
+\subsubsection*{Schema vs data}
+make schema explicit?
 
-alternative approache is discussed in \S\ref{sec:discuss}
-=> PBD - updates the recorded edits this would not be needed if the
-history was stored as a graph, akin to ordinary git merging rather than rebasing).
+\subsection{Future work}
+\label{sec:discuss-future}
+Although Denicek does not explicitly track document structure (or schema, or type), all documents
+have an implicit structure.
+=> use type system to check temporarily invalid state
+
+better effect system
+
+
+~
+
+~
+
+~
+
+% memory mapped graphics etc.
+
+
+
+
 
 \section{Case study}
 \label{sec:case}
@@ -1016,11 +1130,8 @@ how well did Denicek work for implementing Datnicek
 
 \subsection{Heuristic evaluation}
 \subsection{Limitations}
-\subsection{Future work}
-\label{sec:discuss-future}
-use type system to check temporarily invalid state
 
-better effect system
+RANDOM FORMAL STUFF
 
 ohter formal things
 * non-conditionality of edits
@@ -1030,6 +1141,20 @@ ohter formal things
 PROPERTIES
 - can change any document to any other - sure, via remove add - but also more semantically
 (if it contained all values, can we do it without removing and adding them?)
+
+DEMOS
+
+// cf shadow dom v reactu
+// something like google forms!
+
+* two ways of pushing edits should be equivalent, i.e.
+
+push e1 e2 e3 over b1 b2 b3 can be done via
+  push e1 over b1 = e1'; over b2 = e1''; over b3 = e1'''
+  then push e2, then push e3
+or
+  push e1, e2, e3 over b1, then over b2, then over b3
+(implies that no "extra" edits can be appended later)
 
 
 \bibliographystyle{plain}
@@ -1046,9 +1171,10 @@ PROPERTIES
 \section{Formative Examples}
 \label{app:examples}
 
-The design the Denicek substrate, we identified five formative examples shown in
+The design the Denicek substrate, we identified six formative examples shown in
 Fig.~\ref{fig:examples}. The examples range from established industry benchmarks
-(Todo and Counter apps) to problems posed as schema change challenges \cite{edwards-2025-schema}.
+(Todo and Counter apps) to cases from literature~\cite{edwards-2022-copypaste} and
+problems posed as schema change challenges \cite{edwards-2025-schema}.
 The Denicek substrate then co-evolved with Webnicek, a simple web-based programming environment
 built (as directly as possible) on top of the substrate and was used to solve implement the
 formative examples.
@@ -1124,13 +1250,13 @@ was transformed (typically target, but possibly also source).
 \begin{tabular}{|l|}
 \hline
 \\[-1em]
-\extablecol{Counter}{\cite{kiss-2014-7guis}}
+\extablecol{Counter App}{\cite{kiss-2014-7guis}}
   {Counter with increment and decrement buttons.}
   {The current count is represented by a formula that is modified by the buttons.\\[-0.2em]\quad\footnotesize
   The user can inspect the evaluation trace to see how the count was modified.}
   {Programming by Demonstration, Incremental Recomputation, End-User Debugging}
-\extablecol{Todo}{\cite{osmani-2024-todomvc}}
-  {App with controls to add an item and remove all completed.}
+\extablecol{Todo App}{\cite{osmani-2024-todomvc}}
+  {Buttons to add an item and remove all completed.}
   {Adding an item must correctly merge with independently added functionality to \\[-0.2em]\quad\footnotesize
    compute which items are completed and remove them based on a formula result.}
   {Programming by Demonstration, Local-First Collaboration, Incremental Recomputation}
@@ -1149,6 +1275,11 @@ was transformed (typically target, but possibly also source).
   {An operation to normalize the text in a list item can be recorded and applied to\\[-0.2em]\quad\footnotesize
    all list items or, alternatively, applied directly to all list items.}
   {Programming by Demonstration}
+\extablecol{Traffic Accidents}{\cite{edwards-2022-copypaste}}
+  {Compute statistics using two data sources.}
+  {Formula to compute statistics can be reused with a different data source;\\[-0.2em]\quad\footnotesize
+   error correction is propagated automtically to the copied version of the formula.}
+  {Concrete Programming, Incremental Recomputation}
 \hline
 \end{tabular}
 
