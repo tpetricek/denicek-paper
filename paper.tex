@@ -195,6 +195,8 @@ source code at: \url{https://github.com/d3sprog/denicek}
 % ==================================================================================================
 
 \section{Background}
+\label{sec:background}
+
 What is this about? end-user programming \cite{myers-2006-eup}
 but also programming systems \cite{jakubovic-2023-techdims},
 Live \cite{rein-2019-live}, Interactive etc. - perhaps for a lack of better term use end-user
@@ -256,6 +258,14 @@ which has a bunch of pre-built structures
 ~
 
 ~
+
+\cite{gobert-2023-lorgnette}
+
+~
+
+The Denicek substrate owes much to systems discussed in \S\ref{sec:background},
+especially Subtext, BootstrapLab and Infra~\cite{edwards-2005-subtext,jakubovic-2022-ladder,hall-2017-infra}.
+
 
 ~
 
@@ -776,7 +786,7 @@ updates the recorded edits (an alternative approach is discussed in \S\ref{sec:d
 \caption{Using programming by demonstration to define a UI. The ``Add'' button (1) replays edits;
 the ``Remove completed'' button (2) modifies target and specifies a condition. }
 \label{fig:interactive}
-\vspace{-2em}
+\vspace{-1em}
 \end{figure}
 
 % --------------------------------------------------------------------------------------------------
@@ -799,7 +809,7 @@ Todo item has been completed) without having to recreate the user interface for 
 The use of merging ensures that new items are added in a correct format or with the additional
 functionality.
 
-The Denicek substrate can be used to generalize the interactions recorded through programming by
+Denicek can be used to generalize the interactions recorded through programming by
 demonstration. Our prototype illustrates this option in a limited way. As shown in
 Fig.~\ref{fig:interactive}~(2), a button to remove all completed Todo items can be created by
 generalising the {\small\Verb_remove-item_} interaction, which removes the list item at the index 0.
@@ -1021,7 +1031,7 @@ could be used to implement a more user-friendly interface inspired by those syst
 
 \begin{figure}[t]
 \includegraphics[width=1\columnwidth,clip,trim=0cm 5.5cm 1cm 0cm]{fig/copypaste.pdf}
-\vspace{-1em}
+\vspace{-1.5em}
 \caption{Correcting an incorrect formula. The user uses Copy to create the second
 formula (1). They notice an error (2), go back in history to switch left and right argument (3),
 merge the change and re-evaluate both formulas (4).}
@@ -1031,33 +1041,97 @@ merge the change and re-evaluate both formulas (4).}
 
 % ==================================================================================================
 
-\section{Design Discussion}
+\section{Design Considerations}
 \label{sec:discuss}
 
-\subsection{Design principles}
-\label{sec:discuss-principles}
+The design of the Denicek substrate is the result of an iterative process in which we repeatedly
+adapted the Denicek design until we obtained a satisfactory solution for the six formative examples
+(\S\ref{app:examples}) in the Webnicek prototype. In this section, we document the design challenges,
+many of which have until now been personal knowledge of researchers working on related
+systems \cite{jakubovic-2022-ladder,edwards-2005-subtext,hall-2017-infra,omar-2021-livelits}.
 
-PRINCIPLES
-* merging of edits should not require looking at current document (non-computationality)
+Two guiding principles for Denicek have been \emph{composability} and
+\emph{uniformity}~\cite{jakubovic-2023-techdims}. The design should cover a large number of
+cases using a small number of concepts. This is apparent in the design of the document
+structure (a node can be data, code or rich text) as well as in the role of edits
+(an edit can be a value or structure change, the result of user interaction or the
+result of evaluation).
 
+The inconvenience associated with composability and uniformity~\cite{jakubovic-2023-techdims} is not
+a problem for Denicek. We view Denicek as an underlying structure on top of which more
+convenient end-user programming systems can be built. The uniform design offers a degree of open-endedness,
+making it possible to use the basic structures of Denicek in new ways, not anticipated in this paper.
 
-\subsection{Design considerations}
-\label{sec:discuss-considerations}
+\subsubsection*{Implicit vs. Explicit Structure}
+A key design choice for a substrate like Denicek is whether to track the document structure
+explicitly or make it implicit. In Denicek, we assume that elements of a list node have the same
+structure (i.e.~records should have the same fields, so that they can be targetted using the \ident{All}
+selector), but we do not enforce this. Often, the property is temporarily violated when adding a
+list item, but then restored once the item is created.
 
-\subsubsection*{explicit indices}
-DIFFICULTIRES
-* if you are not able to refer to newly added items, you cannot reasonably do PBD
-  => need non-numerical indices
+Keeping the structure (type) explicit has theoretical appeal and it simplifies some
+aspects of the implementation. In particular, edits to document structure can be clearly separated
+from edits of document values. The same separation has disadvantages in that it complicates the
+edit language and it requires novel user interface. (In Webnicek, we can select all list items
+and edit them at once using the same mechanism as when editing individual list items. With explicit
+structure, changing a list structure has to be either a different kind of edit or possibly an edit
+of a virtual ``prototype'' element.)
 
-unifying lists and records?
+\subsubsection*{Merging and Document State}
+One specific design choice in Denicek is that the merge operation operates solely on two
+sequences of edits, but it does not need access to the current document state (or full edit
+histories). The reconcilliation of edits (\S\ref{sec:system-ops}) is defined for two individual
+edits $e_1$ and $e_2$.
 
-\subsubsection*{mrdts and ordering}
-LISTS vs RECORDS
-- are they really different? also MRDT idea - needed for both
+This limits the language of edits in a number of ways. The first consequence is that we cannot, in
+general, support conditional edits (edits that are applied only when a certain condition holds for
+the current document state). This is the case because the merging operation would not be able to
+determine whether the edit is applied (and whether its effects should take place). One consequence
+of this choice is that generalization of recorded interactions (\S\ref{sec:impl-interaction}) has to
+be done on a meta-level (by specifying how to invoke edits, rather than in the edits themselves).
+The second consequence of this design choice is that our langauge of selectors has to be abstract.
+We can target all list elements using the \ident{All} selector, but cannot convert between this
+representation and a representation that explicitly lists indices of all items currently in the list.
 
-% https://gowthamk.github.io/docs/mrdt.pdf page 11
+\subsubsection*{Explicit List Indices}
+Denicek does not use implicit numerical indices for lists. When adding an item, the
+user (or the system built on top of Denicek) has to explicitly provide an index. This design
+is motivated by a typical programming by demonstration scenario where the user adds a
+new list item and then modifies it (adding a speaker or a Todo item). When using
+explicit indices, the edits following \ident{Append} can easily refer to the newly added
+item. (To avoid overwriting existing items when replaying recorded edits, Webnicek replaces
+indices of newly added items in recorded interactions in \S\ref{sec:impl-pbd}).
 
-USE MRDTs for list order!
+Using implicit numerical indices is possible, but it requires treating all list-related edits
+as operations that transform document selectors. This means adding multiple new rules to
+Figure~\ref{fig:updates}, which specifies how edits transform references. Merging then has to
+modify indices when edits add, remove or reorder list items. Somewhat, counterintuitively, list
+order then becomes a part of document structure rather than a property of the list value.
+
+The problem could also be avoided by not letting the user modify a list item after adding it.
+(We can require new items to be constructed outside of the list and then added through a
+single edit that combines the logic of \ident{Append} and \ident{Copy}.) This is easier to
+implement, but it requires unintuitive user interaction and it also does not address all
+use cases for modifying list item via index.
+
+\subsubsection*{Ordering List Items and Record Fields}
+When list indices are not numerical and supplied explicitly, we need another mechanism for
+tracking order of list items. Denicek uses a data structure inspired by Mergeable Replicated
+Data Types \cite{kaki-2019-mrdts} and requires specifying the index of a preceding list item
+when appending to a list. (If two edits append to the same list independently with the same
+preceding item, the order is non-deterministic.)
+
+Note that Denicek uses the same mechanism for record fields. Keeping record fields ordered is
+desirable because Denicek documents map directly to HTML documents and so the order is visible
+to a user. Moreover, different ways of merging can result in different order of adding fields
+to a record. Making order explicit ensures those result in equivalent documents.
+
+Denicek still makes a distinction between records and lists, even if the two are technically
+extremely similar. The difference is conceptual. A list is expected to contain items of the
+same structure (that can be addressed using the \ident{All} selector), whereas record fields
+are expected to be of different types. If we unified lists and records, \ident{All} would have
+to be applicable to records too and inferring and checking document structure would be
+challenging.
 
 \subsubsection*{two-way merging}
 divergence model of challenges paper - requires inverse operation for moving edits backwards
@@ -1070,29 +1144,69 @@ save graph of edits rather than list
 => PBD - updates the recorded edits this would not be needed if the
 history was stored as a graph, akin to ordinary git merging rather than rebasing).
 
-\subsubsection*{Better apply to added}
 
-not so easy because of the non-computationality principle
-(we cannot know what will need to happen)
+ISSUES
+* if we merge a thing with saved-interactions with something, hashes will change!
 
-how to transform appends?
-* apply to added? (does not work for copy)
-* copy to doc and edit? (good because edits are isolated from other things, but messy code!)
-(if we edit in doc, it works and we also do not need indices for ListAppend)
-* keep nested edits for append op? also does not work, because of the tricky case
 
-Tricky case is:
-- add new list item
-- then set its fields
-  (this breaks things because if we push "add" through structural edits, they will not affect the new values added in the second step)
+\subsubsection*{Fancy selectors}
 
-TODO: Delete ListAppend
+* many things with <tag> selectors currently do not work
+  (e.g. `matches` for highlighting) because if we collect path of a current node,
+  we collect indices and get /some/2/another - and cannot tell if this matches
+  /some/<li>/another - we'd have to collect more detailed path info!
 
-AppendFrom - hard to avoid! because recorded edits cannot know length
-(but having -1 in index would break too)
+  * selectors - all for structure / index for data
+    (but it is useful to allow others...)
+    (multiselect also bad for checks!)
 
-\subsubsection*{Schema vs data}
-make schema explicit?
+\subsubsection*{Dependency tracking}
+
+NOTES
+type Edit =
+  { Kind : EditKind
+    Dependencies : Selectors list }  -- only needed for evaluated edits
+
+
+% ---------------------------------
+
+
+Maybe have 'enabled' for edits afterall?
+(we can merge with conflicts and disable some edits, but keep them in history for info)
+
+
+TODO - things to work on
+* "represent" edits somewhere in document as "library of functions"
+  and then call those from buttons (rather than embedding them directly)
+  allow some kind of abstraction (as in Histogram) to make them reusable
+* figure out how to do evaluation better
+  (based on the stored abstractions? but need to store provenance...)
+
+SEMANTIC CONDITIONS
+\url{https://www.youtube.com/watch?v=NBnc2ToS_j0}
+(has a section on this in background)
+
+
+
+INTERACTION
+* replay stored event handlers against the old version?
+  (this way, adding an item to a speakers list gets migrated \& adds a new table row!)
+* simlarly!! we need merge in order to apply edits to multiple targets
+  (when you remove all items in a list, the indices change)
+  (but I guess we should do this against version at the time of saving too....)
+
+[this \& evaluation = the unreasonable effectiveness of merging]
+
+Notes on storing and reusing edits
+* references need to be represented as references so that they get updated
+  (NO! not if we reply them against old version, which seems better - but there are 2 design choices)
+* how to apply them to multiple targets? use Move to update the selectors instead of
+  replacing the prefix manually
+
+
+CONDITIONALS
+https://toby.li/files/p311-radensky.pdf
+
 
 \subsection{Future work}
 \label{sec:discuss-future}
@@ -1102,6 +1216,7 @@ have an implicit structure.
 
 better effect system
 
+IDEA: Type check edit groups to ensure they preserve structure but not individual edits eg when adding list item
 
 ~
 
@@ -1129,6 +1244,9 @@ how well did Denicek work for implementing Datnicek
 
 
 \subsection{Heuristic evaluation}
+
+techdims
+
 \subsection{Limitations}
 
 RANDOM FORMAL STUFF
@@ -1454,96 +1572,6 @@ notational freedom
 
 \newpage
 ~
-
-Maybe have 'enabled' for edits afterall?
-(we can merge with conflicts and disable some edits, but keep them in history for info)
-
-NOTES
-type Edit =
-  { Kind : EditKind
-    Dependencies : Selectors list }  -- only needed for evaluated edits
-
-VALUE vs STRUCTURE distinction
-* good in theory, nice for implementation
-* tricky to use! needs some assistance tools
-
-TODO - things to work on
-* "represent" edits somewhere in document as "library of functions"
-  and then call those from buttons (rather than embedding them directly)
-  allow some kind of abstraction (as in Histogram) to make them reusable
-* figure out how to do evaluation better
-  (based on the stored abstractions? but need to store provenance...)
-
-SEMANTIC CONDITIONS
-\url{https://www.youtube.com/watch?v=NBnc2ToS_j0}
-(has a section on this in background)
-
-SUBSTRATE DESIGN PROBLEMS
-* selectors - all for structure / index for data
-  (but it is useful to allow others...)
-  (multiselect also bad for checks!)
-* groups/conditions/preconditions
-  (c.f. email to jonathan)
-  tried conditions on edits; trying groups with check edits
-* what to do with "disabled edits"? for example when we remove all checked
-  (before, this created edit groups with "check" but if the check was false,
-  the group was ignored and this messed up merging - because we wouldn't know if the
-  edit had any effect or not)
-
-Evaluation
-* evaluated edits have to be migrated to the end
-  (if there are conflicts, they are dropped)
-  Think of this as maintaining a tree:
-
-  e3
-  |
-  e2   evaluated
-  |  /
-  e1
-  |
-  e0
-
-  this has to be serialized as e0 -> e1 -> e2 -> e3 -> evaluated
-
-  evaluated edits do not became part of the main history
-  but hang on the side
-
-ISSUES
-* if we merge a thing with saved-interactions with something, hashes will change!
-
-NOTES
-* ListAppendFrom - we need this, because we cannot encode this.
-* for records, we can RecordAdd(sel, fld, ..) @ Copy(sel @ [Field fld], src) but
-  this does not work for lists - because we do not know the index!
-  (and we cannot look into current document, because it will differ for saved-interactions)
-
-
-TODO
-* many things with <tag> selectors currently do not work
-  (e.g. `matches` for highlighting) because if we collect path of a current node,
-  we collect indices and get /some/2/another - and cannot tell if this matches
-  /some/<li>/another - we'd have to collect more detailed path info!
-
-INTERACTION
-* replay stored event handlers against the old version?
-  (this way, adding an item to a speakers list gets migrated \& adds a new table row!)
-* simlarly!! we need merge in order to apply edits to multiple targets
-  (when you remove all items in a list, the indices change)
-  (but I guess we should do this against version at the time of saving too....)
-
-[this \& evaluation = the unreasonable effectiveness of merging]
-
-Notes on storing and reusing edits
-* references need to be represented as references so that they get updated
-  (NO! not if we reply them against old version, which seems better - but there are 2 design choices)
-* how to apply them to multiple targets? use Move to update the selectors instead of
-  replacing the prefix manually
-
-IDEA: Type check edit groups to ensure they preserve structure but not individual edits eg when adding list item
-
-CONDITIONALS
-https://toby.li/files/p311-radensky.pdf
-
 
 REMAINING IMPLEMENTATION TODOs:
 
