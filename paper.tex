@@ -1053,7 +1053,7 @@ systems \cite{jakubovic-2022-ladder,edwards-2005-subtext,hall-2017-infra,omar-20
 Two guiding principles for Denicek have been \emph{composability} and
 \emph{uniformity}~\cite{jakubovic-2023-techdims}. The design should cover a large number of
 cases using a small number of concepts. This is apparent in the design of the document
-structure (a node can be data, code or rich text) as well as in the role of edits
+structure (a node can represent data, code or rich text) as well as in the role of edits
 (an edit can be a value or structure change, the result of user interaction or the
 result of evaluation).
 
@@ -1069,13 +1069,13 @@ structure (i.e.~records should have the same fields, so that they can be targett
 selector), but we do not enforce this. Often, the property is temporarily violated when adding a
 list item, but then restored once the item is created.
 
-Keeping the structure (type) explicit has theoretical appeal and it simplifies some
+Keeping the structure (type information) explicit has theoretical appeal and it simplifies some
 aspects of the implementation. In particular, edits to document structure can be clearly separated
 from edits of document values. The same separation has disadvantages in that it complicates the
-edit language and it requires novel user interface. (In Webnicek, we can select all list items
-and edit them at once using the same mechanism as when editing individual list items. With explicit
-structure, changing a list structure has to be either a different kind of edit or possibly an edit
-of a virtual ``prototype'' element.)
+edit language and it requires user interface that departs further from document editor.
+(In Webnicek, users can select all list items and edit them at once using the same mechanism as
+when editing individual list items. With explicit structure, changing a list structure has to be
+either a different kind of edit or possibly an edit of a virtual ``prototype'' element.)
 
 \subsubsection*{Merging and Document State}
 One specific design choice in Denicek is that the merge operation operates solely on two
@@ -1083,34 +1083,35 @@ sequences of edits, but it does not need access to the current document state (o
 histories). The reconcilliation of edits (\S\ref{sec:system-ops}) is defined for two individual
 edits $e_1$ and $e_2$.
 
-This limits the language of edits in a number of ways. The first consequence is that we cannot, in
-general, support conditional edits (edits that are applied only when a certain condition holds for
-the current document state). This is the case because the merging operation would not be able to
-determine whether the edit is applied (and whether its effects should take place). One consequence
-of this choice is that generalization of recorded interactions (\S\ref{sec:impl-interaction}) has to
-be done on a meta-level (by specifying how to invoke edits, rather than in the edits themselves).
-The second consequence of this design choice is that our langauge of selectors has to be abstract.
-We can target all list elements using the \ident{All} selector, but cannot convert between this
-representation and a representation that explicitly lists indices of all items currently in the list.
+This design limits the possible language of edits. We cannot, in general, support
+conditional edits (that are applied only when a certain condition holds for
+the current document state). This is because the merging operation would not be able to
+determine whether the edit is applied (and whether its effects should~take~place).
+
+One consequence of the design choice is that the generalization of recorded interactions (\S\ref{sec:impl-interaction}) has to
+be done on a meta-level (by specifying how to invoke edits, rather than through the edits themselves).
+Another consequence is that our langauge of selectors has to be abstract.
+We can target all list elements using the \ident{All} selector, but cannot combine this
+representation with a representation that explicitly lists indices of all items currently in the list.
 
 \subsubsection*{Explicit List Indices}
 Denicek does not use implicit numerical indices for lists. When adding an item, the
 user (or the system built on top of Denicek) has to explicitly provide an index. This design
 is motivated by a typical programming by demonstration scenario where the user adds a
-new list item and then modifies it (adding a speaker or a Todo item). When using
-explicit indices, the edits following \ident{Append} can easily refer to the newly added
+new list item and then modifies it (adding a speaker or a Todo item). When using explicit indices,
+the edits following \ident{Append} can use the index to refer to and modify the newly added
 item. (To avoid overwriting existing items when replaying recorded edits, Webnicek replaces
-indices of newly added items in recorded interactions in \S\ref{sec:impl-pbd}).
+indices of newly added items when replaying recorded interactions in \S\ref{sec:impl-pbd}).
 
 Using implicit numerical indices is possible, but it requires treating all list-related edits
 as operations that transform document selectors. This means adding multiple new rules to
 Figure~\ref{fig:updates}, which specifies how edits transform references. Merging then has to
-modify indices when edits add, remove or reorder list items. Somewhat, counterintuitively, list
-order then becomes a part of document structure rather than a property of the list value.
+modify indices when edits add, remove or reorder list items. List order then, somewhat confusingly,
+becomes a part of document structure rather than a property of the list value.
 
-The problem could also be avoided by not letting the user modify a list item after adding it.
+The problem could be avoided by not letting the user modify a list item after adding it.
 (We can require new items to be constructed outside of the list and then added through a
-single edit that combines the logic of \ident{Append} and \ident{Copy}.) This is easier to
+single edit that combines the logic of \ident{Append} and \ident{Copy}.) This is easy to
 implement, but it requires unintuitive user interaction and it also does not address all
 use cases for modifying list item via index.
 
@@ -1118,59 +1119,77 @@ use cases for modifying list item via index.
 When list indices are not numerical and supplied explicitly, we need another mechanism for
 tracking order of list items. Denicek uses a data structure inspired by Mergeable Replicated
 Data Types \cite{kaki-2019-mrdts} and requires specifying the index of a preceding list item
-when appending to a list. (If two edits append to the same list independently with the same
-preceding item, the order is non-deterministic.)
+when appending to a list. However, Webnicek supplies the index of preceding item automatically.
+(If two edits append to the same list independently with the same preceding item, the order
+is non-deterministic.)
 
 Note that Denicek uses the same mechanism for record fields. Keeping record fields ordered is
 desirable because Denicek documents map directly to HTML documents and so the order is visible
-to a user. Moreover, different ways of merging can result in different order of adding fields
+to a user. Moreover, different ways of merging edits can result in different order of adding fields
 to a record. Making order explicit ensures those result in equivalent documents.
 
-Denicek still makes a distinction between records and lists, even if the two are technically
-extremely similar. The difference is conceptual. A list is expected to contain items of the
+Denicek still makes a distinction between records and lists, even if the two are similar
+technically. The difference is conceptual. A list is expected to contain items of the
 same structure (that can be addressed using the \ident{All} selector), whereas record fields
 are expected to be of different types. If we unified lists and records, \ident{All} would have
 to be applicable to records too and inferring and checking document structure would be
 challenging.
 
-\subsubsection*{two-way merging}
-divergence model of challenges paper - requires inverse operation for moving edits backwards
+\subsubsection*{Convergence vs. Divergence of Document Variants}
+There are two ways of managing document variants in collaborative editing~\cite{edwards-2025-schema}.
+In the \emph{divergence} model, users can maintain their own variant indefinitely (share data,
+but use a different schema locally). In the \emph{convergence} model, users have to adopt all
+earlier changes in order to adopt a later change (accept new schema before new data).
 
-\subsubsection*{keeping git tree}
+Denicek supports only the simpler \emph{convergence} model. To support the \emph{divergence}
+model, we would need an operation dual to our edit reconcilliation (given two subsequent edits,
+$e_1, e_2$, we want to generate $e_2'$ that has the same effect as $e_2$ but can occur before
+$e_1$). The pair of operations has been called \emph{project} and \emph{retract}
+\cite{edwards-2021-typed}. We choose not to support this as it would complicate the basic
+Denicek substrate structure.
 
-save graph of edits rather than list
-(would make replaying of saved edits easier because the histhash never changes)
+\subsubsection*{Linear History vs. Graph of Edits}
+Denicek keeps a linear history of edits. When merging edits, new edits have to be transformed and
+added to the top of the history. This model is akin to git rebase. An alternative representation
+would be to maintain a graph of edits akin to when using git merge. In this representation,
+we would need to keep parents of edits and special merge edits would have multiple parents.
 
-=> PBD - updates the recorded edits this would not be needed if the
-history was stored as a graph, akin to ordinary git merging rather than rebasing).
+Maintaining a graph of edits would make recording of edits in programming by demonstration
+easier (\S\ref{sec:impl-pbd}) as we would not need to update recorded edits if they are
+transformed during merging. (Their hashes would remain the same.) However, supporting special
+merge edits and non-linear history would make the basic substrate more complex.
 
+\subsubsection*{Supporting Rich Selectors}
+Denicek supports only a limited set of selectors. An absolute reference can select a record
+field (\ident{Field}), specific list item (\ident{Index}) or all list items (\ident{All}).
+Once can imagine a range of other useful selectors, for example to select list items with a
+given tag or select items satisfying other conditions.
 
-ISSUES
-* if we merge a thing with saved-interactions with something, hashes will change!
+We could support such selectors for those edits that do not affect the document
+structure. However, supporting such conditional selectors in general is incompatible with our
+design decision that merging should not depend on document state. (If an edit wraps the body of all
+{\small\Verb_<h3>_} elements, we need to know the document state in order to determine whether
+we need to modify the selector pointing to an item at a specific index.)
 
+\subsubsection*{Dependency Tracking}
+Recall that the incremental recomputation (\S\ref{sec:impl-incremental}) is based on the
+conflict detection mechanism of Denicek (\S\ref{sec:system-ops}). When pushing edit $e_2$ through
+$e_1$, a conflict is detected if they affect overlapping targets or if $e_1$ modifies a
+document node that is a source of $e_2$, typically, the source of a \ident{Copy} edit.
 
-\subsubsection*{Fancy selectors}
-
-* many things with <tag> selectors currently do not work
-  (e.g. `matches` for highlighting) because if we collect path of a current node,
-  we collect indices and get /some/2/another - and cannot tell if this matches
-  /some/<li>/another - we'd have to collect more detailed path info!
-
-  * selectors - all for structure / index for data
-    (but it is useful to allow others...)
-    (multiselect also bad for checks!)
-
-\subsubsection*{Dependency tracking}
-
-NOTES
-type Edit =
-  { Kind : EditKind
-    Dependencies : Selectors list }  -- only needed for evaluated edits
+For edits generated during formula evaluation (\S\ref{sec:impl-eval}), we need to track an
+additional kind of dependency. Evaluating a formula that adds two numbers from two document
+location results in an edit that sets the result of the formula to the sum of the two numbers.
+The edit contains the resulting number, but we also need to record that the edit has the two
+source locations as dependencies. For this reason, Denicek makes it possible to annotate edits
+with additional dependencies. One alternative would be to introduce a special \ident{Evaluate}
+edit that would identify an operation to compute and a list of arguments, specified as a list
+of references. We choose the former to keep the set of edits smaller.
 
 
 % ---------------------------------
 
-
+\begin{comment}
 Maybe have 'enabled' for edits afterall?
 (we can merge with conflicts and disable some edits, but keep them in history for info)
 
@@ -1207,6 +1226,7 @@ Notes on storing and reusing edits
 CONDITIONALS
 https://toby.li/files/p311-radensky.pdf
 
+\end{comment}
 
 \subsection{Future work}
 \label{sec:discuss-future}
@@ -1241,6 +1261,7 @@ how well did Denicek work for implementing Datnicek
 \section{Discussion}
 
 
+\begin{comment}
 
 
 \subsection{Heuristic evaluation}
@@ -1273,7 +1294,7 @@ push e1 e2 e3 over b1 b2 b3 can be done via
 or
   push e1, e2, e3 over b1, then over b2, then over b3
 (implies that no "extra" edits can be appended later)
-
+\end{comment}
 
 \bibliographystyle{plain}
 \bibliography{paper}
@@ -1406,6 +1427,7 @@ was transformed (typically target, but possibly also source).
 \vspace{-1em}
 \end{figure}
 
+\begin{comment}
 \newpage
 xx
 
@@ -1424,7 +1446,6 @@ evaluation / heuristic evaluation \\
 discussion and limitations \\
 
 \newpage
-
 \section{Introduction old}
 
 The computational substrate using which software is built determines the capabilities that the
@@ -1651,7 +1672,7 @@ edit /speakers/body/*/email (fn2)
 
 
 
-
+\end{comment}
 
 
 
