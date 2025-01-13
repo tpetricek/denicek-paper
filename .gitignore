@@ -3,3 +3,9 @@
 *.out
 *.aux
 *.bbl
+*.fdb_latexmk
+*.synctex
+*.synctex(busy)
+*.synctex.gz
+*.synctex.gz(busy)
+*.fls
