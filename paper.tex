@@ -59,23 +59,23 @@
 }
 
 \begin{abstract}
-User-centric programming research gave rise to a wide range of compelling programming experiences,
+User-centric programming research gave rise to a variety of compelling programming experiences,
 including local-first collaborative editing, programming by demonstration, incremental
 recomputation, schema change control, end-user debugging and concrete programming.
 Those experiences advance the state of the art of end-user programming, but they are hard to
-implement on the basis of established programming language and system paradigms.
+implement on the basis of established programming language and system.
 
-We contribute Denicek, a computational substrate that reduces the complexity of
-implementing the aforementioned programming experiences. Denicek represents a program as a series of edits
-that construct and transform a document consisting of data and formulas. Denicek provides three
-primitive operations on series of edits, application of edits, merging of histories and conflict resolution.
-We show that the three operations form the backbone of a direct implementation of a range of
-programming experiences.
+We contribute Denicek, a computational substrate that makes it easier to
+implement the aforementioned programming experiences. Denicek represents a program as a series of edits
+that construct and transform a document consisting of data and formulas. It provides three
+core operations on edit histories: (i) edit application, (ii) merging of histories and (iii) conflict resolution.
+We show that these operations serve as fundamental building blocks for a direct implementation
+of a range of programming experiences.
 
 We discuss the architecture of Denicek, document key design considerations and elaborate
 the implementation of the programming experiences listed above. To evaluate the proposed
-architecture, we use Denicek as the basis of a simple end-user data exploration environment.
-The case study shows that the Denicek computational substrate provides an appealing basis for the
+architecture, we use Denicek as the basis of an interactive data science notebook.
+The case study shows that the Denicek computational substrate provides a robust basis for the
 design of rich, interactive end-user programming systems.
 \end{abstract}
 
@@ -95,25 +95,24 @@ design of rich, interactive end-user programming systems.
 
 \section{Introduction}
 
-A computational substrate defines the basic structures using which programs are constructed, how
-the progam state is represented and how it is changed \cite{jakubovic-2022-ladder}. The choice of
+A computational substrate defines the structures from which programs are constructed, how
+the progam state is represented and how it evolves \cite{jakubovic-2022-ladder}. The choice of
 a substrate affects what programming experiences can be readily supported by a system. For example,
 object-oriented programming has been historically linked to graphical user
 interfaces~\cite{kay-1993-smalltalk}, while using lists as the basic substrate enabled Lisp to become
 a ``language laboratory'' \cite{steele-1993-lisp}.
 
 In principle, any programming experience can be developed on top of any computational
-substrate. However, a suitable program representation and operations for working with programs
-provided by the substrate can eliminate much of the complexity of implementing interesting
+substrate. However, a suitable program representation can eliminate much of the complexity of implementing interesting
 programming experiences. For example, the reflective capabilities of Smalltalk make it easy
-to provide rich debugging tools \cite{rauch-2019-babylonian} that are difficult to provide
+to build rich debugging tools \cite{rauch-2019-babylonian} that are difficult to implement
 for C/C++~\cite{kell-2018-unix,kell-2024-debugging}.
 
 \subsubsection*{Programming Experiences}
 
 What would be the ideal programming substrate for rich, interactive end-user programming systems?
-In this paper, we aim to design a programming substrate that makes it easy to develop a range of
-programming experiences \cite{myers-2006-eup}:
+In this paper, we aim to design a programming substrate that makes it easy to develop diverse
+programming experiences \cite{myers-2006-eup} including:
 
 \begin{itemize}
 \item \emph{Local-First Collaboration.} Multiple users should be able to concurrently
@@ -1426,6 +1425,46 @@ was transformed (typically target, but possibly also source).
 \label{fig:examples}
 \vspace{-1em}
 \end{figure}
+
+NICE THINGS IN DATNICEK
+* merging of code edits (e.g. change parameter merges with adding a call to chain)
+* remove cell to which there are refs - does the susbtrate catch this?
+
+RELATED WORK
+
+TIJS
+https://homepages.cwi.nl/~storm/publications/icsews13live-p17-p-16201-preprint.pdf
+
+via Pierre
+https://pijul.org/manual/why_pijul.html
+
+Geoffrey Litt
+https://dl.acm.org/doi/pdf/10.1145/3426428.3426914
+https://dl.acm.org/doi/pdf/10.1145/3397537.3397541
+
+Programming By Example: Intelligence in Demonstrational Interfaces
+https://cacm.acm.org/research/programming-by-example-intelligence-in-demonstrational-interfaces/
+
+Rapido: Prototyping Interactive AR Experiences through
+Programming by Demonstration
+https://dl.acm.org/doi/pdf/10.1145/3472749.3474774
+
+openrefine
+- facet (group by) - then change the key to normalize
+  (https://www.youtube.com/watch?v=yTJ6x6zEQmI 51:40)
+
+Don't Step on My Toes: Resolving Editing Conflicts in Real-Time
+Collaboration in Computational Notebooks
+https://arxiv.org/pdf/2404.04695
+
+AI assistants in notebook interfaces
+https://dl.acm.org/doi/pdf/10.1145/3544548.3580940
+
+Unravel - understand pipelines
+https://dl.acm.org/doi/pdf/10.1145/3472749.3474744
+
+WREX - nicest tool
+https://dl.acm.org/doi/pdf/10.1145/3313831.3376442
 
 \begin{comment}
 \newpage
