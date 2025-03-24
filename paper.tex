@@ -64,25 +64,23 @@ User-centric programming research gave rise to a variety of compelling programmi
 including local-first collaborative editing, programming by demonstration, incremental
 recomputation, schema change control, end-user debugging and concrete programming.
 Those experiences advance the state of the art of end-user programming, but they are hard to
-implement on the basis of established programming language and system.
+implement on the basis of established programming languages and system.
 
-We contribute Denicek, a computational substrate that makes it easier to
-implement the aforementioned programming experiences. Denicek represents a program as a series of edits
+We contribute Denicek, a computational substrate that simplifies the implementation of the
+above programming experiences. Denicek represents a program as a series of edits
 that construct and transform a document consisting of data and formulas. It provides three
-core operations on edit histories: (i) edit application, (ii) merging of histories and (iii) conflict resolution.
-We show that these operations can be composed to implement a range of programming experiences.
+operations on edit histories: edit application, merging of histories and conflict resolution.
+By composing these operations, we can  easily implement a range of programming experiences.
 
-We discuss the architecture of Denicek, document key design considerations and elaborate
-the implementation of the programming experiences listed above. To evaluate the proposed
-architecture, we use Denicek as the basis of an interactive data science notebook.
-The case study shows that the Denicek computational substrate provides a robust basis for the
+We present the architecture of Denicek, discuss key design considerations and elaborate
+the implementation of a variety of programming experiences. To evaluate the proposed
+substrate, we use Denicek to develop an innovative interactive data science notebook system.
+The case study shows that the Denicek computational substrate provides a suitable basis for the
 design of rich, interactive end-user programming systems.
-
-\note{This is a very promising paper. It's so much simpler and more complete than my stuff. I need to consider some of the different choices you've made. I think I am finally getting what your code execution model is. I hope the comments below are helpful.}
 \end{abstract}
-%
-% \keywords{Programming Systems, Computational Substrate, End-User Programming,
-%   Programming by Demonstration, Local-First Software}
+
+\keywords{Programming Systems, Computational Substrate, End-User Programming,
+ Programming by Demonstration, Local-First Software}
 
 %\begin{teaserfigure}
 %  \includegraphics[width=\textwidth]{sampleteaser}
@@ -102,7 +100,7 @@ the progam state is represented and how it evolves \cite{jakubovic-2022-ladder}.
 a substrate affects what programming experiences can be readily supported by a system. For example,
 object-oriented programming has been historically linked to graphical user
 interfaces~\cite{kay-1993-smalltalk}, while representing programs as lists enabled Lisp to become
-a ``language laboratory'' \cite{steele-1993-lisp}.
+a language laboratory \cite{steele-1993-lisp}.
 
 In principle, any programming experience can be developed on top of any computational
 substrate. However, a suitable program representation can eliminate much of the complexity of implementing interesting
@@ -112,65 +110,64 @@ for C/C++~\cite{kell-2018-unix,kell-2024-debugging}.
 
 \subsubsection*{Programming Experiences}
 
-In this paper, we aim to design a programming substrate that makes it easy to develop diverse
-programming experiences \cite{myers-2006-eup} including:
+In this paper, we describe a programming substrate that makes it easy to develop diverse
+programming experiences \cite{myers-2006-eup}. Those include:
 
 \begin{itemize}
 \item \emph{Local-First Collaboration.} Multiple users should be able to concurrently
-  modify a single document and automatically merge their changes, preferrably without requiring a central server~\cite{kleppmann-2019-local,litt-2022-peritext}.
+  modify a single document and automatically merge their changes, preferrably without a central server~\cite{kleppmann-2019-local,litt-2022-peritext}.
 \item \emph{Programming by Demonstration.} Allow users to construct simple programs by
-  demonstrating the steps of the expected behavior using concrete examples~\cite{leiva-2021-rapido,cypher-1993-pbd}.
+  enacting the steps of the expected behavior using concrete examples~\cite{leiva-2021-rapido,cypher-1993-pbd}.
 \item \emph{Incremental Recomputation.} When a part of a document changes, formulas whose result
-  depends on it are invalidated and, possibly, automatically recomputed \cite{mcdirmid-2013-usable,horowitz-2023-engraft,petricek-2020-live}.
-  \note{cite classic incremental computation literature}
+  depends on it are invalidated and, possibly, automatically recomputed \cite{teitelbaum-1981-cps,mcdirmid-2013-usable,horowitz-2023-engraft}.
 \item \emph{Schema Change Control.} When the user evolves the structure of the document, affected
   data and formulas should automatically co-evolve to match the new structure~\cite{litt-2020-cambria,edwards-2025-schema}.
 \item \emph{End-User Debugging.} The user should be able to ask provenance questions~\cite{cheney-2009-provenance} --
   why a computation resulted in a particular value and what inputs contributed to the result \cite{ko-2009-whyline}.
 \item \emph{Concrete Programming.} It should be possible to reuse parts of program logic, or formulas,
-  without introducing abstractions, that is, program against concrete values \cite{edwards-2006-copypaste,edwards-2022-copypaste}. \note{find more references}
+  without introducing abstractions, that is, program against concrete values \cite{edwards-2006-copypaste,edwards-2022-copypaste}.
 \end{itemize}
 
 \subsubsection*{Two-Stage Methodology}
-Our approach is captured by the interior mode \cite{adam-2021-dsr} of design science research.
+The technical focus of this paper fits within the interior mode of design science research \cite{adam-2021-dsr}.
 To \emph{design} Denicek, we identify six \emph{formative examples} -- simple programming
-tasks that manifest one or more of the desired programming experiences (\S\ref{app:examples}).
-Using those examples, we co-design the Denicek substrate and Webnicek (\S\ref{sec:walk}),
-a simple web-based end-user programming environment based on the substrate. Although Webnicek can
-be used to complete end-user programming tasks, it is optimized for testing the underlying
+tasks that manifest one or more of the desired programming experiences~(\S\ref{app:examples}).
+Using those examples, we co-design the Denicek substrate and Webnicek~(\S\ref{sec:walk}),
+a simple web-based end-user programming environment built directly on top of the substrate. Although Webnicek can
+be used to complete end-user programming tasks, it is optimized for developing the underlying
 substrate rather than for usability.
 
-To \emph{evaluate} Denicek, we use the substrate as the basis of Datnicek (\S\ref{sec:case}), an end-user data
-exploration environment inspired by existing systems~\cite{kandel-2011-wrangler,drossos-2020-wrex}.
+To \emph{evaluate} Denicek, we use the substrate to develop Datnicek (\S\ref{sec:case}), an interactive data
+science notebook system inspired by existing environments~\cite{kandel-2011-wrangler,drossos-2020-wrex}.
 We use the second stage to evaluate suitability of the Denicek substrate for the development of
 end-user programming systems and report the results of our evaluation (\S\ref{sec:eval}).
 
 \subsubsection*{Substrate}
 The Denicek substrate brings together two central design ideas. First, it represents programs as
 document trees consisting of nodes that can represent data, formulas, evaluated results, as well as
-static content. Second, Denicek does not store the document tree itself, but instead, it maintains
+static content. Second, Denicek does not store the document tree itself, but instead, maintains
 a sequence of edit operations through which the tree was constructed and transformed.
 
 The substrate then provides three primitive operations for working with sequences of edits.
-First, it can apply a series of edits to reconstruct a document. Second, it can merge two
+First, it can apply a series of edits to reconstruct the document. Second, it can merge two
 diverging edit histories. Finally, it can detect conflicts when merging histories and, for
 example, remove conflicting edits from one branch.
 
-The key insight that we present in this paper is that many of the programming experiences can
-be obtained by leveraging the uniform document representation alongside with a suitable combination
-of the three primitive operations.
+The key insight that we present in this paper is that many compelling programming experiences can
+be implemented by leveraging the uniform document representation alongside with a suitable
+composition of the three primitive operations.
 
-Changing data and formulas is done using the same primitive edit operations to
+Changing data and formulas is done using the same primitive edit operations that
 manipulate the document structure. A user-interface may provide a specialized editor, but still
 trigger the primitive edits behind the scenes. However, interacting with elements in the document,
-such as a entering text in a textbox, also generates a document edit that can be merged or checked
+such as a entering text in a textbox can also generate a document edit that can be merged or checked
 for conflicts (\S\ref{sec:impl-interaction}).
 
 As we will see, past edits that demonstrate an operation done to the
 document can be recorded, allowing programming by demonstration (\S\ref{sec:impl-pbd}).  Replaying
 such recorded edits is implemented using the merging operation, which means that recorded operations
-continue working even if the document structure later changes. Moreover, structural changes to the
-document can be done independently and then merged (\S\ref{sec:impl-collab}). Evaluation of formulas
+continue working even if the document structure later evolves. Moreover, structural changes to the
+document can be merged with concurrent data edits  (\S\ref{sec:impl-collab}). Evaluation of formulas
 also generates document edits (\S\ref{sec:impl-eval}). If the evaluated edits conflict with manual
 edits done later by the user, the evaluated edits are removed, implementing an incremental
 recomputation (\S\ref{sec:impl-incremental}).
@@ -180,55 +177,147 @@ The structure and contributions of this paper are:
 
 \begin{itemize}
 \item We present the Denicek substrate (\S\ref{sec:system}) and provide a detailed description of its
-  document representation, edit operations and the key three operations.
-\item We explain how a wide range of end-user programming experiences can be implemented using
-  the substrate (\S\ref{sec:impl}) in the context of a simple web-based prototype (Webnicek).
-\item We document important design decisions and alternatives (\S\ref{sec:discuss}). The analysis
-  shows that the desired functionality requires a careful choice among interconnected design options.
-  \note{We also identify problems requiring future work.}
-\item We develop an end-user data exploration system (Datnicek) on top of Denicek (\S\ref{sec:case})
-  and evaluate the extent to which the Denicek substrate enables such development (\S\ref{sec:eval}).
+  document representation, edit operations and the key three operations for working with edit histories.
+\item We illustrate a range of end-user programming experiences supported in Webnicek, a simple
+  web-based prototype programming system (\S\ref{sec:walk}), and discuss how the experiences are
+  implemented using the Denicek substrate (\S\ref{sec:impl}).
+\item We document important design decisions, alternatives and limitations (\S\ref{sec:discuss}).
+  The analysis shows that the desired functionality requires a careful choice among interconnected
+  design options.
+\item We present Datnicek, an end-user data exploration system built on top of Denicek (\S\ref{sec:case})
+  and evaluate the degree to which the Denicek substrate simplifies such development (\S\ref{sec:eval}).
 \end{itemize}
 
 \noindent
 To enable others build on top of Denicek, we share our compact and documented
-source code at: \url{https://github.com/d3sprog/denicek}
+source code at: \url{https://github.com/removed/for/review} %d3sprog/denicek
 
 % ==================================================================================================
 
 \section{Background}
 \label{sec:background}
+Denicek aims to support systems that feature end-user programming \cite{myers-2006-eup}, notational
+freedom and self-sustainability~\cite{jakubovic-2023-techdims}, liveness, interactivity \cite{rein-2019-live}
+and richness \cite{horowitz-2023-qualities}. We see programming more as interacting with a medium
+or a substrate \cite{kay-1977-media,klokmose-2015-webstrates} than writing text \cite{rpg-2012-revolution}.
+We first review related systems, substrates and their design (\S\ref{sec:background-sys})
+before discussing specific programming experiences (\S\ref{sec:background-exp}).
 
-What is this about? end-user programming \cite{myers-2006-eup}
-but also programming systems \cite{jakubovic-2023-techdims},
-Live \cite{rein-2019-live}, Interactive etc. - perhaps for a lack of better term use end-user
-(also notebooks)
+We focus on systems that allow gradual progression from a user to a developer, as envisioned
+in Smalltalk~\cite{reenskaug-1981-byte}. We use the term end-user programming loosely to refer to a
+part of this spectrum, also including spreadsheet systems and notebooks for data science.
 
+\subsection{Programming Systems and Substrates}
+\label{sec:background-sys}
+
+\subsubsection*{Programming Systems}
+A number of systems illustrate the qualities Denicek aims to support and have a related internal
+structure. Subtext, BootstrapLab and Infra~\cite{edwards-2005-subtext,jakubovic-2022-ladder,hall-2017-infra}
+use structured document-based program representation and provide some of the desired programming
+experiences on top of this representation. Many of those design ideas can be traced back to
+Boxer~\cite{disessa-1986-boxer}, which introduced the \emph{naive realism} principle (what the user
+sees is all there is) that we follow in Webnicek.
+
+
+
+\subsubsection*{Computational Substrate}
 explain computational substrate
 Substrate defined by \cite{jakubovic-2022-ladder}
+\cite{disessa-1995-epistemology}
+\cite{disessa-1986-boxer}
 
-citizen programmers? Maybe do not talk about ``programs'' because this is more documents with
-formulas - not that fancy programs. Computational documents?
+dynamic media / webstrates
+\cite{klokmose-2015-webstrates,radle-2017-codestrates}
+
+\subsubsection*{Edit histories}
+edit calculus (based on tree navigation though)
+\cite{omar-2017-hazelnut}
+
+\cite{storm-2013-deltas} semantic deltas for DSLs
+Pijul and \cite{schurmann-2022-merging} merging based on lattice theory
+
+\subsubsection*{Merging}
+OTs
+\cite{davis-2002-otsgml,jungnickel-2016-otjson}
+more recent CRDTs
+\cite{kleppmann-2019-local,litt-2022-peritext,klokmose-2024-mywebstrates}
+mrdts
+\cite{kaki-2019-mrdts}
+
+
+Merging - c.f. mywebstrates - we need more than Automerge (cite)
+which has a bunch of pre-built structures
+
+adding move to json \cite{da-2024-jsoncrdt}
+
+\subsection{Programming Experiences}
+\label{sec:background-exp}
+
+structure editing see \cite{beckman-2023-sandblocks}
+projectional see \cite{gobert-2023-lorgnette}
 
 
 
-programming by demonstration
+
+\subsubsection*{Local-First Collaboration}
+webstrates
+\cite{klokmose-2015-webstrates,klokmose-2024-mywebstrates}
+
+\cite{wang-2024-nbconflicts}
+Don't Step on My Toes: Resolving Editing Conflicts in Real-Time Collaboration in Computational Notebooks
+avoid conflicts in nb editing
+
+\cite{goldman-2011-collaborative}
+Collabode: Real-time collaborative coding in a web IDE - string edit based but apply only good edits
+
+\subsubsection*{Programming by Demonstration}
+Wrangler
+\cite{kandel-2011-wrangler}
+
+\cite{myers-2000-demonstrational}
+Programming By Example: Intelligence in Demonstrational Interfaces
+- how to design
+wrangler \cite{kandel-2011-wrangler}
+
 \cite{leiva-2021-rapido,cypher-1993-pbd}
 \cite{chen-2023-miwa}
 
-local first
-\cite{kleppmann-2019-local,klokmose-2024-mywebstrates}
+WREX - nicest tool (by example, but...)
+\cite{drossos-2020-wrex}
+generate code from edits
 
+\cite{litt-2020-customization,litt-2020-wildcard}
+Wildcard / data driven customiozation / end user customization by manipulating tabular data
+
+\subsubsection*{Schema Evolution}
+\cite{litt-2020-cambria,edwards-2025-schema}
+
+\subsubsection*{End-User Debugging}
 provenance/debugging
+\cite{cheney-2009-provenance}
 \cite{ko-2004-whyline,ko-2009-whyline,krebs-2023-probelog}
 \cite{ricciotti-2017-imperative,perera-2012-functional}
 \cite{perera-2022-linked}
-
 end-user debugging
 \cite{kissinger-2006-debugging}
 
+\cite{shrestha-2021-unravel}
+Unravel - understand data science pipelines
+
+\subsubsection*{Incremental Recomputation}
 live/incremental recomputation
-\cite{mcdirmid-2013-usable,horowitz-2023-engraft,petricek-2020-live}.
+\cite{mcdirmid-2013-usable,horowitz-2023-engraft}.
+\cite{petricek-2020-live}
+\cite{teitelbaum-1981-cps}
+\cite{acar-2006-adaptive}
+
+in notebooks - wrattler etc
+
+\subsubsection*{Concrete Programming}
+self \cite{ungar-1987-self}
+\cite{edwards-2006-copypaste,edwards-2022-copypaste}
+
+\subsubsection*{Visualization Preview etc}
 
 visualizing results of execution
 projection boxes \cite{lerner-2020-boxes}
@@ -236,37 +325,32 @@ projection boxes \cite{lerner-2020-boxes}
 livelits (provide editors)
 \cite{omar-2021-livelits}
 
-edit calculus (based on tree navigation though)
-\cite{omar-2017-hazelnut}
+babylonian - live examples
+\cite{rauch-2019-babylonian}
 
-structure editing see \cite{beckman-2023-sandblocks}
-
-Schema evolution
-% our paper; see https://openproceedings.org/2023/conf/edbt/paper-160.pdf - good refs in 2.2
-
-Also on substrate see
-% https://x.com/jonathoda/status/1185888711210389504
-
-% also cool: https://arxiv.org/pdf/2303.06777
+\subsubsection*{Other things}
+\cite{mcnutt-2023-nbai}
+AI assistants in notebook interfaces
+(also notebooks, how to design AI suport)
 
 
-Webnicek follows the \emph{naive realism}~\cite{disessa-1986-boxer} principle and makes the entire
-document visible to the user, although parts can be collapsible or hidden using CSS.
 
 
-Merging - c.f. mywebstrates - we need more than Automerge (cite)
-which has a bunch of pre-built structures
+
+
 
 ~
 
 ~
 
-\cite{gobert-2023-lorgnette}
 
 ~
 
-The Denicek substrate owes much to systems discussed in \S\ref{sec:background},
-especially Subtext, BootstrapLab and Infra~\cite{edwards-2005-subtext,jakubovic-2022-ladder,hall-2017-infra}.
+
+
+
+
+
 
 
 ~
@@ -1484,42 +1568,6 @@ was transformed (typically target, but possibly also source).
 NICE THINGS IN DATNICEK
 * merging of code edits (e.g. change parameter merges with adding a call to chain)
 * remove cell to which there are refs - does the susbtrate catch this?
-
-RELATED WORK
-
-TIJS
-https://homepages.cwi.nl/~storm/publications/icsews13live-p17-p-16201-preprint.pdf
-
-via Pierre
-https://pijul.org/manual/why_pijul.html
-
-Geoffrey Litt
-https://dl.acm.org/doi/pdf/10.1145/3426428.3426914
-https://dl.acm.org/doi/pdf/10.1145/3397537.3397541
-
-Programming By Example: Intelligence in Demonstrational Interfaces
-https://cacm.acm.org/research/programming-by-example-intelligence-in-demonstrational-interfaces/
-
-Rapido: Prototyping Interactive AR Experiences through
-Programming by Demonstration
-https://dl.acm.org/doi/pdf/10.1145/3472749.3474774
-
-openrefine
-- facet (group by) - then change the key to normalize
-  (https://www.youtube.com/watch?v=yTJ6x6zEQmI 51:40)
-
-Don't Step on My Toes: Resolving Editing Conflicts in Real-Time
-Collaboration in Computational Notebooks
-https://arxiv.org/pdf/2404.04695
-
-AI assistants in notebook interfaces
-https://dl.acm.org/doi/pdf/10.1145/3544548.3580940
-
-Unravel - understand pipelines
-https://dl.acm.org/doi/pdf/10.1145/3472749.3474744
-
-WREX - nicest tool
-https://dl.acm.org/doi/pdf/10.1145/3313831.3376442
 
 \begin{comment}
 \newpage
