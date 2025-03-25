@@ -196,21 +196,22 @@ source code at: \url{https://github.com/removed/for/review} %d3sprog/denicek
 
 \section{Background}
 \label{sec:background}
-Denicek aims to support systems that feature end-user programming \cite{myers-2006-eup}, notational
-freedom and self-sustainability~\cite{jakubovic-2023-techdims}, liveness, interactivity \cite{rein-2019-live}
-and richness \cite{horowitz-2023-qualities}. We see programming more as interacting with a medium
+Denicek aims to support a class of systems associated with end-user programming \cite{myers-2006-eup},
+notational freedom and self-sustainability~\cite{jakubovic-2023-techdims}, liveness, interactivity
+and richness \cite{horowitz-2023-qualities,rein-2019-live}. We see programming more as interacting with a medium
 or a substrate \cite{kay-1977-media,klokmose-2015-webstrates} than writing text \cite{rpg-2012-revolution}.
-We first review related systems, substrates and their design (\S\ref{sec:background-sys})
-before discussing specific programming experiences (\S\ref{sec:background-exp}).
-
 We focus on systems that allow gradual progression from a user to a developer, as envisioned
-in Smalltalk~\cite{reenskaug-1981-byte}. We use the term end-user programming loosely to refer to a
+in Smalltalk~\cite{reenskaug-1981-byte} and use the term end-user programming loosely to refer to a
 part of this spectrum, also including spreadsheet systems and notebooks for data science.
+We first review related systems and their technical design (\S\ref{sec:background-sys})
+before discussing programming experiences (\S\ref{sec:background-exp}).
+
+% --------------------------------------------------------------------------------------------------
 
 \subsection{Programming Systems and Substrates}
 \label{sec:background-sys}
 
-\subsubsection*{Programming Systems}
+\subsubsection*{Programming Systems and Substrates}
 A number of systems illustrate the qualities Denicek aims to support and have a related internal
 structure. Subtext, BootstrapLab and Infra~\cite{edwards-2005-subtext,jakubovic-2022-ladder,hall-2017-infra}
 use structured document-based program representation and provide some of the desired programming
@@ -218,156 +219,122 @@ experiences on top of this representation. Many of those design ideas can be tra
 Boxer~\cite{disessa-1986-boxer}, which introduced the \emph{naive realism} principle (what the user
 sees is all there is) that we follow in Webnicek.
 
+To indicate that Denicek is intended as an underlying infrastructure on top of which programming
+systems can be built, we use the term \emph{computational substrate}, which also dates back to
+Boxer~\cite{disessa-1995-epistemology} and is closely related to the notion of dynamic media
+introduced by Kay and Goldberg \cite{kay-1977-media}. Webstrates \cite{klokmose-2015-webstrates}
+is a substrate based on synchronization of documents (but without edit histories) that has been
+use as the basis for multiple programming systems \cite{radle-2017-codestrates,borowski-2022-varv}.
 
+\subsubsection*{Edit Histories and Merging}
+Manipulating programs through semantically meaningful edits is a technique used by structure
+editors \cite{teitelbaum-1981-cps,hempel-2018-deuce,beckman-2023-sandblocks}. The langauge of
+edits has been captured formally as an \emph{edit calculus} \cite{omar-2017-hazelnut} and
+edits have also been used as the basis of live programming environments \cite{storm-2013-deltas}.
 
-\subsubsection*{Computational Substrate}
-explain computational substrate
-Substrate defined by \cite{jakubovic-2022-ladder}
-\cite{disessa-1995-epistemology}
-\cite{disessa-1986-boxer}
+Merging of edits is most frequently done in version control systems such as git. Systems based
+on a more rigorous design such as Pijul \cite{meunier-2024-pijul} delay merging to a later point
+by using a graph or a lattice \cite{schurmann-2022-merging}. In the context of
+programming environments, Grove \cite{adams-2025-grove} uses a commutative patches, with a graph
+structure similar to Pijul, as the basis for a collaborative structure editor.
 
-dynamic media / webstrates
-\cite{klokmose-2015-webstrates,radle-2017-codestrates}
-
-\subsubsection*{Edit histories}
-edit calculus (based on tree navigation though)
-\cite{omar-2017-hazelnut}
-
-\cite{storm-2013-deltas} semantic deltas for DSLs
-Pijul and \cite{schurmann-2022-merging} merging based on lattice theory
-
-\subsubsection*{Merging}
-OTs
-\cite{davis-2002-otsgml,jungnickel-2016-otjson}
-more recent CRDTs
-\cite{kleppmann-2019-local,litt-2022-peritext,klokmose-2024-mywebstrates}
-mrdts
-\cite{kaki-2019-mrdts}
-
-
-Merging - c.f. mywebstrates - we need more than Automerge (cite)
-which has a bunch of pre-built structures
-
-adding move to json \cite{da-2024-jsoncrdt}
-
-\subsection{Programming Experiences}
-\label{sec:background-exp}
-
-structure editing see \cite{beckman-2023-sandblocks}
-projectional see \cite{gobert-2023-lorgnette}
-
-
-
-
-\subsubsection*{Local-First Collaboration}
-webstrates
-\cite{klokmose-2015-webstrates,klokmose-2024-mywebstrates}
-
-\cite{wang-2024-nbconflicts}
-Don't Step on My Toes: Resolving Editing Conflicts in Real-Time Collaboration in Computational Notebooks
-avoid conflicts in nb editing
-
-\cite{goldman-2011-collaborative}
-Collabode: Real-time collaborative coding in a web IDE - string edit based but apply only good edits
-
-\subsubsection*{Programming by Demonstration}
-Wrangler
-\cite{kandel-2011-wrangler}
-
-\cite{myers-2000-demonstrational}
-Programming By Example: Intelligence in Demonstrational Interfaces
-- how to design
-wrangler \cite{kandel-2011-wrangler}
-
-\cite{leiva-2021-rapido,cypher-1993-pbd}
-\cite{chen-2023-miwa}
-
-WREX - nicest tool (by example, but...)
-\cite{drossos-2020-wrex}
-generate code from edits
-
-\cite{litt-2020-customization,litt-2020-wildcard}
-Wildcard / data driven customiozation / end user customization by manipulating tabular data
-
-\subsubsection*{Schema Evolution}
-\cite{litt-2020-cambria,edwards-2025-schema}
-
-\subsubsection*{End-User Debugging}
-provenance/debugging
-\cite{cheney-2009-provenance}
-\cite{ko-2004-whyline,ko-2009-whyline,krebs-2023-probelog}
-\cite{ricciotti-2017-imperative,perera-2012-functional}
-\cite{perera-2022-linked}
-end-user debugging
-\cite{kissinger-2006-debugging}
-
-\cite{shrestha-2021-unravel}
-Unravel - understand data science pipelines
-
-\subsubsection*{Incremental Recomputation}
-live/incremental recomputation
-\cite{mcdirmid-2013-usable,horowitz-2023-engraft}.
-\cite{petricek-2020-live}
-\cite{teitelbaum-1981-cps}
-\cite{acar-2006-adaptive}
-
-in notebooks - wrattler etc
-
-\subsubsection*{Concrete Programming}
-self \cite{ungar-1987-self}
-\cite{edwards-2006-copypaste,edwards-2022-copypaste}
-
-\subsubsection*{Visualization Preview etc}
-
-visualizing results of execution
-projection boxes \cite{lerner-2020-boxes}
-
-livelits (provide editors)
-\cite{omar-2021-livelits}
-
-babylonian - live examples
-\cite{rauch-2019-babylonian}
-
-\subsubsection*{Other things}
-\cite{mcnutt-2023-nbai}
-AI assistants in notebook interfaces
-(also notebooks, how to design AI suport)
-
-
-
-
-
-
-
-~
-
-~
-
-
-~
-
-
-
-
-
-
-
-
-~
+More generally, merging of edits can be based on the operational transform approach
+\cite{davis-2002-otsgml}, where edit conflicts are reconciled,
+or conflict-free representation of edits (CRDTs) \cite{kleppmann-2019-local,litt-2022-peritext}.
+In both approaches, supporting complex edits on tree structures such as JSON
+remains a challenge \cite{jungnickel-2016-otjson,da-2024-jsoncrdt}. Mergeable replicated data
+types (MRDTs) \cite{kaki-2019-mrdts} can merge updates provided there is a suitable relational
+representation of the data. Recent work on MySubstrates and Grove \cite{adams-2025-grove,klokmose-2024-mywebstrates}
+has been based on CRDTs, whereas Edwards et al. \cite{edwards-2021-typed} use operational
+transformations.
 
 % --------------------------------------------------------------------------------------------------
 
 \begin{figure*}[t]
 \vspace{-0.5em}
-\includegraphics[width=0.95\textwidth,clip,trim=1cm 1cm 1cm 0.5cm]{fig/walkthrough.pdf}
-\vspace{-1em}
+\includegraphics[width=0.95\textwidth,clip,trim=1.7cm 4.9cm 3.2cm 1.2cm]{fig/walkthrough.pdf}
+\vspace{-0.5em}
 \caption{Organizing a conference using Denicek. The Walkthrough shows construction of a user
   interface for adding speakers (A, B, C); refactoring of the list and merging edits (D, E); and
   formulas with schema and code co-evolution (F, G).}
 \label{fig:walkthrough}
 \end{figure*}
 
-\newpage
+% --------------------------------------------------------------------------------------------------
+
+\subsection{Programming Experiences}
+\label{sec:background-exp}
+
+We review a range of compelling programming experiences explored in recent research,
+focusing on those supported by Denicek.
+
+\subsubsection*{Local-First Collaboration}
+Since the early collaborative programming environments such as Collabode \cite{goldman-2011-collaborative},
+real-time collaboration has became widely used, if not always without challenges \cite{tan-2024-vslive}.
+Merging concurrent edits is one such challenge.
+In addition to CRDT-based approaches \cite{klokmose-2024-mywebstrates}, conflicts arising during
+collaboration have been solved through fine-grained locking \cite{wang-2024-nbconflicts}.
+
+\subsubsection*{Programming by Demonstration}
+Earliest programming by demonstration systems used the paradigm for tasks ranging from graphics
+and user interfaces to general-purpose programming \cite{smith-1975-pygmalion,cypher-1993-pbd}.
+Wrangler \cite{kandel-2011-wrangler} showed the effectivity of the paradigm for data cleaning,
+whereas more recent uses range from augmented reality prototyping \cite{leiva-2021-rapido}
+and web automation \cite{chen-2023-miwa} to end-user software customizations
+\cite{litt-2020-customization,litt-2020-wildcard}. A more general class of demonstrational
+interfaces \cite{myers-2000-demonstrational} also includes programming by example, used
+for example to infer data transformations in spreadsheets \cite{gulwani-2012-spreadsheets}.
+Demonstrational systems can be used to directly perform actions, but also to generate code
+that captures the interaction, as done e.g. in WREX \cite{drossos-2020-wrex}.
+
+\subsubsection*{Incremental Recomputation}
+Interactive programming systems with live previews \cite{petricek-2020-live,mcdirmid-2013-usable}
+have been attempting to update the previews without full recomputation at least since the pioneering
+work on the Cornell Program Synthesizer \cite{teitelbaum-1981-cps}. Outside live programming,
+more work has been focused on updating computation when data change, although this can also
+be source code of a program passed to an adaptive interpreter \cite{acar-2006-adaptive}.
+Incremental recomputation is also a concern in notebook systems where cells can be run out of
+order \cite{singer-2020-jollity}. This can be addressed by maintaining a dependency graph
+\cite{petricek-2018-wrattler,koop-2017-dataflow} that also allows incremental recomputation
+on code change.
+
+\subsubsection*{Schema Change Control}
+Schema change control is concerned with adapting data and code to reflect changes in schema.
+The problem is well-studied in the context of databases \cite{brahmia-2024-evolution},
+although only few systems also automatically adapt database queries \cite{wang-2019-schema}.
+However, the problem is starting to be recognized in programming systems research
+\cite{litt-2020-cambria,edwards-2025-schema} as well as live programming \cite{barenz-2020-live}
+where state needs to be preserved during program editing.
+
+\subsubsection*{End-User Debugging}
+Non-programmers also need to be able understand and debug their programs \cite{kissinger-2006-debugging}.
+Systems such as Whyline and Probe Log \cite{ko-2004-whyline,ko-2009-whyline,krebs-2023-probelog}
+record information about program execution to let users analyse why they see a particular result,
+whereas displaying intermediate steps can aid understanding of data science pipelines \cite{shrestha-2021-unravel}.
+More generally, such functionality can leverage provenance tracking \cite{cheney-2009-provenance}
+and program slicing \cite{ricciotti-2017-imperative,perera-2012-functional}. The same infrastructure
+can also be used to build linked visualizations \cite{perera-2022-linked}.
+
+\subsubsection*{Concrete Programming}
+Programming can be simplified by working with concrete values instead of abstractions, an idea
+pioneered by the prototype-based programming language Self \cite{ungar-1987-self}. Self uses
+prototypes at the object level. At the expression level, similar functionality can be provided
+by managed copy \& paste. Subtext \cite{edwards-2006-copypaste,edwards-2022-copypaste} treats this
+mechanism as central, whereas other systems view tracking of copy \& paste as an additional
+editor featrue \cite{jablonski-2007-cren,toomim-2004-linked}. Notably, copy \& paste has been
+also tracked in spreadsheets \cite{hermans-2015-copypaste} and Gridlets \cite{joharizadeh-2020-gridlets}
+offer an appealing alternative design.
+
+\subsubsection*{Other Programming Experiences}
+Several experiences not directly addressed in this paper deserve a mention as possible directions
+worth further investigation. Projectional editors such as Lorgnette \cite{gobert-2023-lorgnette},
+live literals \cite{omar-2021-livelits}, projection boxes \cite{lerner-2020-boxes} and data detectors
+\cite{nardi-1998-agents} allow to visualize or edit aspects of programs through a user interface.
+The problem of making live and rich editors compositional is addressed by
+Engraft \cite{horowitz-2023-engraft}. Babylonian programming environment \cite{rauch-2019-babylonian}
+integrates program execution with live examples. The best way of integrating AI assistants
+into a programming system also poses a question \cite{petricek-2023-aias,blinn-2024-llms,mcnutt-2023-nbai}.
+
 
 % ==================================================================================================
 
@@ -401,7 +368,7 @@ either directly or by attaching them to a UI event.}
 version of the document and turns the list into a table. This is done by invoking a series of
 commands that change tags, wrap elements, copy and transform values.
 
-\subsubsection*{\circled{E} Merging Edits} The two document versions can be automatically merged.
+\subsubsection*{\circled{E} Merging Edits} The two document versions (C and D) can be automatically merged.
 The refactoring is applied to all existing speakers. New speakers added using the ``Add speaker!''
 button are also automatically added in the new format.
 
@@ -1167,6 +1134,8 @@ merge the change and re-evaluate both formulas (4).}
 \section{Design Considerations}
 \label{sec:discuss}
 
+\note{Treat sequences of edits that need to be together as transactions?}
+
 The design of the Denicek substrate is the result of an iterative process in which we repeatedly
 adapted the Denicek design until we obtained a satisfactory solution for the six formative examples
 (\S\ref{app:examples}) in the Webnicek prototype. In this section, we document the design challenges,
@@ -1391,6 +1360,8 @@ IDEA: Type check edit groups to ensure they preserve structure but not individua
 \section{Case study}
 \label{sec:case}
 (data science environment)
+
+what are the limitations of Datnicek
 
 \section{Evaluation}
 \label{sec:eval}
@@ -1713,9 +1684,6 @@ defines
     (or edit after copy to make it specific to a case)
   - higher order copying from https://tomasp.net/academic/papers/copy-paste/paint22.pdf
 * augmenters
-  - cf. bonnie Nardi (calls them something else - Jonathan says)
-  \note{data detectors https://dl.acm.org/doi/10.1145/272287.272331}
-  \note{also see Potluck https://www.inkandswitch.com/potluck/}
   - add programming by demonstration data wrangling gui to table (trigger interactions)
     cf. lorgnette
 
