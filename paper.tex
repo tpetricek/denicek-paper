@@ -251,9 +251,7 @@ transformations.
 % --------------------------------------------------------------------------------------------------
 
 \begin{figure*}[t]
-\vspace{-0.5em}
-\includegraphics[width=0.95\textwidth,clip,trim=1.7cm 4.9cm 3.2cm 1.2cm]{fig/walkthrough.pdf}
-\vspace{-0.5em}
+\includegraphics[width=0.95\textwidth,clip,trim=0cm 6cm 1.7cm 0cm]{fig/walkthrough.pdf}
 \caption{Organizing a conference using Denicek. The Walkthrough shows construction of a user
   interface for adding speakers (A, B, C); refactoring of the list and merging edits (D, E); and
   formulas with schema and code co-evolution (F, G).}
@@ -394,6 +392,52 @@ the document and updates them when applying structural edits (\S\ref{sec:impl-sc
 Evaluation can replace formulas with values, but also augment them to enable
 end-user debugging via provenance analysis (\S\ref{sec:impl-provenance}).}
 
+% ==================================================================================================
+
+\section{The Denicek Substrate}
+\label{sec:system}
+Denicek represents programs as sequences of edits that construct and transform a computational
+document. In this section, we describe the structure of documents and edits, as well as the
+operations that form the backbone of the system and are used to implement the
+end-user programming experiences discussed in \S\ref{sec:impl}.
+
+% --------------------------------------------------------------------------------------------------
+
+\subsection{Selectors, Documents and Edits}
+A computational document is a tree, consisting of four kinds of nodes (Fig.~\ref{fig:doc}).
+Non-leaf nodes are records or lists. Both of these are named with a \emph{tag} as in HTML. Record fields have \note{unique?} names. Lists contain elements of the same type and assign a unique index to each element \note{It seems that these indexes are meant to be unique IDs, in which case it would be clearer to call them that.}
+Leaf nodes can be primitive values (strings and numbers) or references to a location in the document tree.
+References can be relative or absolute. Both kinds can appear in a
+document (reference nodes); absolute references are used in edits (to denote a target~node).
+\note{Why are relative references needed? I only use absolute references.}
+
+A reference is represented as a sequence of selectors (Fig.~\ref{fig:doc}).
+The document model assumes that lists are homogeneous and records heterogeneous, and so the
+\ident{Any} selector makes it possible to refer to all children of a list, but there is no
+way to refer to all children of a record. Note that Denicek does not use implicit numerical
+indices for lists. The index of a new item has to be supplied explicitly. The reasoning behind
+this design choice is discussed in \S\ref{sec:discuss}.
+
+\subsubsection*{Document Edits}
+The supported document edits and their behavior are listed in Fig.~\ref{fig:edits}. All edits
+require \emph{target} to which they are applied. Target is an absolute reference not containing the
+\ident{Parent} selector. It can contain the \ident{Any} selector, in which case the edit is applied
+to multiple nodes simultaneously. Most edits can only be applied to target node(s) of a specified
+kind. As discussed in \S\ref{sec:discuss}, both fields of a record and list elements are ordered
+and edits that add a new item take the index or field name of a previous node.
+
+The edits allow any transformation of a document through a series of steps whose effect can be
+tracked by the substrate. As we saw, Denicek updates references when document structure changes.
+Fig.~\ref{fig:edits} distinguishes between edits that keep references in a document unchanged
+(above) and edits that affect references (below).
+
+Renaming a field or wrapping a node converts any references into that location
+(\S\ref{sec:system-ops}). When deleting a field to which there is a reference in the document, Denicek
+rejects the edit. A copy edit can also be rejected, because it is ambiguous whether references
+referring to the original location should continue referring to the source or should be changed to
+point to the target of the copying (a reference cannot refer to two locations).
+\note{why not have distinct Copy and Move operations to resolve this?}
+
 % --------------------------------------------------------------------------------------------------
 
 \arrayrulecolor{lightgray}
@@ -448,52 +492,6 @@ end-user debugging via provenance analysis (\S\ref{sec:impl-provenance}).}
 \label{fig:doc}
 \vspace{-1em}
 \end{figure}
-
-% ==================================================================================================
-
-\section{The Denicek Substrate}
-\label{sec:system}
-Denicek represents programs as sequences of edits that construct and transform a computational
-document. In this section, we describe the structure of documents and edits, as well as the
-operations that form the backbone of the system and are used to implement the
-end-user programming experiences discussed in \S\ref{sec:impl}.
-
-% --------------------------------------------------------------------------------------------------
-
-\subsection{Selectors, Documents and Edits}
-A computational document is a tree, consisting of four kinds of nodes (Fig.~\ref{fig:doc}).
-Non-leaf nodes are records or lists. Both of these are named with a \emph{tag} as in HTML. Record fields have \note{unique?} names. Lists contain elements of the same type and assign a unique index to each element \note{It seems that these indexes are meant to be unique IDs, in which case it would be clearer to call them that.}
-Leaf nodes can be primitive values (strings and numbers) or references to a location in the document tree.
-References can be relative or absolute. Both kinds can appear in a
-document (reference nodes); absolute references are used in edits (to denote a target~node).
-\note{Why are relative references needed? I only use absolute references.}
-
-A reference is represented as a sequence of selectors (Fig.~\ref{fig:doc}).
-The document model assumes that lists are homogeneous and records heterogeneous, and so the
-\ident{Any} selector makes it possible to refer to all children of a list, but there is no
-way to refer to all children of a record. Note that Denicek does not use implicit numerical
-indices for lists. The index of a new item has to be supplied explicitly. The reasoning behind
-this design choice is discussed in \S\ref{sec:discuss}.
-
-\subsubsection*{Document Edits}
-The supported document edits and their behavior are listed in Fig.~\ref{fig:edits}. All edits
-require \emph{target} to which they are applied. Target is an absolute reference not containing the
-\ident{Parent} selector. It can contain the \ident{Any} selector, in which case the edit is applied
-to multiple nodes simultaneously. Most edits can only be applied to target node(s) of a specified
-kind. As discussed in \S\ref{sec:discuss}, both fields of a record and list elements are ordered
-and edits that add a new item take the index or field name of a previous node.
-
-The edits allow any transformation of a document through a series of steps whose effect can be
-tracked by the substrate. As we saw, Denicek updates references when document structure changes.
-Fig.~\ref{fig:edits} distinguishes between edits that keep references in a document unchanged
-(above) and edits that affect references (below).
-
-Renaming a field or wrapping a node converts any references into that location
-(\S\ref{sec:system-ops}). When deleting a field to which there is a reference in the document, Denicek
-rejects the edit. A copy edit can also be rejected, because it is ambiguous whether references
-referring to the original location should continue referring to the source or should be changed to
-point to the target of the copying (a reference cannot refer to two locations).
-\note{why not have distinct Copy and Move operations to resolve this?}
 
 % --------------------------------------------------------------------------------------------------
 
