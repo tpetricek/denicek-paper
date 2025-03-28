@@ -1,0 +1,303 @@
+Maybe have 'enabled' for edits afterall?
+(we can merge with conflicts and disable some edits, but keep them in history for info)
+
+
+TODO - things to work on
+* "represent" edits somewhere in document as "library of functions"
+  and then call those from buttons (rather than embedding them directly)
+  allow some kind of abstraction (as in Histogram) to make them reusable
+* figure out how to do evaluation better
+  (based on the stored abstractions? but need to store provenance...)
+
+SEMANTIC CONDITIONS
+\url{https://www.youtube.com/watch?v=NBnc2ToS_j0}
+(has a section on this in background)
+
+
+
+INTERACTION
+* replay stored event handlers against the old version?
+  (this way, adding an item to a speakers list gets migrated \& adds a new table row!)
+* similarly!! we need merge in order to apply edits to multiple targets
+  (when you remove all items in a list, the indices change)
+  (but I guess we should do this against version at the time of saving too....)
+
+[this \& evaluation = the unreasonable effectiveness of merging]
+
+Notes on storing and reusing edits
+* references need to be represented as references so that they get updated
+  (NO! not if we reply them against old version, which seems better - but there are 2 design choices)
+* how to apply them to multiple targets? use Move to update the selectors instead of
+  replacing the prefix manually
+
+
+CONDITIONALS
+https://toby.li/files/p311-radensky.pdf
+
+
+
+\subsection{Heuristic evaluation}
+
+techdims
+
+\subsection{Limitations}
+
+RANDOM FORMAL STUFF
+
+other formal things
+* non-conditionality of edits
+* show that they can transform document from any to any without removing/readding values
+
+PROPERTIES
+- can change any document to any other - sure, via remove add - but also more semantically
+(if it contained all values, can we do it without removing and adding them?)
+- may need MOVE
+
+DEMOS
+
+// cf shadow dom v react
+// something like google forms!
+
+* two ways of pushing edits should be equivalent, i.e.
+
+push e1 e2 e3 over b1 b2 b3 can be done via
+  push e1 over b1 = e1'; over b2 = e1''; over b3 = e1'''
+  then push e2, then push e3
+or
+  push e1, e2, e3 over b1, then over b2, then over b3
+(implies that no "extra" edits can be appended later)
+
+
+
+\newpage
+xx
+
+~\\
+introduction \\
+background \\
+related work \\
+design process / goals \\
+case study \\
+formative research \\
+formative study \\
+analysis \\
+system \\
+implementation \\
+evaluation / heuristic evaluation \\
+discussion and limitations \\
+
+\newpage
+\section{Introduction old}
+
+The computational substrate using which software is built determines the capabilities that the
+software can provide. An imperative substrate that views programs as instructions modifying
+bytes in memory makes it almost impossible to allow end-user inspection or reprogramming of
+running software.
+
+substrate as defined by \cite{jakubovic-2022-ladder}
+
+
+A computational substrate defines what software is built from. This may be objects as in
+Smalltalk, lists as in Lisp, or memory with data and code as in UNIX/C.
+The different substrates enable different kinds of programming experiences.
+For example, object-oriented programming has historically been linked to the development
+of graphical user interfaces (where objects can correspond to elements on the screen).
+It has also enabled the development of visual programming environments such as the Alternate
+Reality Kit, based on message sending between objects.
+
+In principle, any computational substrate can be used to develop any programming experience,
+but the greater the impedance mismatch between the substrate and the desired experience,
+the more difficult it will be to provide the experience and combine it with the rest of the
+system and other programming experiences developed for the system. (One can implement support
+for programming-by-demonstration using C/C++, for example as part of a game scripting engine,
+but it will not work with the rest of the ordinary C/C++ ecosystem.)
+
+
+Medium is the message
+
+\subsection{Substrate}
+
+The question asked in this paper is, what would be the ideal programming substrate
+for supporting a range of programming experiences that make programs more
+collaborative, transparent and allows for a gradual transition from non-programmer
+to a programmer. We want a programming substrate that makes it easy to develop
+programming experiences such as:
+
+\begin{itemize}
+\item \emph{Programming by demonstration} --
+  Allow non-programmers to construct simple programs by performing examples of the expected behaviour. \cite{leiva-2021-rapido}.
+\item \emph{Local-first collaboration} --
+  Multiple users should be able to use and modify a single program, preferrably without requiring a central server. \cite{kleppmann-2019-local}
+\item \emph{Provenance tracking} --
+  The execution of the program should leave an understandable trace that lets the user understand why program resulted in a particular result.
+\item \emph{Schema evolution [extra-ish]} --
+  When the user evolves the structure of the program, data and code should co-evolve automatically to match the new structure.
+\item \emph{Notational freedom [extra-ish?]} --
+  Allow users to adapt the program using a notation that suits them and is appropriate for the programming task at hand. [Joel]
+\item \emph{Concrete programming [extra?]} --
+  It should be possible to reuse parts of program or program logic without constructing abstractions, for example by managed copy \& paste.\cite{edwards-2006-copypaste,edwards-2022-copypaste}
+\end{itemize}
+
+substrate as defined by \cite{jakubovic-2022-ladder}
+
+% pbd
+\cite{leiva-2021-rapido,cypher-1993-pbd}
+\cite{chen-2023-miwa}
+
+% local first
+\cite{kleppmann-2019-local,klokmose-2024-mywebstrates}
+% provenance
+\cite{ko-2004-whyline,ko-2009-whyline,krebs-2023-probelog}
+\cite{ricciotti-2017-imperative,perera-2012-functional}
+\cite{perera-2022-linked}
+
+
+% visualizations of results or execution
+% https://www.dcs.warwick.ac.uk/pvw04/p01.pdf
+% https://dl.acm.org/doi/10.1145/3313831.3376494
+
+% previews - livelits
+
+% Schema evolution
+% our paper; see https://openproceedings.org/2023/conf/edbt/paper-160.pdf - good refs in 2.2
+
+% https://x.com/jonathoda/status/1185888711210389504
+
+% also cool: https://arxiv.org/pdf/2303.06777
+
+% Hazel family of things
+% structure editing - sandblocks
+
+Joel's definition of substrate in Onward!
+Bret Victor talk
+\url{https://www.youtube.com/watch?v=ef2jpjTEB5U}
+
+In what ways is a substrate "natural"?
+
+thinglab - create line by cloning, it sticks to mouse pointer, clicking sticks it to something else
+squeak - has all the browsers (method search...)
+
+
+computational substrate
+how it differs from computational media?
+more low-level - media suggests that there it comes
+
+\section{The whatever system}
+\subsection{Document + Edits}
+defines
+\begin{itemize}
+  \item selectors
+  \item nodes
+  \item edits
+\end{itemize}
+
+\subsection{Walkthrough}
+* todo list? (or counter, but that is a bit boring)
+
+\section{Themes}
+* programming by demonstration
+  - binding interactions to gui elements (event handlers)
+* provenance tracking
+  - Amy Ko's whyline, Probe Log by HPI, enables linked visualizations
+* merging of edit histories / collaborative editing
+  - bonus - can share restricted link to allow users fill out
+    forms (allow partial edits only / def by selector?)
+* schema change - change data \& code accordingly
+* everything is an edit
+  - interaction with the GUI
+  - evaluation? tbd
+* copy \& paste abstraction
+    (requires finishing new approach to formulas!)
+  - edit before copy to propagate edit to other places
+    (or edit after copy to make it specific to a case)
+  - higher order copying from https://tomasp.net/academic/papers/copy-paste/paint22.pdf
+* augmenters
+  - add programming by demonstration data wrangling gui to table (trigger interactions)
+    cf. lorgnette
+
+\section{Applications}
+* todo list / counter / maybe too simple
+* (if used in the walkthrough, maybe something else? board game as in varv - tic tac toe? or 7guis?)
+* conference organizer
+* data exploration (ala histogram)
+* linked charts
+
+\section{Extras}
+* metablocks?
+* self-sustainability
+* some non-browser implementation of this (as in Varv?)
+
+explicit structure
+self-sustainability
+notational freedom
+
+\newpage
+~
+
+REMAINING IMPLEMENTATION TODOs:
+
+* Some kind of provenance visualization
+* Some kind of matchers/transformers mechanism (ideally to add interactive buttons to tables)
+* Apply to all (remove completed in TODO)
+
+\newpage
+~
+
+
+append /speakers \#hamilton <li>
+addfld /speakers/\#hamilton speaker "Margaret Hamilton, hamilton@mit.edu"
+
+>>> wraprec /speakers body <table>
+
+[update selectors - add /body]
+append /speakers/body \#hamilton <li>
+[ditto]
+addfld /speakers/body\#hamilton speaker "Margaret Hamilton, hamilton@mit.edu"
+
+>>> retag /speakers/body <tbody>
+
+[na - out of scope]
+
+>>> retag /speakers/body/* <tr>
+
+[apply to added - update node (* => \#hamilton scoping)]
+append /speakers/body \#hamilton <li>
++ retag /speakers/body/\#hamilton <tr>
+[na - out of scope]
+addfld /speakers/body\#hamilton speaker "Margaret Hamilton, hamilton@mit.edu"
+
+>>> wraprec /speakers/body/*/speaker value <td>
+
+append /speakers/body \#hamilton <li>
++ retag /speakers/body/\#hamilton <tr>
++ wraprec /speakers/body/\#hamilton/speaker value <td> [ no op - it is not there]
+addfld /speakers/body/\#hamilton speaker "Margaret Hamilton, hamilton@mit.edu"
++ wraprec /speakers/body/\#hamilton/speaker value <td>
+
+>> updid /speakers/body/* speaker=>name
+
+append /speakers/body \#hamilton <li>
++ retag /speakers/body/\#hamilton <tr>
++ wraprec /speakers/body/\#hamilton/speaker value <td> [ no op - it is not there]
++ updid /speakers/body/\#hamilton speaker=>name [ no op - it is not there ]
+addfld /speakers/body \#hamilton speaker "Margaret Hamilton, hamilton@mit.edu"
++ wraprec /speakers/body/\#hamilton/speaker value <td>
++ updid /speakers/body/\#hamilton speaker=>name
+
+>>> addfld /speakers/body/* email ""
+
+append /speakers/body \#hamilton <li>
++ retag /speakers/body/\#hamilton <tr>
++ wraprec /speakers/body/\#hamilton/speaker value <td> [ no op - it is not there]
++ updid /speakers/body/\#hamilton speaker=>name [ no op - it is not there ]
++ addfld /speakers/body/\#hamilton email "" [ no op - it is not there ]
+addfld /speakers/body \#hamilton speaker "Margaret Hamilton, hamilton@mit.edu"
++ wraprec /speakers/body/\#hamilton/speaker value <td>
++ updid /speakers/body/\#hamilton speaker=>name
++ addfld /speakers/body/\#hamilton email ""
+
+...
+
+copy /speakers/body/*/name => /speakers/body/*/email
+edit /speakers/body/*/name (fn1)
+edit /speakers/body/*/email (fn2)
