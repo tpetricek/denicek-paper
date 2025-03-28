@@ -1267,11 +1267,11 @@ transactions, where structural invariants are reestablished only after a sequenc
 % --------------------------------------------------------------------------------------------------
 
 \begin{figure}[t]
+\vspace{-0.5em}
 \includegraphics[width=1\columnwidth,clip,trim=0cm 5.5cm 1cm 0cm]{fig/copypaste.pdf}
-\vspace{-1em}
-\caption{Correcting an incorrect formula. The user uses Copy to create the second
-formula (1). They notice an error (2), go back in history to switch left and right argument (3),
-merge the change and re-evaluate both formulas (4).}
+\vspace{-1.5em}
+\caption{The user uses creates a copy of a formula (1). They notice an error (2), go back in
+history to switch the arguments (3), merge the change and re-evaluate both formulas (4).}
 \label{fig:copypaste}
 \vspace{-0.5em}
 \end{figure}
@@ -1376,9 +1376,29 @@ Making the order of fields explicit ensures that it is maintained during merging
 % challenging.
 
 
-% TODO: This is potentially interesting too, but it is maybe way too complex and weird
-%
-% \subsubsection*{Dependency Tracking}
+\subsubsection*{Merging Structure and Capabilities}
+Denicek keeps a linear history and merging appends edits to the top of the history.
+This model is akin to git rebase. An alternative is to maintain a graph of edits akin
+to git merge. This would simplify recording of edits in programming by demonstration
+(\S\ref{sec:impl-pbd}) as we would not need to update saved edits transformed
+during merging. (Their hashes would remain the same.) However, supporting special
+merge edits and non-linear history would make the basic substrate more complex.
+
+Denicek also only supports the \emph{convergence} model of collaborative editing \cite{edwards-2025-schema}
+where users have to merge all changes in order and cannot adopt selected edits (cherry
+picking in git). In the \emph{divergence} model, users could keep their own schema but
+import all data edits. Supporting the model requires a \emph{retract} operation \cite{edwards-2021-typed}
+that is dual to our edit reconcilliation (given subsequent edits $e_1, e_2$, we want
+to generate $e_2'$ that has the same effect as $e_2$ but can occur before $e_1$).
+
+\subsubsection*{Dependency Tracking}
+Conflict detection in Denicek is used when merging edits, but also to implement
+incremental recomputation (\S\ref{sec:impl-incremental}). Edits generated during formula evaluation
+(\S\ref{sec:impl-eval}) may be \ident{Copy} edits (when evaluating a reference), but also
+\ident{Add} edits (when setting the evaluation result to a computed value). For those edits, we
+record additional dependencies identifying the source of the operation arguments. Those additional
+dependencies also need to be considered in conflict detection.
+
 % Recall that the incremental recomputation (\S\ref{sec:impl-incremental}) is based on the
 % conflict detection mechanism of Denicek (\S\ref{sec:system-ops}). When pushing edit $e_2$ through
 % $e_1$, a conflict is detected if they affect overlapping targets or if $e_1$ modifies a
@@ -1393,23 +1413,95 @@ Making the order of fields explicit ensures that it is maintained during merging
 % edit that would identify an operation to compute and a list of arguments, specified as a list
 % of references. We choose the former to keep the set of edits smaller.
 
-\subsubsection*{Merging Structure and Capabilities}
-Denicek keeps a linear history and merging appends edits to the top of the history.
-This model is akin to git rebase. One alternative is to maintain a graph of edits akin
-to git merge. This would simplify recording of edits in programming by demonstration
-(\S\ref{sec:impl-pbd}) as we would not need to update saved edits transformed
-during merging. (Their hashes would remain the same.) However, supporting special
-merge edits and non-linear history would make the basic substrate more complex.
 
-Denicek also supports only the simpler \emph{convergence} model of collaborative editing \cite{edwards-2025-schema}
-where users have to merge all changes in order and cannot merge only selected edits (cherry
-picking in git). The \emph{divergence} model lets users, for example, keep their own schema but
-import all data edits. Supporting the model requires a \emph{retract} operation \cite{edwards-2021-typed}
-that is dual to our edit reconcilliation (given two subsequent edits, $e_1, e_2$, we want
-to generate $e_2'$ that has the same effect as $e_2$ but can occur before $e_1$).
+% --------------------------------------------------------------------------------------------------
 
-\section{Case study}
+\begin{figure}[t]
+\vspace{-0.25em}
+\includegraphics[width=0.9\columnwidth,clip,trim=0cm 0.7cm 18.5cm 0.2cm]{fig/source.pdf}
+\vspace{-0.5em}
+\caption{Underlying document representation of a code cell and a grid cell in the Datnicek
+notebook system.}
+\label{fig:source}
+\vspace{-0.25em}
+\end{figure}
+
+% --------------------------------------------------------------------------------------------------
+
+\begin{figure*}[t]
+\includegraphics[width=0.98\textwidth,clip,trim=0cm 1cm 1cm 0.5cm]{fig/datnicek.pdf}
+\caption{A notebook visualizing Air traffic accident data from Eurostat. The user loads data in
+a code cell (1), edits it in a grid that infers edit operations via programming by demonstration
+(2), turned to a code cell (3) and then visualized.}
+\label{fig:datnicek}
+\end{figure*}
+
+% ==================================================================================================
+
+\section{Case study: Datnicek Notebooks}
 \label{sec:case}
+
+Denicek is intended as a low-level computational substrate that can be used as the basis for
+interactive programming systems that view programs as documents. The most prominent example
+of such systems today are notebook environments for data science. We developed Datnicek, a
+simple notebook system that shows the ability of Denicek to support rich interactive user
+experiences. In this section, we present Datnicek and reflect on its development. A simple data
+exploration conducted in Datnicek is shown in Fig.~\ref{fig:datnicek}.
+
+\subsection{Requirements}
+The design of Datnicek brings together a range of recent research ideas on interactive programming
+environments for data science. Datnicek notebooks consist of code cells and markdown cells, but
+they also support interactive grid cells where the user can use programming by demonstration to
+construct data cleaning scripts. We aim to support the following features:
+
+\begin{itemize}
+\item \emph{Structure Editing.} Code in code cells should be edited through structure editor
+  as in Histogram \cite{petricek-2019-histogram}. This allows Datnicek to keep track of the code
+  structure and potentially makes the system accessible to non-programmers \cite{mcnutt-2023-projectional}.
+  We do not aim to implement advanced keyboard-based editing \cite{moon-2022-tylr,beckman-2023-sandblocks}.
+
+\item \emph{Collaborative Editing.} It should be possible to merge independently done code changes
+  as in Grove~\cite{adams-2025-grove}, addressing the known pitfall of versioning Jupyter
+  notebooks~\cite{singer-2020-jollity}.
+
+\item \emph{Code Completion.} During editing, code completion should offer available data
+  transformations and operations as when using type providers \cite{syme-2013-inforich} or
+  iterative prompting in The Gamma \cite{petricek-2022-thegamma}.
+
+\item \emph{Output Invalidation.} When code is edited, the previously evaluated results that
+  depend on it, directly or transitively, should be invalidated as in Wrattler \cite{petricek-2018-wrattler,petricek-2020-live},
+  addressing another well-known limitation of Jupyter notebooks \cite{koop-2017-dataflow}.
+
+\item \emph{Interactive Data Cleaning.} It should be possible to edit data tables in an interactive
+  grid and use programming by demonstration for common data cleaning tasks as in
+  Wrangler or Vizier~\cite{kandel-2011-wrangler,kennedy-2022-vizier}.
+
+\item \emph{Wrangling Code Synthesis.} Interactively constructed data transformations should be
+  turned into code that can be checked and further edited as in Wrex \cite{drossos-2020-wrex}.
+\end{itemize}
+
+\noindent
+The Datnicek notebook system implements the above requirements on top of Denicek.
+Although Datnicek is a proof of concept, it shows that Denicek provides a suitable basis
+for the implementation.
+
+% --------------------------------------------------------------------------------------------------
+
+\subsection{Implementation}
+
+data representation
+
+(maybe show fig with source)
+
+operations
+
+\newpage
+
+\subsection{Reflections}
+
+
+foof
+
 (data science environment)
 
 what are the limitations of Datnicek
