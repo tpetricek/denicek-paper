@@ -128,7 +128,7 @@ programming experiences \cite{myers-2006-eup}. Those include:
   without introducing abstractions, that is, program against concrete values \cite{edwards-2006-copypaste,edwards-2022-copypaste}.
 \end{itemize}
 
-\subsubsection*{Two-Stage Methodology}
+\subsubsection*{Two-Phase Methodology}
 The technical focus of this paper fits within the interior mode of design science research \cite{adam-2021-dsr}.
 To \emph{design} Denicek, we identify six \emph{formative examples} -- simple programming
 tasks that manifest one or more of the desired programming experiences~(\S\ref{app:examples}).
@@ -139,7 +139,7 @@ substrate rather than for usability.
 
 To \emph{evaluate} Denicek, we use the substrate to develop Datnicek (\S\ref{sec:case}), an interactive data
 science notebook system inspired by existing environments~\cite{kandel-2011-wrangler,drossos-2020-wrex}.
-We use the second stage to evaluate suitability of the Denicek substrate for the development of
+We use the second phase to evaluate suitability of the Denicek substrate for the development of
 end-user programming systems and report the results of our evaluation (\S\ref{sec:eval}).
 
 \subsubsection*{Substrate}
@@ -321,8 +321,9 @@ prototypes at the object level. At the expression level, similar functionality c
 by managed copy \& paste. Subtext \cite{edwards-2006-copypaste,edwards-2022-copypaste} treats this
 mechanism as central, whereas other systems view tracking of copy \& paste as an additional
 editor featrue \cite{jablonski-2007-cren,toomim-2004-linked}. Notably, copy \& paste has been
-also tracked in spreadsheets \cite{hermans-2015-copypaste} and Gridlets \cite{joharizadeh-2020-gridlets}
-offer an appealing alternative design.
+also tracked in spreadsheets \cite{hermans-2015-copypaste}. Gridlets \cite{joharizadeh-2020-gridlets}
+offer a spreadsheet abstraction based on reusing concrete computation, similar to the one proposed
+for The Gamma \cite{petricek-2020-live}.
 
 \subsubsection*{Other Programming Experiences}
 Several experiences not directly addressed in this paper are worth further investigation.
@@ -1452,6 +1453,8 @@ experiences. In this section, we present Datnicek and reflect on its development
 exploration conducted in Datnicek is shown in Fig.~\ref{fig:datnicek}.
 
 \subsection{Requirements}
+\label{sec:case-req}
+
 The design of Datnicek brings together a range of recent research ideas on interactive programming
 environments for data science. Datnicek notebooks consist of code cells and markdown cells, but
 they also support interactive grid cells where the user can use programming by demonstration to
@@ -1550,42 +1553,132 @@ To support conditional transformations, we add a special kind of (virtual) edit
 As in \S\ref{sec:impl-interaction}, when applying the edit, Datnicek finds all rows for which the
 condition holds and generates a single non-conditional edit for each such row.
 
+\subsection{Reflections}
+The development of Datnicek only started after the design and implementation of Denicek and
+Webnicek was completed. Thanks to this two-phase methodology, the experience reported here
+provides a qualitative evaluation of the Denicek substrate. It also highlights limitations and
+suggests directions for future work.
+
+\subsubsection*{Effectiveness and Unifromity.}
+Many of the Datnicek requirements are addressed by Denicek with minimal implementation
+effort. The implementation represents all non-transient actions on a notebook as Denicek edits.
+Code completions offered by the code editor are edits (wrapping a formula or appending a parameter),
+changing a primitive value is an edit, and recommendations in the interactive grid are also edits
+(appending a {\small\Verb_<transform>_} node).
+
+The uniform and dynamic nature makes the development experience using Denicek more akin to dynamic
+object-oriented languages than to statically-typed functional languages. The system can quickly evolve,
+but it needs suitable debugging tools, such as the source view (Fig.~\ref{fig:source}) or an
+ability to step through the history.
+
+
+\subsubsection*{Notebook Editing.}
+Collaborative editing based on merging of edits makes conflicts less common when compared to
+textual merging. For example, changing a method parameter can be merged with adding a call
+to a chain. However, adding two independent calls still results in a conflict. A formula
+representation that avoids nesting, as in Histogram \cite{petricek-2019-histogram}, may be more flexible.
+
+Variables are represented as references and automatic reference updating %(\S\ref{sec:system-defs})
+prevents a number of errors. References are automatically updated when the field name changes.
+Denicek also prevents the deletion of cells that contain variables to which there are references.
+
+The proof of concept nature of Datnicek means that it currently lacks suitable user interface for
+resolving conflicts. Similarly, the structure editor for code is pointer-based and would benefit from
+a better support for keyboard based input \cite{moon-2022-tylr,beckman-2023-sandblocks}.
+However, Denicek provides a suitable infrastructure for implementing this.
+
 \newpage
 
+\subsubsection*{Evaluation Model}
+The evaluation model of Denicek implements dependency tracking and incremental recomputation,
+which aid notebook reproducibility \cite{petricek-2018-wrattler,koop-2017-dataflow}. As in
+Webnicek (\S\ref{sec:impl-incremental}), Datnicek keeps evaluated edits on top of the current history
+and use conflict detection to remove invalidated edits. We also uses the same logic for edits
+performed in interactive grid cells, suggesting that the approach is a useful general
+implementation pattern.
 
-\subsection{Reflections}
 
-edits and formula in interactive should be unified
+Because invalidation of evaluated edits is not built-in into Denicek, it is worth exploring
+if Denicek could support the standard evaluation model of Jupyter notebooks based on mutable
+state.
 
-foof
+The development of Datnicek uncovered some limitations of the underlying conflict detection
+in Denicek. In particular, edits generated by evaluation (such as \ident{Add} edits that set the
+evaluated result) need to be treated as conflicting with edits that have both value and
+structure effects. This is because they are mere results of a more complex evaluation process.
 
-(data science environment)
+Data loaded in Datnicek is represented as Denicek document nodes (a table is a list of records).
+Such uniform representation makes Denicek more general, but places a high demand on the system
+performance. We implemented a number of Denicek optimisations, but Datnicek is still cumbersome
+to use with data consisting of multiple thousands of rows. Improving system performance is
+thus important future work.
 
-what are the limitations of Datnicek
+\subsubsection*{Future Work}
+One of the design choices discussed in \S\ref{sec:discuss} is whether to track the document
+structure explicitly. The structure of documents created in Webnicek can be irregular,
+which justified the dynamic nature of Denicek. In contrast, Datnicek notebooks are more regular.
+Replicating Datnicek using a system akin to Denicek, but based on explicit structure would
+yield an interesting comparison.
 
-x
+Our experience with conflict detection shows the importance of getting the details of the
+implementation of programming susbstrates like Denicek right. This could be aided by the
+development of a formally tractable model of the system and proving a correctness property
+akin to that of The Gamma live previews \cite{petricek-2020-foundations}.
 
-x
+Finally, the representation of interactive grid transformations (Fig.~\ref{fig:source})
+highlights a duplication -- a transformation is represented as a sequence of edits,
+but also as a formula. An interesting future direction is unifying or integrating those two
+kinds of computation in the Denicek substrate.
 
-x
-
-x
 
 \section{Evaluation}
 \label{sec:eval}
 how well did Denicek work for implementing Datnicek
 
-NICE THINGS IN DATNICEK
-* merging of code edits (e.g. change parameter merges with adding a call to chain)
-* remove cell to which there are refs - does the susbtrate catch this?
+\subsection{Olsen}
+Situations, Tasks, Users + Importance
+
+Generality - webnicek, denicek, map space via TDPSs
+Flexibility - dynamic nature via edits - experienced in Datnicek
+Expressive Match - possibly - for document based things
+Can it Scale up - remains a question
+
+\subsection{Technical Dimensions}
+TDPS determine a space of designs
+how much of this space can be covered by systems based on Denicek?
+
+INTERACTION
+Feedback Loops
+Modes of Interaction
+Abstraction Construction
+
+NOTATION
+Notational Structure
+
+Surface and Internal Notation
+Uniformity of Notations
+
+CONCEPTUAL STRUCTRUE
+not much to say
+Conceptual integrity vs openness - integrity
+Composability Convenience
+
+CUSTOMIZABILITY
+self-sustainability - future work
+
+COMPLEXITY
+Factoring of Complexity - no reuse for now, remains to be explored
+
+
+\section{Conclusion}
+
+knowledge exists only in the brain of system designers!!
+
+
 
 \newpage
 ~
 \newpage
-
-\section{Discussion}
-
-
 
 \bibliographystyle{plain}
 \bibliography{paper}
