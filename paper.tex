@@ -1429,11 +1429,14 @@ notebook system.}
 % --------------------------------------------------------------------------------------------------
 
 \begin{figure*}[t]
+\vspace{-0.5em}
 \includegraphics[width=0.98\textwidth,clip,trim=0cm 1cm 1cm 0.5cm]{fig/datnicek.pdf}
+\vspace{-0.5em}
 \caption{A notebook visualizing Air traffic accident data from Eurostat. The user loads data in
 a code cell (1), edits it in a grid that infers edit operations via programming by demonstration
 (2), turned to a code cell (3) and then visualized.}
 \label{fig:datnicek}
+\vspace{-0.5em}
 \end{figure*}
 
 % ==================================================================================================
@@ -1441,10 +1444,10 @@ a code cell (1), edits it in a grid that infers edit operations via programming 
 \section{Case study: Datnicek Notebooks}
 \label{sec:case}
 
-Denicek is intended as a low-level computational substrate that can be used as the basis for
-interactive programming systems that view programs as documents. The most prominent example
-of such systems today are notebook environments for data science. We developed Datnicek, a
-simple notebook system that shows the ability of Denicek to support rich interactive user
+Denicek is a low-level computational substrate. It serves best as the basis for interactive
+programming systems that view programs as documents. The most prominent example of such systems
+today are notebook environments for data science. To explore this use case, we have developed
+Datnicek, a simple notebook system that shows the ability of Denicek to support rich interactive user
 experiences. In this section, we present Datnicek and reflect on its development. A simple data
 exploration conducted in Datnicek is shown in Fig.~\ref{fig:datnicek}.
 
@@ -1458,7 +1461,7 @@ construct data cleaning scripts. We aim to support the following features:
 \item \emph{Structure Editing.} Code in code cells should be edited through structure editor
   as in Histogram \cite{petricek-2019-histogram}. This allows Datnicek to keep track of the code
   structure and potentially makes the system accessible to non-programmers \cite{mcnutt-2023-projectional}.
-  We do not aim to implement advanced keyboard-based editing \cite{moon-2022-tylr,beckman-2023-sandblocks}.
+  We do not yet aim to implement advanced keyboard-based editing \cite{moon-2022-tylr,beckman-2023-sandblocks}.
 
 \item \emph{Collaborative Editing.} It should be possible to merge independently done code changes
   as in Grove~\cite{adams-2025-grove}, addressing the known pitfall of versioning Jupyter
@@ -1477,7 +1480,7 @@ construct data cleaning scripts. We aim to support the following features:
   Wrangler or Vizier~\cite{kandel-2011-wrangler,kennedy-2022-vizier}.
 
 \item \emph{Wrangling Code Synthesis.} Interactively constructed data transformations should be
-  turned into code that can be checked and further edited as in Wrex \cite{drossos-2020-wrex}.
+  turned into code that can be checked by the data scientist and further edited as in Wrex \cite{drossos-2020-wrex}.
 \end{itemize}
 
 \noindent
@@ -1488,17 +1491,71 @@ for the implementation.
 % --------------------------------------------------------------------------------------------------
 
 \subsection{Implementation}
+Datnicek is implemented using the Elm architecture \cite{fowler-2020-mvu},
+where a system maintains a state that is updated through events. The state consists
+of the list of Denicek edits, transient state of the user interface, current computed document
+and other cached information. All interactions that affect the notebook
+use an event that appends edits to the list of Denicek edits. Remaining events
+update the transient user interface state. The support for collaborative editing has been
+implemented through an ad-hoc mechanism.
 
-data representation
+\subsubsection*{User Interface}
+Datnicek notebooks consists of a series of cells. In the code cells, the user can
+use the ``+'' button to add a new variable, add an operation to the end of an existing chain
+of operations, but also to specify an argument of an operation. The button opens
+a menu showing all valid options based on the current context.
 
-(maybe show fig with source)
+In the interactive grid, the user can edit column headers and table cells. When they edit
+a value, Datnicek suggests generalised edits to be applied to the entire
+column or table. For example, when the user changes the ``0 p'' value to ``0'', Datnicek
+suggests to replace `` p'' with the empty string in all cells. Other suggested edits include renaming
+or deleting a column, splitting a column using a delimiter and filtering rows based on the selected
+value. Datnicek can also turn edits performed interactively into a new code cell.
 
-operations
+\subsubsection*{Programmatic Code Cells}
+A Denicek document representing a Datnicek notebook is shown in Fig.~\ref{fig:source}. A
+notebook is a record storing individual cells as fields. The tag determines the type of the cell.
+
+The programming language used in code cells is inspired by the data exploration calculus \cite{petricek-2020-live}.
+A cell consists of a sequence of bindings of the form $\textnormal{\ident{let}}~v=e$ that assign
+an expression $e$ to a variable $v$. An expression can be a reference to a variable,
+global value (such as \ident{data} and \ident{vis}) or a method invocation $e.m(e_1, \ldots, e_n)$.
+
+Bindings are represented as fields of a record and expressions use the formula representation
+discussed in \S\ref{sec:impl-eval}. Operations and global values are identified by an absolute
+reference pointing to the special \ident{/\$datnicek} namespace. Chains of method calls are
+represented using nested formulas. Evaluation of formulas proceeds as in Webnicek
+and wraps {\small\Verb_<x-formula>_} in {\small\Verb_<x-evaluated>_}.
+The user interface displays the original formula alongside with the evaluated result, supporting
+tables and Compost data visualizations \cite{petricek-2021-compost}. Edits to the formula
+invalidate dependent results as discussed in \S\ref{sec:impl-incremental}.
+
+\subsubsection*{Interactive Grid Cells}
+Grid cells consist of a reference to the data source they edit and a collection of
+{\small\Verb_<transform>_} nodes that represent individual data transformations constructed via
+programming by demonstration. A transformation consists of metadata,
+a sequence of edits and a formula representing the transformation (with {\small\Verb_<x-hole>_}
+standing for the data table to be transformed).
+
+A transformation may correspond to multiple underlying Denicek edits. For example, splitting
+``foo/bar'' using ``/'' as the delimiter adds a new column ``bar'', copies values from
+``foo/bar'', renames ``foo/bar'' to ``foo'' and then transforms the values in the new columns
+by dropping the part before and after the delimiter, respectively.
+
+Interactive grid also supports conditional transformations that affect rows satisfying a given
+condition (e.g., deleting rows with a specific value in a given column). As discussed
+in \S\ref{sec:system-defs}, Denicek does not allow specifying conditional selectors.
+To support conditional transformations, we add a special kind of (virtual) edit
+{\small\Verb_<x-expandable-edit>_} that stores the underlying edit and a condition.
+As in \S\ref{sec:impl-interaction}, when applying the edit, Datnicek finds all rows for which the
+condition holds and generates a single non-conditional edit for each such row.
 
 \newpage
 
+
 \subsection{Reflections}
 
+edits and formula in interactive should be unified
 
 foof
 
@@ -1522,6 +1579,9 @@ NICE THINGS IN DATNICEK
 * merging of code edits (e.g. change parameter merges with adding a call to chain)
 * remove cell to which there are refs - does the susbtrate catch this?
 
+\newpage
+~
+\newpage
 
 \section{Discussion}
 
