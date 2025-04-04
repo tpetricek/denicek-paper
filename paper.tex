@@ -96,7 +96,7 @@ the design of rich, interactive end-user programming systems.
 \section{Introduction}
 
 A computational substrate defines the structures with which programs are constructed, how
-the progam state is represented and how the state evolves during execution \cite{jakubovic-2022-ladder}.
+the program state is represented and how the state evolves during execution \cite{jakubovic-2022-ladder}.
 The choice of a substrate affects what programming experiences can be readily supported.
 For example, object-oriented programming has been historically linked to graphical user
 interfaces~\cite{kay-1993-smalltalk}, while representing programs as lists enabled Lisp to become
@@ -115,7 +115,7 @@ programming experiences \cite{myers-2006-eup}. The experiences we focus on inclu
 
 \begin{itemize}
 \item \emph{Collaborative editing.} Users should be able to locally modify a shared document
-  and merge their changes, preferrably in a way that does not require a live connection to a central server~\cite{kleppmann-2019-local}.
+  and merge their changes, preferably in a way that does not require a live connection to a central server~\cite{kleppmann-2019-local}.
 \item \emph{Programming by Demonstration.} Allow users to construct simple programs by
   enacting the steps of the desired behavior using concrete examples and generalizing from the example~\cite{leiva-2021-rapido,cypher-1993-pbd}.
 \item \emph{Incremental Recomputation.} When a part of a document changes, formulas whose result
@@ -186,7 +186,7 @@ The structure and contributions of this paper are:
   The analysis shows that the desired functionality requires a careful choice among interconnected
   design options.
 \item To evaluate how Denicek simplifies the development of program\-ming systems, we
-  build an innovative data science notebook Datnicek and assess its impementation
+  build an innovative data science notebook Datnicek and assess its implementation
   complexity~(\S\ref{sec:case}). We also present heuristic evaluation of the system (\S\ref{sec:eval}).
 \end{itemize}
 
@@ -230,11 +230,11 @@ histories) that has been used as the basis for multiple programming systems \cit
 
 \subsubsection*{Edit Histories and Merging}
 Manipulating programs through semantically meaningful edits is a technique used by structure
-editors \cite{teitelbaum-1981-cps,hempel-2018-deuce,beckman-2023-sandblocks}. The langauge of
+editors \cite{teitelbaum-1981-cps,hempel-2018-deuce,beckman-2023-sandblocks}. The language of
 edits has been captured formally as an \emph{edit calculus} \cite{omar-2017-hazelnut} and
 edit histories have also been recognized as a suitable basis for live programming environments \cite{storm-2013-deltas}.
 
-Merging of edits is most frequently done in version control systems such as git. Source control ystems
+Merging of edits is most frequently done in version control systems such as git. Source control systems
 based on a more rigorous design such as Pijul \cite{meunier-2024-pijul} delay merging to a later point
 by using a graph or a lattice \cite{schurmann-2022-merging}. In the context of
 programming environments, Grove \cite{adams-2025-grove} uses a commutative patches, with a graph
@@ -322,7 +322,7 @@ pioneered by the prototype-based programming language Self \cite{ungar-1987-self
 prototypes are used at the object level. At the expression level, similar functionality can be provided
 by managed copy \& paste. Subtext \cite{edwards-2006-copypaste,edwards-2022-copypaste} treats this
 mechanism as central, whereas other systems view tracking of copy \& paste as an extra
-editor featrue \cite{jablonski-2007-cren,toomim-2004-linked}. Copy \& paste has also been
+editor feature \cite{jablonski-2007-cren,toomim-2004-linked}. Copy \& paste has also been
 tracked in spreadsheets \cite{hermans-2015-copypaste}. Gridlets \cite{joharizadeh-2020-gridlets}
 offer a spreadsheet abstraction based on reusing concrete computation, similar to the one proposed
 for The Gamma~\cite{petricek-2020-live}.
@@ -334,7 +334,7 @@ live literals \cite{omar-2021-livelits}, projection boxes \cite{lerner-2020-boxe
 \cite{nardi-1998-agents} allow visualization or editing of aspects of programs through a user interface.
 The problem of making live and rich editors compositional is addressed by
 Engraft \cite{horowitz-2023-engraft}. Programming environments may be also improved by integrating
-live examples \cite{rauch-2019-babylonian} and a variety of AI assistantce
+live examples \cite{rauch-2019-babylonian} and a variety of AI assistance
 tools \cite{petricek-2023-aias,blinn-2024-llms,mcnutt-2023-nbai}.
 
 
@@ -495,7 +495,7 @@ or modified to point to the target of the copying (a reference cannot refer to t
   {Record with children addressable by \textit{field}. Renders as \Verb|<tag>| with children.}
 \ndtablecol{\faExternalLink}{Reference}{selectors}
   {Reference to another document location. Displays the \Verb|selectors| as a link.}
-\ndtablecol{\faFont}{Primitivie}{string \textnormal{or} number}
+\ndtablecol{\faFont}{Primitive}{string \textnormal{or} number}
   {Numerical or textual primitive value. Renders as an HTML text node.}
 \hline
 \end{tabular}
@@ -568,7 +568,7 @@ node (\S\ref{sec:impl-eval}), an operation that should not affect references to 
 itself. To support value edits, edits that normally transform references (Fig.~\ref{fig:edits} below)
 have a \emph{reference behavior} option that can disable automatic reference
 updating. This annotation is required when the target contains the \emph{Index} selector,
-which is necessarilly a value edit affecting a specific node.
+which is necessarily a value edit affecting a specific node.
 
 % \note{I think it would be desireable to avoid all these complications. References
 % should be automatically maintained so they ``just work''.}
@@ -836,7 +836,7 @@ We describe the programming experiences in isolation in the context of Webnicek 
 The data science notebook system Datnicek, discussed in \S\ref{sec:case}, provides
 a more comprehensive case study by combining multiple user experiences together.
 
-\subsection{Collaboratative Editing}
+\subsection{Collaborative Editing}
 \label{sec:impl-collab}
 
 Denicek enables collaborative editing as illustrated earlier (\S\ref{sec:walk}, E).
@@ -904,7 +904,7 @@ history. Instead, it stores the hash of the history at the time of saving. To re
 it then appends the edits to the top of the original history and merges this edit sequence
 with the current history. This pushes the recorded edits through later edits made by the user,
 reconciling them with potential structural edits. The result can be seen in Fig.~\ref{fig:walkthrough} (E), where
-a newly added list item becames a table row.
+a newly added list item becomes a table row.
 
 Webnicek also accounts for the case where edits recorded in the document are themselves
 transformed (when they are reconciliated with other edits during merging). In this case, Webnicek
@@ -1399,7 +1399,7 @@ Denicek also only supports the \emph{convergence} model of collaborative editing
 where users have to merge all changes in order and cannot adopt selected edits (cherry
 picking in git). The \emph{divergence} model would let users keep their own schema but
 import all data edits. Supporting the model requires a \emph{retract} operation \cite{edwards-2021-typed}
-that is dual to our edit reconcilliation (given subsequent edits $e_1, e_2$, generate
+that is dual to our edit reconciliation (given subsequent edits $e_1, e_2$, generate
 $e_2'$ that has the same effect as $e_2$ but can occur before $e_1$).
 
 \subsubsection*{Dependency Tracking}
@@ -1571,7 +1571,7 @@ Webnicek was completed. Thanks to this two-phase methodology, the experience rep
 provides a qualitative evaluation of Denicek's capabilities. It also highlights limitations and
 suggests directions for future work.
 
-\subsubsection*{Effectiveness and Unifromity.}
+\subsubsection*{Effectiveness and Uniformity.}
 Many of the Datnicek requirements are addressed by Denicek with minimal development
 effort. Denicek also provides a small and uniform set of primitives. In particular,
 the implementation represents all non-transient changes to a notebook as Denicek edits.
@@ -1632,7 +1632,7 @@ Replicating Datnicek using a system akin to Denicek, but based on explicit struc
 yield an interesting comparison.
 
 Our experience with conflict detection shows the importance of getting the details of the
-implementation of programming susbstrates like Denicek right. This could be aided by the
+implementation of programming substrates like Denicek right. This could be aided by the
 development of a formally tractable model of the system and proving a correctness property
 akin to that of The Gamma live previews \cite{petricek-2020-live}.
 
