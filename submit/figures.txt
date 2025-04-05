@@ -1,0 +1,170 @@
+Figure 1 - Shows multiple states of a web application for editing document; (A) contains a heading Programming 2025 with a <ul> list and a completion list adding a new record field; (B) shows the same list as in A, but now with a HTML source code for a button; (C) shows the list of speakers with a list of past edits on the right; (D) shows the original list of speakers but formatted as a table; (E) shows the list of speakers from C but formatted as a table as in D; (F) shows the original list of speakers but now with a formula to calculate costs; (G) shows the list of speakers in a table alongside with the formulas. On the side of the figure is a diagram showing the branching structure - with arrows leading from A - B - C - E - G and two branches (A - F - G) and (A - D - E).
+
+
+Figure 2 - Shows two tables. The first table is:
+Header row: Selector Notation 
+First row: Parent (..) Refers to a parent of a node
+Second row: Field (field) Refers to record field of a given name
+Third row: Index (#index) Refers to list element at a given index
+Fourth row: Any (*) Refers to all children of a list node
+
+The second table is:
+List (tag, index1, child1, ..., indexN, childN)
+* Ordered list of nodes, addressable by index. Renders as <tag> with children.
+Record (tag, field1, child1, ..., fieldN, childN)
+* Record with children addressable by field. Renders as <tag> with children.
+Reference (selectors)
+* Reference to another document location. Displays the selectors as a link.
+Primitive (string or number)
+* Numerical or textual primitive value. Renders as an HTML text node.
+
+
+Figure 3 - Shows a list of edits:
+edit: Add (field, after, node); target: Record
+* Add node as a field to the specified record after a given field.
+edit: Append (index, after, node); target: List
+* Append node to the end of the specified list after a given field.
+edit: Reorder (permutation); target: List
+* Reorder items of a specified list according to a permutation.
+edit: DeleteItem (index); target: List
+* Delete the item at a given index of a specified list.
+edit: UpdateTag (tag{List o); target: Record
+* Change the tag of a specified list or record from to a new tag.
+edit: PrimitiveEdit (transform); target: Primitive
+* Apply primitive transform to the specified primitive.
+edit: RenameField (old field, new field); target: Record
+* Rename the field of a specified record from old to new.
+edit: DeleteField (field); target: Record
+* Delete the field field of a specified record.
+edit: WrapRecord (tag, field); target: Any
+* Wrap the specified node as a field of a new record with tag.
+edit: WrapList (tag, index); target: Any
+* Wrap the specified node as a sole element of a new list with tag.
+edit: Copy (selectors); target: Any
+* Copy nodes(s) from selectors, replacing the specified target(s). 
+
+
+Figure 4 - Shows a list of reference transformations:
+RenameField (target, old field, new field) 
+* changes: /target/old\_field/nested to /target/new\_field/nested
+* Replace Field for matching references
+WrapRecord (target, tag, field}
+* changes: /target/nested to /target/field/nested
+* Insert extra Field selector after matching prefix.
+WrapList (target, index, tag) 
+* changes: /target/nested to /target/*/nested
+* Insert extra All selector after matching prefix.
+
+
+Figure 5 - Shows a list of effects:
+StructureEffect - Affects fields or structure of the target node
+* edits: RenameField, DeleteField, WrapRecord, WrapList, Copy
+ValueEffect - Transforms value, modifies list or adds an additional field.
+* edits: Add, Append, Reorder, DeleteItem, PrimitiveEdit
+TagEffect - Modifies the tag of the target node.
+* edits: UpdateTag
+
+
+Figure 6 - Shows four states of a HTML document related to editing of a speaker list. In all steps, the document contains a heading Programming 2025 followed by a list of speakers.
+(A) The list contains one speaker (Betty Jean Jennings with email)
+(B) The list has been transformed into a table with column for a name and a column for an email
+(C) The document contains list as in A but with another speaker (Margaret Hamilton with email)
+(D) The document contains a table with both speakers and their details split into two columns
+
+
+Figure 7 - Shows three parts of a user interface related to programming by demonstration
+(1) A list showing the edits through which document has been constructed. 8 edits are selected (5*addfield, copy, appfrom, delfld)
+(2) A command toolbox with a command "Save selected edits in the document"
+(3) A todo list with one list item, text box with another list item and a command toolbox with "Apply add-item"
+
+
+Figure 8 - Shows two further steps related to programming by demonstration of a TODO list as in Figure 7.
+(1) Todo list as in Figure 7, but with an "Add" button and a command toolbox adding a "@click" field with a reference to the saved add-item element
+(2) Same as before, but now the Add button is shown as a HTML source code with a nested x-handler tag. The attributes of the tag include "interactions", "target", "condition", "prefix".
+
+
+Figure 9 - Shows 5 steps of constructing a counter app:
+(1) Counter with count 0 and an Increment button
+(2) The count becomes a formula with left 0, right 1 and op being a reference to plus
+(3) The x-formula tag from 2 has been wrapped in x-evaluated which also contains a tag with id result and value 1
+(4) The Count is displayed as a formula =0+1+1+1+1+1
+(5) Shows a list of edits "saved interactions" consisting of addfield, addfield and wraprec
+
+
+Figure 10 - Shows 3 variants of a document with conference planning. In all 3, the heading is Programming 2025 and is followed by a speaker list and a Budgeting section.
+(1) There is one speaker in the list. The Budgeting section shows formulas with the first one being count(/speakers).
+(2) Formulas have been evaluated to results
+(3) A new speaker has been added and the first formula again becomes count(/speakers) rather than the evaluated result. Refreshments calculation still shows the result from step 2.
+
+
+Figure 11 - Shows three sequences of edits:
+First row: Purple circles 1, 2, 3
+Second row: Purple circles 1, 2, 3 followed by blue A, B
+Third row: Purple circles 1, 2, 3, 4 followed by blue B
+
+
+Figure 12 - Shows 3 variants of a document with conference planning.
+The document is the same as in Figure 10, but various parts of it are highlighted:
+(A) Computation for "Refreshments" is selected; number of attendees and coffee break per person are highlighted
+(B) Computation for "Speaker travel" is selected; list of speakers and "Travel per speaker" are highlighted
+(C) "Total" is selected; all other aspects involved in the computation are highlighted
+
+
+Figure 13 - Shows two versions of a conference planning document.
+(1) Contains a single speaker as a list alongside with a formula count(/speakers)
+(2) Contains a single speaker as a table alongside with a formula count(/speakers/body)
+
+
+Figure 14 - Shows 4 versions of a document computing "Traffic accidents in Europe"
+(1) Contains computations for "Aviation killed", "Rail killed", "Average in aviation accident" and "Average in rail accident". In the latter two, the left argument is count and the right argument is sum.
+(2) Shows results for the four computations: 382, 984, 0.01 and 0.03
+(3) Shows the computations as in (1), but without "Average in rail accident"
+(4) Shows the computed results, now with correct values: 382, 984, 76.4, 35.14
+
+
+Figure 15 - Shows a data science notebook with two cells containing XML/HTML source code. The source code for the first cell is:
+
+<cell-code>
+  <x-formula id="aviaRaw">
+    <x-prim-str id="file">eurostat/sf_aviaca_eukil.tsv</x-prim-str>
+    <x-reference id="inst">/$datnicek/data</x-reference>
+    <x-reference id="op">/$datnicek/data/load</x-reference>
+  </x-formula>
+</cell-code>
+
+The source code for the second cell is:
+
+<cell-grid>
+  <edits id="edits">
+    <transform index="0">
+      <x-prim-str id="title">Rename columns</x-prim-str>
+      <x-prim-str id="icon">fa-i-cursor</x-prim-str>
+      <x-prim-str id="description">Rename column `freq,unit,victim,c_regis,geo\TIME_PERIOD' to `freq,unit,victim,c_regis,geo'</x-prim-str>
+      <x-formula id="code">
+        <x-reference id="op">/$datnicek/table/rename</x-reference>
+        <x-hole id="inst"></x-hole>
+        <x-prim-str id="old">freq,unit,victim,c_regis,geo\TIME_PERIOD</x-prim-str>
+        <x-prim-str id="new">freq,unit,victim,c_regis,geo</x-prim-str>
+      </x-formula>
+      <edits id="edits">
+        <x-edit-renamefld index="0">
+          <x-selectors id="target"><x-prim-str index="0">*</x-prim-str></x-selectors>
+          <x-prim-str id="old">freq,unit,victim,c_regis,geo\TIME_PERIOD</x-prim-str>
+          <x-prim-str id="new">freq,unit,victim,c_regis,geo</x-prim-str>
+          <x-prim-str id="refs">update</x-prim-str>
+        </x-edit-renamefld>
+      </edits>
+    </transform>
+  </edits>
+  <x-reference id="target">/cell-cfd0551a/aviaRaw</x-reference>
+</cell-grid>
+
+
+Figure 16 - Shows three clls of a data science notebook.
+(1) Contains source code: let aviaRaw = dataload(file="eurostat/sf_aviaca_eukil.tsv")
+Alongside with a table showing the loaded data. The loaded data contain rows such as "A,NR,KIL,EU27_2020,AT" followed by numbers for years ranging from 2006 to 2023
+(2) Shows the same data table as in the previous cell, but one of the cells in the table is a textbox and the right side of the notebook shows "Suggested edits" including "Delete rows with value EU28 in column c_regis".
+(3) Shows a source code that consists of multiple method calls to operations such as split, replace, rename and filter followed by sum(). The result is a bar chart that shows bars ranging from 0 to 160 for years from 2006 to 2023.
+
+
+
