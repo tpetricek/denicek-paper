@@ -5,7 +5,7 @@
 % TODO: Also, what exactly goes into the list?
 %
 %
-\documentclass[sigconf,anonymous,screen]{acmart}
+\documentclass[sigconf]{acmart}
 %\documentclass[sigconf,review,anonymous]{acmart}
 
 \usepackage{hhline,xcolor,colortbl}
@@ -17,10 +17,14 @@
 \usepackage{lettrine}
 \usepackage{hyperref}
 
+\setlength{\marginparwidth}{1.4cm}
+
+\newcommand{\diff}[1]{{\textcolor{magenta}{#1}}}
+\newcommand{\note}[1]{\marginpar{\raggedright\scriptsize\textcolor{magenta}{#1}}}
+
 \newcommand{\ident}[1]{{\sffamily #1}}
 \newcommand{\srcid}[1]{\textnormal{\sffamily #1}}
 \newcommand{\srckvd}[1]{\textnormal{\sffamily\bfseries #1}}
-\newcommand{\note}[1]{\textcolor{red}{#1}}
 
 \newcommand*\circled[1]{\textnormal{\footnotesize\sffamily\bfseries\protect\tikz[baseline=(char.base)]{
   \node[shape=circle,fill=black,text=white,draw,inner sep=1pt] (char) {#1};}}}
@@ -38,17 +42,17 @@
 \setlist{leftmargin=1.5em}
 \setlength\itemsep{0.5em}
 
-\setcopyright{none}
 \copyrightyear{2025}
 \acmYear{2025}
-\acmDOI{XXXX.XXXX}
-
-\acmConference[Conference acronym 'XX]{}{June 03--05, 2018}{Woodstock, NY}
-\acmISBN{978-1-4503-XXXX-X/18/06}
+\setcopyright{cc}
+\setcctype{by}
+\acmConference[UIST '25]{The 38th Annual ACM Symposium on User Interface Software and Technology}{September 28-October 1, 2025}{Busan, Republic of Korea}
+\acmBooktitle{The 38th Annual ACM Symposium on User Interface Software and Technology (UIST '25), September 28-October 1, 2025, Busan, Republic of Korea}\acmDOI{10.1145/3746059.3747646}
+\acmISBN{979-8-4007-2037-6/2025/09}
 
 \begin{document}
 \title[Denicek: Computational Substrate for Document-Oriented End-User
-  Programming]{{\scshape Denicek}: Computational Substrate for\\ Document-Oriented End-User Programming}
+  Programming]{{\scshape Denicek}: Computational Substrate for\\ Document-Oriented End-User Programming\\[0.25em]}
 
 \author{Tomas Petricek}
 \email{tomas@tomasp.net}
@@ -59,7 +63,17 @@
   \country{Czech Republic}
 }
 
+\author{Jonathan Edwards}
+\email{jonathanmedwards@gmail.com}
+\orcid{0000-0003-1958-7967}
+\affiliation{%
+  \institution{Independent}
+  \city{Boston}
+  \country{USA}
+}
+
 \begin{abstract}
+\note{Added overview figure with examples showing relationships between Denicek \& co.}
 User-centric programming research gave rise to a variety of compelling programming experiences,
 including collaborative source code editing, programming by demonstration, incremental
 recomputation, schema change control, end-user debugging and concrete programming.
@@ -82,17 +96,29 @@ the design of rich, interactive end-user programming systems.
 \keywords{Programming Systems, Computational Substrate, End-User Programming,
  Programming by Demonstration, Local-First Software}
 
-%\begin{teaserfigure}
-%  \includegraphics[width=\textwidth]{sampleteaser}
-%  \caption{Seattle Mariners at Spring Training, 2010.}
-%  \Description{Enjoying the baseball game from the third-base
-%  seats. Ichiro Suzuki preparing to bat.}
-%  \label{fig:teaser}
-%\end{teaserfigure}
+\begin{teaserfigure}
+  \vspace{-0.2em}
+  \includegraphics[width=1\textwidth,clip,trim=0cm 8.5cm 7.7cm 0cm]{fig/teaser.pdf}
+  \vspace{-1.5em}
+  \caption{\diff{Denicek is a computational substrate for document-oriented programming
+    based on document edit histories~(A). We co-design Denicek with a web-based end-user
+    programming environment Denicek (B). Here, Denicek is used to build a Todo list app via
+    programming-by-demonstration, by copying a value from input to a new list item.
+    We then evaluate the generality of Denicek by using it to build a data science notebook
+    system Datnicek (C). Here, Datnicek is used to interactively clean the data table, by
+    removing the `` p'' (provisional) marker from numerical columns.
+  }}
+  \Description{The Denicek diagram in the middle illustrates a document representation as an
+   edit history. Two arrows point from the diagram to two screenshots. Webnicek on the left
+   contains a Todo list app with a command palette showing add item operation. Datnicek on the
+   right contains two cells, one with code to load data and another with an interactive editor
+   for data cleaning.}
+  \label{fig:teaser}
+  \vspace{0.75em}
+\end{teaserfigure}
 \maketitle
 
 % ==================================================================================================
-
 \section{Introduction}
 
 A computational substrate defines the structures with which programs are constructed, how
@@ -100,7 +126,7 @@ the program state is represented and how the state evolves during execution \cit
 The choice of a substrate affects what programming experiences can be readily supported.
 For example, object-oriented programming has been historically linked to graphical user
 interfaces~\cite{kay-1993-smalltalk}, while representing programs as lists enabled Lisp to become
-a language laboratory \cite{steele-1993-lisp}.
+a language laboratory~\cite{steele-1993-lisp}.
 
 In principle, any programming experience can be developed on top of any computational
 substrate. However, a suitable program representation can eliminate much of the complexity of implementing interesting
@@ -110,8 +136,9 @@ for C/C++~\cite{kell-2018-unix,kell-2024-debugging}.
 
 \subsubsection*{Programming Experiences}
 
-In this paper, we describe a programming substrate that makes it easy to develop diverse
-programming experiences \cite{myers-2006-eup}. The experiences we focus on include:
+\note{Revised to say Denicek is a substrate used to build programming systems.}
+\diff{We describe Denicek, a computational substrate that makes it easy to build programming systems
+supporting diverse compelling programming experiences \cite{myers-2006-eup}:}
 
 \begin{itemize}
 \item \emph{Collaborative editing.} Users should be able to locally modify a shared document
