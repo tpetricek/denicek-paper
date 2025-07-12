@@ -22,6 +22,9 @@
 \newcommand{\diff}[1]{{\textcolor{magenta}{#1}}}
 \newcommand{\note}[1]{\marginpar{\raggedright\scriptsize\textcolor{magenta}{#1}}}
 
+%\newcommand{\diff}[1]{{#1}}
+%\newcommand{\note}[1]{}
+
 \newcommand{\ident}[1]{{\sffamily #1}}
 \newcommand{\srcid}[1]{\textnormal{\sffamily #1}}
 \newcommand{\srckvd}[1]{\textnormal{\sffamily\bfseries #1}}
@@ -157,21 +160,24 @@ supporting diverse compelling programming experiences \cite{myers-2006-eup}:}
 
 \subsubsection*{Two-Phase Methodology}
 The technical focus of this paper fits within the interior mode of design science research \cite{adam-2021-dsr}.
-To \emph{design} Denicek, we identify six \emph{formative examples} -- simple programming
+To \emph{design} Denicek (Fig.~\ref{fig:teaser} (A)), we identify six \emph{formative examples} -- simple programming
 tasks that manifest one or more of the desired programming experiences~(\S\ref{app:examples}).
 Using those examples, we co-design the Denicek substrate and a simple web-based end-user programming
-environment Webnicek~(\S\ref{sec:walk}), which is built directly on top of the substrate. Although
+environment Webnicek~(Fig.~\ref{fig:teaser} (B)), which is built directly on top of the substrate. Although
 Webnicek can be used to complete end-user programming tasks, it is optimized for developing the
 underlying substrate rather than for usability.
 
 To \emph{evaluate} the usability of Denicek for the development of end-user programming systems,
-we use it to build Datnicek (\S\ref{sec:case}), an innovative interactive data science notebook
+we use it to build Datnicek (Fig.~\ref{fig:teaser}~(C)), an innovative interactive data science notebook
 that brings together a range of recent research work~\cite{kandel-2011-wrangler,drossos-2020-wrex,petricek-2022-thegamma,adams-2025-grove}.
-We reflect on the development experience~(\S\ref{sec:case-reflection}) and provide a heuristic
-evaluation of Denicek characteristics including importance and generality (\S\ref{sec:eval}).
+\note{Clarify that Datnicek was designed after Denicek was completed.}
+\diff{We reflect on the degree to which Denicek simplifies the implementation of a programming
+system that is based on current research advances and was conceived after the design of Denicek
+has been fully finalized~(\S\ref{sec:case-reflection}).} We also provide a heuristic evaluation
+of Denicek characteristics including importance and generality (\S\ref{sec:eval}).
 
-\subsubsection*{Substrate}
-The Denicek substrate brings together two central design ideas. First, it represents programs as
+\subsubsection*{Computational Substrates}
+Denicek brings together two central design ideas. First, it represents programs as
 document trees consisting of nodes that can represent data, formulas, evaluated results, as well as
 static content. Second, Denicek does not store the document tree itself, but instead, maintains
 a sequence of edit operations through which the tree was constructed and transformed.
@@ -181,9 +187,12 @@ First, it can apply a series of edits to reconstruct the document. Second, it ca
 diverging edit histories. Finally, it can detect conflicts when merging histories and, for
 example, remove conflicting edits from one branch.
 
-The key insight that we present in this paper is that many compelling programming experiences can
-be implemented by leveraging this uniform document representation alongside with a suitable
-composition of the three primitive operations.
+\subsubsection*{Key Takeaways}
+\note{Add more general takeaway (below) and clarify specific technical takeaway (here).}
+\diff{The key insights of this paper are twofold. A specific technical takeaway is that many
+compelling programming experiences can be implemented on top a uniform document representation,
+by using a suitable composition of three primitive operations that operate on sequences of
+edit operations.}
 
 Editing of data and formulas is done using a single set of primitive edit operations that
 manipulate the document. A user-interface may provide a specialized editor, but still
@@ -199,6 +208,11 @@ document can be merged with concurrent data edits  (\S\ref{sec:impl-collab}). Ev
 also generates document edits (\S\ref{sec:impl-eval}). If the evaluated edits conflict with manual
 edits done later by the user, the evaluated edits are removed, yielding an incremental
 recomputation behavior (\S\ref{sec:impl-incremental}).
+
+\note{Add a more general takeaway suggested by Reviewer 3 (Thank you!)}
+\diff{A more basic takeaway, illustrated by the development of Denicek, is that it is worth looking
+for novel computational substrates that better support compelling programming experiences developed
+in user-centric programming research.}
 
 \subsubsection*{Contributions}
 The structure and contributions of this paper are:
@@ -219,29 +233,38 @@ The structure and contributions of this paper are:
 
 \noindent
 To enable others build on top of Denicek, we share our compact open-source
-implementation at: \url{https://github/removed/for/review} %d3sprog/denicek
+implementation at: \url{https://github.com/d3sprog/denicek}
 
 % ==================================================================================================
 
 \section{Background}
 \label{sec:background}
-Denicek aims to support a class of systems associated with end-user programming \cite{myers-2006-eup},
-notational freedom and self-sustainability~\cite{jakubovic-2023-techdims}, liveness and interactivity
-\cite{horowitz-2023-qualities,rein-2019-live}. We see programming more as interacting with a medium
-or a substrate \cite{kay-1977-media,klokmose-2015-webstrates} than writing text \cite{rpg-2012-revolution}.
-We focus on systems that allow gradual progression from a user to a developer, as envisioned
-in Smalltalk~\cite{reenskaug-1981-byte} and use the term end-user programming loosely to refer to a
-part of this spectrum, also including spreadsheet systems and notebooks for data science.
-% We first review related systems and their technical design (\S\ref{sec:background-sys})
-% before discussing programming experiences (\S\ref{sec:background-exp}).
+\note{Clarify focus to make paper more self-contained}
+\diff{The premise of Denicek is that suitable structures for constructing programs can make it easier
+to support a range of compelling user experiences. A prime example is
+Smalltalk whose object-oriented structures
+enable malleable programming experience~\cite{girba-2017-moldable,tcher-2019-malleable}.}
+
+Denicek aims to support a class of systems associated with end-user programming, liveness and
+interactivity \cite{myers-2006-eup,horowitz-2023-qualities,rein-2019-live}, notational freedom and
+self-sustainability~\cite{jakubovic-2023-techdims}. We see programming as interacting with a medium
+or a substrate \cite{kay-1977-media,klokmose-2015-webstrates,rpg-2012-revolution} and
+use the term end-user programming loosely to refer to a part of this spectrum, also including
+spreadsheet systems and notebooks for data science.
+
+\note{Highlight related systems (discussed later) for better framing}
+\diff{We follow systems such as BootstrapLab~\cite{jakubovic-2022-ladder}, which aims to support
+gradual progression from a user to a developer envisioned in Smalltalk~\cite{reenskaug-1981-byte}
+in a primarily graphical environment and Subtext~\cite{edwards-2005-subtext},
+which develops a user-friendly programming environment based on object copying.}
 
 % --------------------------------------------------------------------------------------------------
 
-\subsection{Programming Systems and Substrates}
+\subsection{Programming Systems}
 \label{sec:background-sys}
 
 \subsubsection*{Programming Systems and Substrates}
-A number of systems illustrate the qualities Denicek aims to support and have a related internal
+A number of systems illustrate the qualities Denicek aims to support and have a related underlying
 structure. Subtext, BootstrapLab and Infra~\cite{edwards-2005-subtext,jakubovic-2022-ladder,hall-2017-infra}
 use structured document-based program representation and provide some of the desired programming
 experiences on top of this representation. Many of those design ideas can be traced back to
@@ -261,11 +284,15 @@ editors \cite{teitelbaum-1981-cps,hempel-2018-deuce,beckman-2023-sandblocks}. Th
 edits has been captured formally as an \emph{edit calculus} \cite{omar-2017-hazelnut} and
 edit histories have also been recognized as a suitable basis for live programming environments \cite{storm-2013-deltas}.
 
-Merging of edits is most frequently done in version control systems such as git. Source control systems
-based on a more rigorous design such as Pijul \cite{meunier-2024-pijul} delay merging to a later point
+Merging of edits is most frequently done in version control systems. The
+Pijul system \cite{meunier-2024-pijul} delays merging to a later point
 by using a graph or a lattice \cite{schurmann-2022-merging}. In the context of
-programming environments, Grove \cite{adams-2025-grove} uses a commutative patches, with a graph
-structure similar to Pijul, as the basis for a collaborative structure editor.
+programming environments, Grove \cite{adams-2025-grove} uses a commutative patches with a similar graph
+structure as the basis for a collaborative structure editor. \diff{Grove patches
+(construct, delete, relocate) are sufficient for a structure editor, but lack some structures and
+operations that our formative examples rely on (collections, copying). However, the core model
+of Grove provides a possible alternative basis for Denicek.}
+\note{Added why Grove cannot be used directly by Denicek, but is interesting direction.}
 
 More generally, merging of edits can use the operational transform (OT) approach
 \cite{davis-2002-otsgml}, where edit conflicts are reconciled, or conflict-free
@@ -276,6 +303,27 @@ remains a challenge \cite{jungnickel-2016-otjson,da-2024-jsoncrdt}. Mergeable re
 types (MRDTs) \cite{kaki-2019-mrdts} merge updates using a suitable relational
 representation. Recent work on MySubstrates and Grove \cite{adams-2025-grove,klokmose-2024-mywebstrates}
 has been based on CRDTs, whereas Edwards et al. \cite{edwards-2021-typed} prefer OT.
+
+\note{Added report of our experience with what makes EUP systems hard to build.}
+\subsubsection*{Building Programming Experiences}
+\diff{
+The challenge addressed by Denicek is that end-user programming experiences are hard to~build.
+Our experience developing such systems \cite{petricek-2019-histogram,petricek-2022-thegamma,
+jakubovic-2022-ladder,edwards-2005-subtext,edwards-2004-example} suggests two difficulties.
+The first is the need to move between the concrete and the abstract \cite{jakubovic-2023-techdims}.
+A sequence edits strikes a balance between those opposing representations.
+The second is the need to combine multiple experiences, which requires
+a major engineering effort when using a conventional program representation.}
+
+% Wrangler~\cite{kandel-2011-wrangler}
+
+% * Reviewers also ask about the concrete problem addressed (R2) and what makes end-user programming
+% tools hard to build (R1). The latter question (aptly phrased by R1) deserves a deeper investigation.
+% We believe the difficulty emerges when combining multiple programming experiences in a single system
+% and from the need to move between the concrete and the abstract. This belief is based on our personal
+% experience developing multiple systems (to be cited in the revision) and on a technical dimensions
+% analysis (Sec. 8.2). A substrate based on edit history provides a middle ground between the
+% abstract and the concrete and we show that it can be carefully designed to serve as the basis for a range of experiences.
 
 % --------------------------------------------------------------------------------------------------
 
@@ -292,8 +340,8 @@ has been based on CRDTs, whereas Edwards et al. \cite{edwards-2021-typed} prefer
 \subsection{Programming Experiences}
 \label{sec:background-exp}
 
-We review a range of compelling programming experiences explored in recent research,
-focusing on those supported by Denicek.
+%We review a range of compelling programming experiences explored in recent research,
+%focusing on those supported by Denicek.
 
 \subsubsection*{Collaborative Editing}
 Since the early collaborative programming environments such as Collabode \cite{goldman-2011-collaborative},
