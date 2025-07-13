@@ -19,11 +19,11 @@
 
 \setlength{\marginparwidth}{1.4cm}
 
-\newcommand{\diff}[1]{{\textcolor{magenta}{#1}}}
-\newcommand{\note}[1]{\marginpar{\raggedright\scriptsize\textcolor{magenta}{#1}}}
+%\newcommand{\diff}[1]{{\textcolor{magenta}{#1}}}
+%\newcommand{\note}[1]{\marginpar{\raggedright\scriptsize\textcolor{magenta}{#1}}}
 
-%\newcommand{\diff}[1]{{#1}}
-%\newcommand{\note}[1]{}
+\newcommand{\diff}[1]{{#1}}
+\newcommand{\note}[1]{}
 
 \newcommand{\ident}[1]{{\sffamily #1}}
 \newcommand{\srcid}[1]{\textnormal{\sffamily #1}}
@@ -113,7 +113,7 @@ the design of rich, interactive end-user programming systems.
   }}
   \Description{The Denicek diagram in the middle illustrates a document representation as an
    edit history. Two arrows point from the diagram to two screenshots. Webnicek on the left
-   contains a Todo list app with a command palette showing add item operation. Datnicek on the
+   contains a Todo list app with a command toolbox showing add item operation. Datnicek on the
    right contains two cells, one with code to load data and another with an interactive editor
    for data cleaning.}
   \label{fig:teaser}
@@ -144,7 +144,7 @@ for C/C++~\cite{kell-2018-unix,kell-2024-debugging}.
 supporting diverse compelling programming experiences \cite{myers-2006-eup}:}
 
 \begin{itemize}
-\item \emph{Collaborative editing.} Users should be able to locally modify a shared document
+\item \emph{Collaborative Editing.} Users should be able to locally modify a shared document
   and merge their changes, preferably in a way that does not require a live connection to a central server~\cite{kleppmann-2019-local}.
 \item \emph{Programming by Demonstration.} Allow users to construct simple programs by
   enacting the steps of the desired behavior using concrete examples and generalizing from the example~\cite{leiva-2021-rapido,cypher-1993-pbd}.
@@ -329,6 +329,7 @@ a major engineering effort when using a conventional program representation.}
 
 \begin{figure*}[t]
 \includegraphics[width=0.95\textwidth,clip,trim=0cm 6cm 1.7cm 0cm]{fig/walkthrough.pdf}
+\vspace{-0.5em}
 \caption{Organizing a conference using Denicek. The Walkthrough shows construction of a user
   interface for adding speakers (A, B, C); refactoring of the list and merging edits (D, E); and
   formulas with schema and code co-evolution (F, G).}
@@ -418,24 +419,27 @@ tools \cite{petricek-2023-aias,blinn-2024-llms,mcnutt-2023-nbai}.
 \section{Walkthrough}
 \label{sec:walk}
 
-In this section, we use the web-based prototype Webnicek to illustrate programming
-experiences enabled by the Denicek substrate. Webnicek is based on a structure
-editor that supports navigation in the document and issuing of edit commands. We follow two
-formative examples (\S\ref{app:examples}) where users collaboratively plan a conference.
+We use the web-based prototype Webnicek to illustrate programming experiences enabled by Denicek.
+Webnicek is based on a structure editor that supports navigation in the document and issuing of
+edit commands. \diff{We follow a formative example (\S\ref{app:examples}) where Evelyn, Juliana and Alfred
+collaboratively plan a conference.}
+\note{Turn this into a concrete user story consistent with the video. Also add more details about
+the edit operations and UI interactions.}
 
 \subsubsection*{\circled{A} Adding a Speaker}
-The first user starts with an empty document, which is represented as a record. They add a field for
-each heading and a field named {\small\Verb_speakers_} containing a list {\small\Verb_<ul>_}. They
-use the command toolbox to add the first speaker.
+Evelyn starts with an empty document, which is represented as a record. She adds a field for
+each heading and a field named {\small\Verb_speakers_} containing a list {\small\Verb_<ul>_}. \diff{She
+uses the command toolbox to issue edit commands that add the first speaker.}
 
 \subsubsection*{\circled{B} Creating a User Interface} To simplify adding of
-further speakers, the user creates a textbox and a button. They enter new speaker
-details, add a new {\small\Verb_<li>_} element to the list and copy the speaker details
-from the textbox into the new element using a source view.
+further speakers, Evelyn creates a textbox and a button \diff{using the command toolbox}. She enters
+the details of another speaker \diff{into the textbox}, adds a new {\small\Verb_<li>_} element
+and copies the speaker details from the textbox into the new element in the source view,
+\diff{using a copy command}.
 
-\subsubsection*{\circled{C} Abstracting the Interaction} After adding the speaker from the textbox,
-the user opens history view, selects edits that added the speaker and saves those as the
-{\small\Verb_add-speaker_} interaction. They attach this interaction as a event handler for the
+\subsubsection*{\circled{C} Abstracting the Interaction} After adding the speaker,
+Evelyn opens the history view, selects edits that added the speaker and saves them as the
+{\small\Verb_add-speaker_} interaction. She attaches this interaction as an event handler for the
 {\small\Verb_click_} event of the button.
 
 \keyideabox{\faLightbulbO}{Programming by Demonstration}{Denicek implements programming by
@@ -443,12 +447,14 @@ demonstration (\S\ref{sec:impl-pbd}) by enabling the user to save and replay pas
 Past interactions can be replayed directly, or used as event handlers in order to construct interactive user
 interfaces (\S\ref{sec:impl-interaction}).}
 
-\subsubsection*{\circled{D} Refactoring Document Structure} Another user starts with the initial
-version of the document (A) and turns the list into a table. This is done by invoking a series of
-commands that change tags, wrap elements, copy values and transform them.
+\subsubsection*{\circled{D} Refactoring Document Structure} Alfred starts with the initial
+version of the document (A) and turns the list into a table. He invokes a series of commands that
+\diff{rename tags, wrap elements, copy values and split strings using the comma as a separator}.
+\note{More concrete description of edits}
 
-\subsubsection*{\circled{E} Merging Edits} The two document versions (C and D) can be automatically merged.
-The refactoring is applied to all existing speakers. New speakers added using the ``Add speaker!''
+\subsubsection*{\circled{E} Merging Edits}
+\diff{Alfred then merges the later edits (B, C) done by Evelyn into his version of the document.}
+The refactoring is applied to all speakers. New speakers added using the ``Add speaker!''
 button are also automatically transformed to the new format.
 
 \keyideabox{\faLightbulbO}{Local-First Collaboration}{Denicek's merging
@@ -456,9 +462,12 @@ reapplies edits from another branch on top of the current history (\S\ref{sec:im
 Merging is asymmetric, but the order does not matter in the above scenario. The same merging
 operation is used when handling user interaction (\S\ref{sec:impl-interaction}).}
 
-\subsubsection*{\circled{F} Adding Budget Calculation} A third user adds a budget calculation to
-the initial document. Formulas are represented as nodes with the {\small\Verb_x-formula_} tag,
-whose arguments are other nodes, references to other nodes, or formulas (highlighted on mouse hover).
+\subsubsection*{\circled{F} Adding Budget Calculation} Juliana joins in and adds a budget calculation to
+the initial document. \diff{She uses the command toolbox to create document nodes representing
+formulas. Formulas are regular nodes with a special} {\small\Verb_x-formula_} \diff{tag and
+arguments as child nodes. To count the speakers, she uses the} {\small\Verb_count_} \diff{builtin
+with a reference to the node representing the speaker list as the argument.}\note{Modified to describe
+representation of formulas.}
 
 \keyideabox{\faLightbulbO}{Incremental Recomputation}{Formulas are document nodes.
 Evaluating a formula yields edits that augment the document with the result
@@ -466,9 +475,10 @@ Evaluating a formula yields edits that augment the document with the result
 removed in case of a conflict (\S\ref{sec:impl-incremental}), a logic that implements
 incremental recomputation using core Denicek operations.}
 
-\subsubsection*{\circled{G} Merging Formulas} When the budget calculation (F) is merged with the
-earlier edits (E), references in formulas are automatically updated to point to the new list.
-Adding new speaker via the ``Add speaker!'' button invalidates the evaluated result.
+\subsubsection*{\circled{G} Merging Formulas} When Juliana merges the budget calculation (F) with
+the earlier edits (E), references in formulas are automatically updated to point to the \diff{rows of the table}.
+Adding new speaker via the ``Add speaker!'' button \diff{invalidates results of only those formulas
+that depend on the number of speakers.}
 
 \keyideabox{\faLightbulbO}{Schema Change Control}{The substrate understands references in
 the document and updates them when applying structural edits (\S\ref{sec:impl-schema}).
@@ -503,29 +513,6 @@ way to refer to all fields of a record. Because Denicek does not use implicit nu
 indices for lists, the index of a new list item has to be supplied explicitly. The reasoning behind
 this design choice is discussed in \S\ref{sec:discuss}.
 
-\subsubsection*{Document Edits}
-The supported document edits and their behaviors are listed in Fig.~\ref{fig:edits}. All edits
-require a \emph{target} to which they are applied. Targets are absolute references not containing the
-\ident{Parent} selector. They can contain the \ident{Any} selector, in which case the edit is applied
-to multiple nodes simultaneously. Most edits can only be applied to target node(s) of a specified
-kind. As discussed in \S\ref{sec:discuss}, list elements as well as fields of a record are ordered
-and edits that add a new item take the index or field name of a previous node.
-
-The edits can transform the document structure. Denicek tracks the effect of the edits on the
-structure and updates references when the document structure changes.
-Fig.~\ref{fig:edits} distinguishes between edits that keep references in a document unchanged
-(above) and edits that can affect references (below).
-
-Renaming a field or wrapping a node updates any references to within the target location
-(\S\ref{sec:system-ops}). When deleting a field to which there is a reference in the document, Denicek
-rejects the edit. A copy edit of a node to which there is a reference is also rejected, because it
-is ambiguous whether references referring to the original location should be left unchanged,
-or modified to point to the target of the copying (a reference cannot refer to two unrelated locations).
-
-% \note{why not have distinct Copy and Move operations to resolve this?}
-% TP: Good point - this is a nice motivation for Move! I should probably add that :-)
-
-% --------------------------------------------------------------------------------------------------
 
 \arrayrulecolor{lightgray}
 \definecolor{ekgray}{gray}{0.90}
@@ -574,11 +561,71 @@ or modified to point to the target of the copying (a reference cannot refer to t
   {Numerical or textual primitive value. Renders as an HTML text node.}
 \hline
 \end{tabular}
-\vspace{-0.5em}
 \caption{Structure of selectors and document nodes}
 \label{fig:doc}
-\vspace{-1em}
 \end{figure}
+
+% --------------------------------------------------------------------------------------------------
+
+\subsubsection*{Document Edits}
+The supported document edits and their behaviors are listed in Fig.~\ref{fig:edits}. All edits
+require a \emph{target} to which they are applied. Targets are absolute references not containing the
+\ident{Parent} selector. They can contain the \ident{Any} selector, in which case the edit is applied
+to multiple nodes simultaneously. Most edits can only be applied to target node(s) of a specified
+kind. As discussed in \S\ref{sec:discuss}, list elements as well as fields of a record are ordered
+and edits that add a new item take the index or field name of a previous node.
+
+The edits can transform the document structure. Denicek tracks the effect of the edits on the
+structure and updates references when the document structure changes.
+Fig.~\ref{fig:edits} distinguishes between edits that keep references in a document unchanged
+(above) and edits that can affect references (below).
+
+Renaming a field or wrapping a node updates any references to within the target location
+(\S\ref{sec:system-ops}). When deleting a field to which there is a reference in the document, Denicek
+rejects the edit. A copy edit of a node to which there is a reference is also rejected, because it
+is ambiguous whether references referring to the original location should be left unchanged,
+or modified to point to the target of the copying (a reference cannot refer to two unrelated locations).
+
+% \note{why not have distinct Copy and Move operations to resolve this?}
+% TP: Good point - this is a nice motivation for Move! I should probably add that :-)
+
+% --------------------------------------------------------------------------------------------------
+
+\subsubsection*{Automatic Reference Update}
+As discussed in \S\ref{sec:discuss}, the structure of Denicek document is implicit and not
+statically enforced (the substrate can be seen as being dynamically typed). As a consequence, edits
+that transform the structure can serve both as structural edits (affecting the structure)
+and as value edits (affecting the value of specific nodes). The latter can be used, for example,
+when constructing an additional list item. An item is first constructed and then populated
+with values. This temporarily violates the invariant that collections are homogeneous
+(an issue that could be address by using transactions as discussed in \S\ref{sec:discuss}).
+
+Another use of value edits is when evaluating a formula, which involves wrapping the formula
+node (\S\ref{sec:impl-eval}), an operation that should not affect references to the formula
+itself. To support value edits, edits that normally transform references (Fig.~\ref{fig:edits} below)
+have a \emph{reference behavior} option that can disable automatic reference
+updating. This annotation is required when the target contains the \emph{Index} selector,
+which is necessarily a value edit affecting a specific node.
+
+% \note{I think it would be desireable to avoid all these complications. References
+% should be automatically maintained so they ``just work''.}
+% \note{I believe that evaluation should not change the type/shape of the document. The space
+% for evaluation results should be be preallocated in some sense, either as extra structure in
+% a formula, or as metadata attached to the tree. That said, I've tried various alternative
+% approaches to this in Subtext without ever settling on a preferred solution.}
+%
+% TP: I think this is true - but that would make the system more "statically typed"
+% and Denicek is dynamically typed - my only reason for this is to make the editing experience
+% more "document-like" - but it is perhaps not necessary.
+
+An important principle of the Denicek design is that the effect an edit has on references inside
+the document does not depend on the current value of the document. This makes it possible to
+define merging solely in terms of edits, without reference to current document state.
+% (The effect \ident{Copy} has on the document structure depends on the existing document
+% structure, but not on its value).
+This design choice makes it impossible to encode computational logic directly in the edits
+(e.g., through conditional edits). As we will see in \S\ref{sec:impl-interaction}, such logic
+can be provided as an additional mechanism on top of the underlying Denicek substrate.
 
 % --------------------------------------------------------------------------------------------------
 
@@ -621,49 +668,10 @@ or modified to point to the target of the copying (a reference cannot refer to t
   {Copy nodes(s) from \textit{selectors}, replacing the specified target(s). }
 \hline
 \end{tabular}
-\vspace{-0.75em}
 \caption{Summary of document edit types in Denicek}
 \label{fig:edits}
-\vspace{-1em}
 \end{figure}
 
-% --------------------------------------------------------------------------------------------------
-
-\subsubsection*{Automatic Reference Update}
-As discussed in \S\ref{sec:discuss}, the structure of Denicek document is implicit and not
-statically enforced (the substrate can be seen as being dynamically typed). As a consequence, edits
-that transform the structure can serve both as structural edits (affecting the structure)
-and as value edits (affecting the value of specific nodes). The latter can be used, for example,
-when constructing an additional list item. An item is first constructed and then populated
-with values. This temporarily violates the invariant that collections are homogeneous
-(an issue that could be address by using transactions as discussed in \S\ref{sec:discuss}).
-
-Another use of value edits is when evaluating a formula, which involves wrapping the formula
-node (\S\ref{sec:impl-eval}), an operation that should not affect references to the formula
-itself. To support value edits, edits that normally transform references (Fig.~\ref{fig:edits} below)
-have a \emph{reference behavior} option that can disable automatic reference
-updating. This annotation is required when the target contains the \emph{Index} selector,
-which is necessarily a value edit affecting a specific node.
-
-% \note{I think it would be desireable to avoid all these complications. References
-% should be automatically maintained so they ``just work''.}
-% \note{I believe that evaluation should not change the type/shape of the document. The space
-% for evaluation results should be be preallocated in some sense, either as extra structure in
-% a formula, or as metadata attached to the tree. That said, I've tried various alternative
-% approaches to this in Subtext without ever settling on a preferred solution.}
-%
-% TP: I think this is true - but that would make the system more "statically typed"
-% and Denicek is dynamically typed - my only reason for this is to make the editing experience
-% more "document-like" - but it is perhaps not necessary.
-
-An important principle of the Denicek design is that the effect an edit has on references inside
-the document does not depend on the current value of the document. This makes it possible to
-define merging solely in terms of edits, without reference to current document state.
-% (The effect \ident{Copy} has on the document structure depends on the existing document
-% structure, but not on its value).
-This design choice makes it impossible to encode computational logic directly in the edits
-(e.g., through conditional edits). As we will see in \S\ref{sec:impl-interaction}, such logic
-can be provided as an additional mechanism on top of the underlying Denicek substrate.
 
 % --------------------------------------------------------------------------------------------------
 
@@ -696,53 +704,6 @@ and this would require setting reference behavior to not trigger reference updat
 if the document contains a reference that would be invalidated by the \ident{Copy} or
 \ident{DeleteField} edit, the edit is rejected.
 
-% --------------------------------------------------------------------------------------------------
-
-\begin{figure}
-\newcommand{\tttablecol}[5]{
-\small{\bfseries #1}\;\,\footnotesize\textit{#2}\,\; --\,\; #5\\[-0.1em]
-\quad \footnotesize #3 \;\;$\Rightarrow$\;\; #4 \\[0.3em]
-}
-\begin{tabular}{|p{27em}|}
-\hline
-\\[-1em]
-\tttablecol{RenameField}{target, old field, new field}{\Verb|/target/old\_field/nested|}{\Verb|/target/new\_field/nested|}
-  {Replace Field for matching references.}
-\tttablecol{WrapRecord}{target, tag, field}{\Verb|/target/nested|}{\Verb|/target/field/nested|}
-  {Insert extra Field selector after matching prefix.}
-\tttablecol{WrapList}{target, index, tag}{\Verb|/target/nested|}{\Verb|/target/*/nested|}
-  {Insert extra All selector after matching prefix.}
-\hline
-\end{tabular}
-\vspace{-0.75em}
-\caption{How document edits transform references}
-\label{fig:updates}
-\vspace{-0.5em}
-\end{figure}
-
-% --------------------------------------------------------------------------------------------------
-
-\begin{figure}
-\newcommand{\eftablecol}[3]{
-\small{\bfseries #1}\;\footnotesize\textit{target}\,\; --\,\; {\footnotesize #2}\\[-0.1em]
-\quad \small #3\\[0.3em]
-}
-\begin{tabular}{|p{27em}|}
-\hline
-\\[-1em]
-\eftablecol{StructureEffect}{Affects fields or structure of the target node.}
-  {\ident{RenameField}, \ident{DeleteField}, \ident{WrapRecord}, \ident{WrapList}, \ident{Copy}}
-\eftablecol{ValueEffect}{Transforms value, modifies list or adds an additional field.}
-  {\ident{Add}, \ident{Append}, \ident{Reorder}, \ident{DeleteItem}, \ident{PrimitiveEdit}}
-\eftablecol{TagEffect}{Modifies the tag of the target node.}
-  {\ident{UpdateTag}}
-\hline
-\end{tabular}
-\vspace{-0.75em}
-\caption{Effects of individual edit operations}
-\label{fig:effects}
-\vspace{-1em}
-\end{figure}
 
 % --------------------------------------------------------------------------------------------------
 
@@ -833,26 +794,65 @@ If we performed the merge operation in the other order, we would append $e_1, e_
 $e_2$ without a change. In this case, the result of applying the two edit sequences would be the
 same.
 
+% --------------------------------------------------------------------------------------------------
+
+\begin{figure}
+\newcommand{\tttablecol}[5]{
+\small{\bfseries #1}\;\,\footnotesize\textit{#2}\,\; --\,\; #5\\[-0.1em]
+\quad \footnotesize #3 \;\;$\Rightarrow$\;\; #4 \\[0.3em]
+}
+\begin{tabular}{|p{27em}|}
+\hline
+\\[-1em]
+\tttablecol{RenameField}{target, old field, new field}{\Verb|/target/old\_field/nested|}{\Verb|/target/new\_field/nested|}
+  {Replace Field for matching references.}
+\tttablecol{WrapRecord}{target, tag, field}{\Verb|/target/nested|}{\Verb|/target/field/nested|}
+  {Insert extra Field selector after matching prefix.}
+\tttablecol{WrapList}{target, index, tag}{\Verb|/target/nested|}{\Verb|/target/*/nested|}
+  {Insert extra All selector after matching prefix.}
+\hline
+\end{tabular}
+\vspace{-0.75em}
+\caption{How document edits transform references}
+\label{fig:updates}
+\vspace{-0.5em}
+\end{figure}
 
 % --------------------------------------------------------------------------------------------------
 
-\begin{figure}[t]
-\includegraphics[width=0.95\columnwidth,clip,trim=1.7cm 6cm 7.8cm 1.5cm]{fig/merging.pdf}
-\vspace{-0.5em}
-\caption{Merging of two independently done sequences of edits. Two ways of merging B and C result in the same D.}
-\label{fig:merging}
-\vspace{-0.5em}
+\begin{figure}
+\newcommand{\eftablecol}[3]{
+\small{\bfseries #1}\;\footnotesize\textit{target}\,\; --\,\; {\footnotesize #2}\\[-0.1em]
+\quad \small #3\\[0.3em]
+}
+\begin{tabular}{|p{27em}|}
+\hline
+\\[-1em]
+\eftablecol{StructureEffect}{Affects fields or structure of the target node.}
+  {\ident{RenameField}, \ident{DeleteField}, \ident{WrapRecord}, \ident{WrapList}, \ident{Copy}}
+\eftablecol{ValueEffect}{Transforms value, modifies list or adds an additional field.}
+  {\ident{Add}, \ident{Append}, \ident{Reorder}, \ident{DeleteItem}, \ident{PrimitiveEdit}}
+\eftablecol{TagEffect}{Modifies the tag of the target node.}
+  {\ident{UpdateTag}}
+\hline
+\end{tabular}
+\vspace{-0.75em}
+\caption{Effects of individual edit operations}
+\label{fig:effects}
+\vspace{-1em}
 \end{figure}
 
 % --------------------------------------------------------------------------------------------------
 
 \subsubsection*{Conflict Resolution}
 When merging two sequences of edits, $E, E_1$ and $E, E_2$, it is desirable that
-applying $\mathcal{M}_E(E_1, E_2)$ and $\mathcal{M}_E(E_2, E_1)$ results in the same document.
-This is not always the case. If the two edits modify the same value, transform the structure of
-a node in incompatible ways or one edit modifies a node deleted by the other, the merge operation
-is not symmetric. Such conflicting edits can be detected, reported to the user and optionally
-removed. Conflict detection is also used to implement incremental evaluation~(\S\ref{sec:impl-incremental}).
+$\mathcal{M}_E(E_1, E_2)$ and $\mathcal{M}_E(E_2, E_1)$ result in the same document.
+This is not always the case. If the two edits modify the same value, transform the structure of a node
+in incompatible ways or one edit modifies a node deleted by the other, the merge operation
+is not symmetric. Such conflicting edits can be detected and reported to the user.
+\diff{Conflict detection is also used to implement incremental recomputation~(\S\ref{sec:impl-incremental}),
+in which case conflicting edits produced by evaluation are removed and formulas have to be
+recomputed.}\note{Clarify conflicting edits are only removed in incremental evaluation}
 
 % Our treatment of conflicts necessarily differs in this respect from replication algorithms like
 % Operational Transformation~\cite{OT} and Convergent Replicated DataTypes~\cite{CRDT} where
@@ -889,6 +889,14 @@ is recorded, so that we remove any subsequent edits that depend on the removed e
 %  also an interesting idea I hadn't considered. That might allow me to simplify my transformation rules. }
 
 % ==================================================================================================
+
+\begin{figure}[t]
+\includegraphics[width=0.95\columnwidth,clip,trim=1.7cm 6cm 7.8cm 1.5cm]{fig/merging.pdf}
+\caption{Merging of two independently done sequences of edits. Two ways of merging B and C result in the same D.}
+\label{fig:merging}
+\end{figure}
+
+% --------------------------------------------------------------------------------------------------
 
 \section{Programming Experiences}
 \label{sec:impl}
@@ -982,12 +990,22 @@ reconciling them with potential structural edits. The result can be seen in Fig.
 a newly added list item becomes a table row.
 
 Webnicek also accounts for the case where edits recorded in the document are themselves
-transformed (when they are reconciliated with other edits during merging). In this case, Webnicek
+transformed (when they are reconciled with other edits during merging). In this case, Webnicek
 updates the recorded edits (an alternative approach is discussed in \S\ref{sec:discuss}).
 
 % Simply replaying recorded edits provides limited programming capabilities. We discuss in the
 % next section how recorded edits can themselves be edited by the user to generalize and
 % conditionalize their effects. More general and conventional programming constructs are discussed in \S\ref{sec:discuss}.
+
+% --------------------------------------------------------------------------------------------------
+
+\begin{figure}[t]
+\includegraphics[width=0.95\columnwidth,clip,trim=0cm 5cm 11.5cm 0cm]{fig/counter.pdf}
+\caption{We wrap the initial count (1) in a formula that adds 1 to the
+value, (2). Evaluation produces the count (3), which is invalidated on subsequent clicks (4).
+The button replays the saved edits that wrap the current count in a formula~(5).}
+\label{fig:counter}
+\end{figure}
 
 % --------------------------------------------------------------------------------------------------
 
@@ -1033,7 +1051,7 @@ holds and generates one specific (non-conditional) edit for each of the nodes.
 % TP: Haha, Angualr - oh no! But I don't have a better solution right now sadly...
 
 \keyideabox{\faMagic}{Generalization Heuristic}{Specifying generalization manually is cumbersome.
-Programming by demonstration systems typically implement heuristic for generalization
+Programming by demonstration systems typically implement heuristics for generalization
 \cite{myers-2000-intelligence} that infers and suggests such generalizations. If integrated into
 Webnicek, such heuristic could for example automatically construct a formula
 based on positive and negative examples \cite{gulwani-2014-flash} (selected and deselected Todo
@@ -1042,13 +1060,10 @@ list items).}
 % --------------------------------------------------------------------------------------------------
 
 \begin{figure}[t]
-\vspace{-0.5em}
 \includegraphics[width=1\columnwidth,clip,trim=0.5cm 8.5cm 8.5cm 0.5cm]{fig/interactive.pdf}
-\vspace{-1.25em}
 \caption{Using programming by demonstration to define a UI. The ``Add'' button (1) replays edits;
 the ``Remove completed'' button (2) modifies target and specifies a condition. }
 \label{fig:interactive}
-\vspace{-1em}
 \end{figure}
 
 % --------------------------------------------------------------------------------------------------
@@ -1105,19 +1120,6 @@ way, edit them as other nodes and merge edits that change them.}
 
 % --------------------------------------------------------------------------------------------------
 
-\begin{figure}[t]
-\vspace{-0.5em}
-\includegraphics[width=0.95\columnwidth,clip,trim=0cm 5cm 11.5cm 0cm]{fig/counter.pdf}
-\vspace{-0.5em}
-\caption{We wrap the initial count (1) in a formula that adds 1 to the
-value, (2). Evaluation produces the count (3), which is invalidated on subsequent clicks (4).
-The button replays the saved edits that wrap the current count in a formula~(5).}
-\label{fig:counter}
-\vspace{-1em}
-\end{figure}
-
-% --------------------------------------------------------------------------------------------------
-
 \subsection{Incremental Recomputation}
 \label{sec:impl-incremental}
 
@@ -1160,7 +1162,6 @@ and use incremental recomputation for performance~reasons.}
 
 \begin{figure}[t]
   \includegraphics[width=1\columnwidth,clip,trim=0.1cm 5cm 5.1cm 0cm]{fig/incremental.pdf}
-  \vspace{-1em}
   \caption{Budget calculation based on the number of speakers (1) and the result (2). When speaker
   is added (3), only the results of affected formulas are invalidated.}
   \label{fig:incremental}
@@ -1172,7 +1173,6 @@ and use incremental recomputation for performance~reasons.}
 
 \begin{figure}[t]
 \centering
-\vspace{-0.5em}
 \begin{minipage}{0.55\columnwidth}
   ~\\[1em]
   \includegraphics[width=0.9\columnwidth,clip,trim=0cm 14cm 21cm 0cm]{fig/eval.pdf}
@@ -1182,7 +1182,6 @@ and use incremental recomputation for performance~reasons.}
       that conflict with ordinary edits (4) are dropped.}
     \label{fig:eval}
   \end{minipage}
-  \vspace{-1em}
 \end{figure}
 
 % --------------------------------------------------------------------------------------------------
@@ -1210,6 +1209,13 @@ with a field {\small\Verb_body_} using \ident{WrapRecord}. For the latter, Denic
 reference accordingly turning the original {\small\Verb_/speaker_} reference in the formula
 into {\small\Verb_/speaker/body_}.
 
+\diff{Note that Denicek can only reflect schema changes explicitly represented by the document
+structure. If a formula depended on the structure of the original string representing speakers
+(with a comma), Denicek would not be able to amend the logic of the formula. Systems supporting
+the divergence model \cite{edwards-2025-schema} may be able to lift this restriction by
+transforming the new value back before applying the original formula.}
+\note{Added response to R3's question about schema change}
+
 Edits produced by document evaluation transform the formula structure (wrapping it in the
 {\small\Verb_<x-evaluated>_} record). However, the reference behaviour of those edits is set
 to keep references unchanged (as discussed in \S\ref{sec:system-defs}) and so references to
@@ -1219,13 +1225,11 @@ would be updated to point to the original unevaluated formulas).
 % --------------------------------------------------------------------------------------------------
 
 \begin{figure}[t]
-\vspace{-0.25em}
 \includegraphics[width=1\columnwidth,clip,trim=0cm 8cm 5cm 0cm]{fig/provenance.pdf}
-\vspace{-2em}
+\vspace{-1em}
 \caption{Using provenance tracking to highlight document parts that contributed to the
 calculation of refreshments costs (1), travel costs (2) and all costs (3).}
 \label{fig:provenance}
-\vspace{-0.75em}
 \end{figure}
 
 % --------------------------------------------------------------------------------------------------
@@ -1254,6 +1258,15 @@ a linked visualization~\cite{perera-2022-linked}.}
 
 % --------------------------------------------------------------------------------------------------
 
+\begin{figure}[t]
+\includegraphics[width=0.9\columnwidth,clip,trim=0cm 9.5cm 8cm 0cm]{fig/coevolution.pdf}
+\caption{When an edit changes the document structure, references in formulas are updated accordingly.}
+\label{fig:coevolution}
+\end{figure}
+
+
+% --------------------------------------------------------------------------------------------------
+
 \subsection{Concrete Programming}
 \label{sec:impl-copy}
 
@@ -1269,8 +1282,15 @@ abstractions (functions), users can copy and modify formulas to reuse them. When
 discovers an error in the original formula, Webnicek lets them use the merging mechanism to correct
 the error in the original formula and all its copies.
 
-In Fig.~\ref{fig:copypaste}, the user copies a formula with switched operands using
-the \ident{Copy} edit and then modifies it to use a different data source. They then navigate back
+\note{Modified figure to add call to read-csv}
+\diff{The functionality is illustrated in Fig.~\ref{fig:copypaste}, which uses the builtin operation}
+{\small\Verb_read-csv_} \diff{to load a table from a file. The operation imports the data as a
+document table with rows that can be addressed by subsequent formulas. The then user writes two
+formulas to sum the rows and compute an average.}
+\note{Add explanation of a more complex builtin operation}
+
+They copy a formula with switched operands using
+the \ident{Copy} edit and then modify it to use a different data source. They then navigate back
 in history to the point before the copying and create a temporary fork of the document. In the
 fork, they use \ident{RenameField} to switch the operands of the division. When they merge the
 temporary fork into the original document, the \emph{Apply to Newly Added} logic of the merge
@@ -1290,13 +1310,12 @@ could be used to implement a more user-friendly interface inspired by those syst
 % --------------------------------------------------------------------------------------------------
 
 \begin{figure}[t]
-\vspace{-0.5em}
-\includegraphics[width=0.9\columnwidth,clip,trim=0cm 9.5cm 8cm 0cm]{fig/coevolution.pdf}
-\vspace{-1em}
-\caption{When an edit changes the document structure, references in formulas are updated accordingly.}
-\label{fig:coevolution}
-\vspace{-0.5em}
+\includegraphics[width=1\columnwidth,clip,trim=0cm 1.7cm 1cm 0cm]{fig/copypaste.pdf}
+\caption{The user uses creates a copy of a formula (1). They notice an error (2), go back in
+history to switch the arguments (3), merge the change and re-evaluate both formulas (4).}
+\label{fig:copypaste}
 \end{figure}
+
 
 % ==================================================================================================
 
@@ -1351,18 +1370,6 @@ transactions, where structural invariants are reestablished after a sequence of 
 
 % --------------------------------------------------------------------------------------------------
 
-\begin{figure}[t]
-\vspace{-0.5em}
-\includegraphics[width=1\columnwidth,clip,trim=0cm 5.5cm 1cm 0cm]{fig/copypaste.pdf}
-\vspace{-1.5em}
-\caption{The user uses creates a copy of a formula (1). They notice an error (2), go back in
-history to switch the arguments (3), merge the change and re-evaluate both formulas (4).}
-\label{fig:copypaste}
-\vspace{-0.5em}
-\end{figure}
-
-% --------------------------------------------------------------------------------------------------
-
 \subsubsection*{Expressive Selectors and Edits}
 Our merge operation works on a pair of edit sequences, but it does not need access
 to the current document state or history. This limits the expressiveness of edits. Denicek does not
@@ -1372,6 +1379,14 @@ interactions (\S\ref{sec:impl-interaction}) has to be done at a meta level and g
 of individual edits. This design also limits the expressiveness of selectors. For example,
 an edit targeting nodes with a specific tag (e.g., all {\small\Verb_<h3>_} elements) would also be
 conditional.
+
+\note{Respond to R3's question about avoiding edits depending on values and R1's concern about
+usefulness for PBD tools.}
+\diff{This limitation means that edits generated by generalized interactions (\S\ref{sec:impl-interaction})
+can be only merged in limited ways (an item added to a list through merging after
+invoking an action will not be affected by the action). We expect that the restriction on
+expressiveness of selectors can be lifted for edits that do not modify the document structure,
+but have not yet lifted this restriction in Denicek.}
 
 % One specific design choice in Denicek is that the merge operation operates solely on two
 % sequences of edits, but it does not need access to the current document state (or full edit
@@ -1499,19 +1514,6 @@ Alternative evaluation models avoid this need, but lead to a less uniform system
 % edit that would identify an operation to compute and a list of arguments, specified as a list
 % of references. We choose the former to keep the set of edits smaller.
 
-
-% --------------------------------------------------------------------------------------------------
-
-\begin{figure}[t]
-\vspace{-0.25em}
-\includegraphics[width=0.9\columnwidth,clip,trim=0cm 0.7cm 18.5cm 0.2cm]{fig/source.pdf}
-\vspace{-0.5em}
-\caption{Underlying document representation of a code cell and a grid cell in the Datnicek
-notebook system.}
-\label{fig:source}
-\vspace{-0.25em}
-\end{figure}
-
 % --------------------------------------------------------------------------------------------------
 
 \begin{figure*}[t]
@@ -1522,7 +1524,6 @@ notebook system.}
 a code cell (1) and edits it in a grid that infers edit operations via programming by demonstration
 (2). They turn the edits into a code cell (3) and add a chart.}
 \label{fig:datnicek}
-\vspace{-0.5em}
 \end{figure*}
 
 % ==================================================================================================
@@ -1638,13 +1639,32 @@ To implement conditional transformations, we add a special kind of (virtual) edi
 As in \S\ref{sec:impl-interaction}, when applying the edit, Datnicek finds all rows for which the
 condition holds and generates a single non-conditional edit for each such row.
 
+
+% --------------------------------------------------------------------------------------------------
+
+\begin{figure}[t]
+\includegraphics[width=0.9\columnwidth,clip,trim=0cm 0.7cm 18.5cm 0.2cm]{fig/source.pdf}
+\caption{Underlying document representation of a code cell and a grid cell in the Datnicek
+notebook system.}
+\label{fig:source}
+\end{figure}
+
+% --------------------------------------------------------------------------------------------------
+
 \subsection{Reflections}
 \label{sec:case-reflection}
 
+\subsubsection*{External Validity.}
 The development of Datnicek was only started after the design and implementation of Denicek and
-Webnicek was completed. Thanks to this two-phase methodology, the experience reported here
-provides a qualitative evaluation of Denicek's capabilities. It also highlights limitations and
-suggests directions for future work.
+Webnicek was completed. Thanks to this two-phase methodology, the case study provides
+a qualitative evaluation of Denicek's capabilities. \diff{The design of Denicek is based
+on third-party research (\S\ref{sec:case-req}) and so the case study provides a limited external
+validation. However, several design choices of Datnicek align it with the capabilities of Denicek.
+This includes the use of a structure editor and
+a user interface for programming by demonstration that suggests edit operations. We revisit the
+generality of Denicek in \S\ref{sec:eval-tdps}, but establishing external validity ultimately
+requires adoption of the open-source Denicek package by other programming system researchers.}
+\note{Added discussion on external validity - although this is necessarilly limited.}
 
 \subsubsection*{Effectiveness and Uniformity.}
 Many of the Datnicek requirements are addressed by Denicek with minimal development
@@ -1696,8 +1716,7 @@ and structure of source nodes.
 Finally, data loaded in Datnicek is represented as Denicek nodes (a table is a list of
 records). Such uniform representation makes De\-ni\-cek more versatile, but places a high demand on the
 system performance. We implemented a few basic Denicek optimisations, but Datnicek is still cumbersome
-to use with data consisting of multiple thousands of rows. Improving system performance is
-thus an important direction for future work.
+to use with data consisting of multiple thousands of rows.
 
 \subsubsection*{Future Work}
 One of the design choices discussed in \S\ref{sec:discuss} is whether to track the document
@@ -1713,8 +1732,7 @@ akin to that of The Gamma live previews \cite{petricek-2020-live}.
 
 Finally, the representation of transformations in interactive grid cells (Fig.~\ref{fig:source})
 highlights an unnecessary duplication -- a transformation stores a sequence of edits, as well as a formula.
-An interesting future direction is unifying or integrating those two notions of computation
-provided by the Denicek substrate.
+Unifying these two notions is another interesting future direction.
 
 \section{Evaluation}
 \label{sec:eval}
@@ -1754,6 +1772,8 @@ case study did not address scalability, although there is arguably a number of d
 the capabilities of the system already suffice.
 
 \subsection{Technical Dimensions}
+\label{sec:eval-tdps}
+
 The technical dimensions (TDPS) framework \cite{jakubovic-2023-techdims} maps the design space of
 interactive programming systems. We use the framework to characterize the generality of the
 substrate.  For some dimensions, Denicek can cover the full range of options, while for others,
@@ -1827,17 +1847,71 @@ contribution of our work is that it documents this existing but unwritten tacit 
 
 % ==================================================================================================
 
+\begin{acks}
+The authors thank Clemens Nylandsted Klokmose for research guidance and
+attendees of the IFIP WG 2.16 meeting in Serpiano, members of the Software Architecture Group at HPI
+and attendees of LIVE 2023 for feedback on the project.
+Anonymous reviewers provided invaluable actionable guidance for improving the final version
+of the paper. The work has been supported by the
+\grantsponsor{cuni}{Charles University}{https://d3s.mff.cuni.cz/projects/primus24/}
+grant \grantnum{cuni}{PRIMUS/24/SCI/021} and by the
+\grantsponsor{erccz}{Czech Ministry of Education, Youth and Sports}{https://starfos.tacr.cz/en/projekty/LL2325}
+grant ERC-CZ \grantnum{erccz}{LL2325}.
+\end{acks}
+
 \bibliographystyle{plain}
 \bibliography{paper}
 
 
-\newpage
-~
-\newpage
-
-
-
 \appendix
+
+
+\begin{figure}
+\newcommand{\extablecol}[5]{
+\small{\bfseries #1} #2\; --\; #3\\
+\quad \footnotesize #4 \\[-0.2em]
+\quad \footnotesize \emph{#5} \\[0.6em]
+}
+\hspace*{-0.32cm}\begin{tabular}{|l|}
+\hline
+\\[-1em]
+\extablecol{Counter App}{\cite{kiss-2014-7guis}}
+  {Counter with increment and decrement buttons.}
+  {The current count is represented by a formula that is modified by the buttons.\\[-0.2em]\quad\footnotesize
+  The user can inspect the evaluation trace to see how the count was modified.}
+  {Programming by Demonstration, Incremental Recomputation, End-User Debugging}
+\extablecol{Todo App}{\cite{osmani-2024-todomvc}}
+  {Buttons to add an item and remove all completed.}
+  {Adding an item must correctly merge with independently added functionality to \\[-0.2em]\quad\footnotesize
+   compute which items are completed and remove them based on a formula result.}
+  {Programming by Demonstration, Collaborative Editing, Incremental Recomputation}
+\extablecol{Conference List}{\cite{edwards-2025-schema}}
+  {Manage a list of invited conference speakers.}
+  {Adding speakers to a list through an in-document user interface merges with \\[-0.2em]\quad\footnotesize
+   refactoring that turns the list into a table and separates name from an email.}
+  {Local-First Collaboration, Programming by Demonstration}
+\extablecol{Conference Budget}{\cite{edwards-2025-schema}}
+  {Calculate budget based on a speaker list.}
+  {References are updated  when the list is refactored. Only affected formulas\\[-0.2em]\quad\footnotesize
+   are recomputed and the user can view elements on which the result depends.}
+  {Local-First Collaboration, Incremental Recomputation, End-User Debugging}
+\extablecol{Hello World}{\cite{miller-2001-simult}}
+  {Normalize the capitalization of two word messages.}
+  {An operation to normalize the text in a list item can be recorded and applied to\\[-0.2em]\quad\footnotesize
+   all list items or, alternatively, applied directly to all list items.}
+  {Programming by Demonstration}
+\extablecol{Traffic Accidents}{\cite{edwards-2022-copypaste}}
+  {Compute statistics using two data sources.}
+  {Formula to compute statistics can be reused with a different data source;\\[-0.2em]\quad\footnotesize
+   error correction is propagated automatically to the copied version of the formula.}
+  {Concrete Programming, Incremental Recomputation}
+\hline
+\end{tabular}
+
+\caption{Formative examples used in Denicek design}
+\label{fig:examples}
+\end{figure}
+
 \section{Formative Examples}
 \label{app:examples}
 
@@ -1910,52 +1984,5 @@ formed by the source of the \ident{Copy} by a new prefix, formed by the target t
 the \ident{Copy}. We then add the new operation as $e_2'$ if at least one of its selectors
 was transformed (typically target, but possibly also source).
 
-\begin{figure}
-\newcommand{\extablecol}[5]{
-\small{\bfseries #1} #2\,\; --\,\; #3\\[-0.1em]
-\quad \footnotesize #4 \\[-0.2em]
-\quad \footnotesize \emph{#5} \\[0.4em]
-}
-
-\begin{tabular}{|l|}
-\hline
-\\[-1em]
-\extablecol{Counter App}{\cite{kiss-2014-7guis}}
-  {Counter with increment and decrement buttons.}
-  {The current count is represented by a formula that is modified by the buttons.\\[-0.2em]\quad\footnotesize
-  The user can inspect the evaluation trace to see how the count was modified.}
-  {Programming by Demonstration, Incremental Recomputation, End-User Debugging}
-\extablecol{Todo App}{\cite{osmani-2024-todomvc}}
-  {Buttons to add an item and remove all completed.}
-  {Adding an item must correctly merge with independently added functionality to \\[-0.2em]\quad\footnotesize
-   compute which items are completed and remove them based on a formula result.}
-  {Programming by Demonstration, Local-First Collaboration, Incremental Recomputation}
-\extablecol{Conference List}{\cite{edwards-2025-schema}}
-  {Manage a list of invited conference speakers.}
-  {Adding speakers to a list through an in-document user interface merges with \\[-0.2em]\quad\footnotesize
-   refactoring that turns the list into a table and separates name from an email.}
-  {Local-First Collaboration, Programming by Demonstration}
-\extablecol{Conference Budget}{\cite{edwards-2025-schema}}
-  {Calculate budget based on a speaker list.}
-  {References are updated  when the list is refactored. Only affected formulas\\[-0.2em]\quad\footnotesize
-   are recomputed and the user can view elements on which the result depends.}
-  {Local-First Collaboration, Incremental Recomputation, End-User Debugging}
-\extablecol{Hello World}{\cite{miller-2001-simult}}
-  {Normalize the capitalization of two word messages.}
-  {An operation to normalize the text in a list item can be recorded and applied to\\[-0.2em]\quad\footnotesize
-   all list items or, alternatively, applied directly to all list items.}
-  {Programming by Demonstration}
-\extablecol{Traffic Accidents}{\cite{edwards-2022-copypaste}}
-  {Compute statistics using two data sources.}
-  {Formula to compute statistics can be reused with a different data source;\\[-0.2em]\quad\footnotesize
-   error correction is propagated automatically to the copied version of the formula.}
-  {Concrete Programming, Incremental Recomputation}
-\hline
-\end{tabular}
-
-\caption{Formative examples used in Denicek design}
-\label{fig:examples}
-\vspace{-1em}
-\end{figure}
 
 \end{document}

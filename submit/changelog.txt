@@ -1,0 +1,27 @@
+The changes outlined below follow those outlined in the rebuttal. We also added a limited discussion of external validity of the case study as suggested in the post-PC meeting comment. Detailed list of changes (also shown in the color highlighted submission) follows.
+
+# INTRODUCTION
+- Added overview figure ("teaser") showing concrete examples and relationship between components
+- Clarified key takeaways (re R1) in the introduction (lessons about specific design and more general point suggested by R3)
+- Improved framing of research contribution on page 1 (what Denicek is)
+
+# BACKGROUND
+- Revised Background to make paper more self-contained (re R2) and expand discussion on related systems
+- Provided more detailed comparison with Grove (re R1)
+- Added summary of what makes building programming experiences hard (re R2) based on our past experience
+
+# WALKTHROUGH
+- Revised to make the walkthrough more concrete (concrete scenario with more details on user actions)
+
+# DENICEK SUBSTRATE
+- Clarified handling of conflicting edits (re R3)
+
+# PROGRAMMING EXPERIENCES
+- Added explanation of limitations of schema change handling (re R3)
+- Added an example of more advanced builtin formula operation (re R3)
+
+# DESIGN CONSIDERATIONS
+- Added discussion of a limitation resulting from limited expressivity of selectors (re R3)
+
+# CASE STUDY
+- Added a (limited) discussion of external validity of the evaluation
