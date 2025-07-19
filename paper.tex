@@ -55,7 +55,7 @@
 
 \begin{document}
 \title[Denicek: Computational Substrate for Document-Oriented End-User
-  Programming]{{\scshape Denicek}: Computational Substrate for\\ Document-Oriented End-User Programming\\[0.25em]}
+  Programming]{{\scshape Denicek}: Computational Substrate for\\ Document-Oriented End-User Programming}
 
 \author{Tomas Petricek}
 \email{tomas@tomasp.net}
@@ -96,11 +96,35 @@ The case study shows that the Denicek computational substrate provides a suitabl
 the design of rich, interactive end-user programming systems.
 \end{abstract}
 
-\keywords{Programming Systems, Computational Substrate, End-User Programming,
- Programming by Demonstration, Local-First Software}
+\begin{CCSXML}
+ <ccs2012>
+    <concept>
+        <concept_id>10011007.10011006.10011066</concept_id>
+        <concept_desc>Software and its engineering~Development frameworks and environments</concept_desc>
+        <concept_significance>500</concept_significance>
+        </concept>
+    <concept>
+        <concept_id>10003120.10003121.10003129.10011756</concept_id>
+        <concept_desc>Human-centered computing~User interface programming</concept_desc>
+        <concept_significance>300</concept_significance>
+        </concept>
+    <concept>
+        <concept_id>10003120.10003121.10003124.10010868</concept_id>
+        <concept_desc>Human-centered computing~Web-based interaction</concept_desc>
+        <concept_significance>300</concept_significance>
+        </concept>
+  </ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Software and its engineering~Development frameworks and environments}
+\ccsdesc[300]{Human-centered computing~User interface programming}
+\ccsdesc[300]{Human-centered computing~Web-based interaction}
+
+\keywords{Programming Systems, End-User Programming}
+%Computational Substrate,  Programming by Demonstration, Local-First Software}
 
 \begin{teaserfigure}
-  \vspace{-0.2em}
+  \vspace{0.25em}
   \includegraphics[width=1\textwidth,clip,trim=0cm 8.5cm 7.7cm 0cm]{fig/teaser.pdf}
   \vspace{-1.5em}
   \caption{\diff{Denicek is a computational substrate for document-oriented programming
@@ -1865,44 +1889,43 @@ grant ERC-CZ \grantnum{erccz}{LL2325}.
 
 \appendix
 
-
-\begin{figure}
+\begin{figure*}
 \newcommand{\extablecol}[5]{
 \small{\bfseries #1} #2\; --\; #3\\
 \quad \footnotesize #4 \\[-0.2em]
-\quad \footnotesize \emph{#5} \\[0.6em]
+\quad \footnotesize Programming experiences: \emph{#5} \\[0.6em]
 }
-\hspace*{-0.32cm}\begin{tabular}{|l|}
+\begin{tabular}{|l|}
 \hline
 \\[-1em]
 \extablecol{Counter App}{\cite{kiss-2014-7guis}}
   {Counter with increment and decrement buttons.}
-  {The current count is represented by a formula that is modified by the buttons.\\[-0.2em]\quad\footnotesize
+  {The current count is represented by a formula that is modified by the buttons.
   The user can inspect the evaluation trace to see how the count was modified.}
   {Programming by Demonstration, Incremental Recomputation, End-User Debugging}
 \extablecol{Todo App}{\cite{osmani-2024-todomvc}}
-  {Buttons to add an item and remove all completed.}
-  {Adding an item must correctly merge with independently added functionality to \\[-0.2em]\quad\footnotesize
+  {Todo with buttons to add an item and remove all completed items.}
+  {Adding an item must correctly merge with independently added functionality to
    compute which items are completed and remove them based on a formula result.}
-  {Programming by Demonstration, Collaborative Editing, Incremental Recomputation}
+  {Collaborative Editing, Programming by Demonstration, Incremental Recomputation, Schema Change Control}
 \extablecol{Conference List}{\cite{edwards-2025-schema}}
-  {Manage a list of invited conference speakers.}
-  {Adding speakers to a list through an in-document user interface merges with \\[-0.2em]\quad\footnotesize
+  {Managing a list of invited conference speakers and schema change.}
+  {Adding speakers to a list through an in-document user interface merges with
    refactoring that turns the list into a table and separates name from an email.}
-  {Local-First Collaboration, Programming by Demonstration}
+  {Collaborative Editing, Programming by Demonstration, Schema Change Control}
 \extablecol{Conference Budget}{\cite{edwards-2025-schema}}
-  {Calculate budget based on a speaker list.}
-  {References are updated  when the list is refactored. Only affected formulas\\[-0.2em]\quad\footnotesize
+  {Calculate budget based on a speaker list or a table.}
+  {References are updated  when the list is refactored. Only affected formulas
    are recomputed and the user can view elements on which the result depends.}
-  {Local-First Collaboration, Incremental Recomputation, End-User Debugging}
+  {Collaborative Editing, Incremental Recomputation, Schema Change Control, End-User Debugging}
 \extablecol{Hello World}{\cite{miller-2001-simult}}
   {Normalize the capitalization of two word messages.}
-  {An operation to normalize the text in a list item can be recorded and applied to\\[-0.2em]\quad\footnotesize
+  {An operation to normalize the text in a list item can be recorded and applied to
    all list items or, alternatively, applied directly to all list items.}
   {Programming by Demonstration}
 \extablecol{Traffic Accidents}{\cite{edwards-2022-copypaste}}
   {Compute statistics using two data sources.}
-  {Formula to compute statistics can be reused with a different data source;\\[-0.2em]\quad\footnotesize
+  {Formula to compute statistics can be reused with a different data source;
    error correction is propagated automatically to the copied version of the formula.}
   {Concrete Programming, Incremental Recomputation}
 \hline
@@ -1910,7 +1933,7 @@ grant ERC-CZ \grantnum{erccz}{LL2325}.
 
 \caption{Formative examples used in Denicek design}
 \label{fig:examples}
-\end{figure}
+\end{figure*}
 
 \section{Formative Examples}
 \label{app:examples}
