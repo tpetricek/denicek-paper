@@ -13,8 +13,8 @@
 \usepackage{enumitem}
 \usepackage{fancyvrb}
 \usepackage{tikz}
-\usepackage[breakable,theorems,skins]{tcolorbox}
-\usepackage{lettrine}
+%\usepackage[breakable,theorems,skins]{tcolorbox}
+%\usepackage{lettrine}
 \usepackage{hyperref}
 
 \setlength{\marginparwidth}{1.4cm}
@@ -32,15 +32,20 @@
 \newcommand*\circled[1]{\textnormal{\footnotesize\sffamily\bfseries\protect\tikz[baseline=(char.base)]{
   \node[shape=circle,fill=black,text=white,draw,inner sep=1pt] (char) {#1};}}}
 
-\DeclareRobustCommand{\keyideabox}[3]{\begin{tcolorbox}[breakable,
-  boxsep=5pt,left=0pt,right=0pt,top=0pt,bottom=0pt,width=\dimexpr\columnwidth\relax,
-  colback=gray!20,colframe=gray!20,
-  enlarge bottom by=0pt,enlarge top by=0pt,
-  arc=0pt,outer arc=0pt]
-\lettrine[lraise=0.3]{\LARGE #1}{~}
-\small \textbf{#2.} #3
-\end{tcolorbox}
-}
+% \DeclareRobustCommand{\keyideabox}[3]{\begin{tcolorbox}[breakable,
+%   boxsep=5pt,left=0pt,right=0pt,top=0pt,bottom=0pt,width=\dimexpr\columnwidth\relax,
+%   colback=gray!20,colframe=gray!20,
+%   enlarge bottom by=0pt,enlarge top by=0pt,
+%   arc=0pt,outer arc=0pt]
+% \lettrine[lraise=0.3]{\LARGE #1}{~}
+% \small \textbf{#2.} #3
+% \end{tcolorbox}
+% }
+\DeclareRobustCommand{\keyideabox}[3]
+{\vspace{\dimexpr\baselineskip/2\relax} \noindent\colorbox{gray!20}{
+\parbox{\dimexpr\columnwidth-\marginparsep+1pt\relax}
+{\small {#1} \textbf{#2.} #3}
+}}
 
 \setlist{leftmargin=1.5em}
 \setlength\itemsep{0.5em}
