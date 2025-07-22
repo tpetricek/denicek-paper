@@ -458,19 +458,20 @@ the edit operations and UI interactions.}
 
 \subsubsection*{\circled{A} Adding a Speaker}
 Evelyn starts with an empty document, which is represented as a record. She adds a field for
-each heading and a field named {\small\Verb_speakers_} containing a list {\small\Verb_<ul>_}. \diff{She
+each heading and a field named {\small\texttt{speakers}}
+containing a list {\small\texttt{<ul>}}. \diff{She
 uses the command toolbox to issue edit commands that add the first speaker.}
 
 \subsubsection*{\circled{B} Creating a User Interface} To simplify adding of
 further speakers, Evelyn creates a textbox and a button \diff{using the command toolbox}. She enters
-the details of another speaker \diff{into the textbox}, adds a new {\small\Verb_<li>_} element
+the details of another speaker \diff{into the textbox}, adds a new {\small\texttt{<li>}} element
 and copies the speaker details from the textbox into the new element in the source view,
 \diff{using a copy command}.
 
 \subsubsection*{\circled{C} Abstracting the Interaction} After adding the speaker,
 Evelyn opens the history view, selects edits that added the speaker and saves them as the
-{\small\Verb_add-speaker_} interaction. She attaches this interaction as an event handler for the
-{\small\Verb_click_} event of the button.
+{\small\texttt{add-speaker}} interaction. She attaches this interaction as an event handler for the
+{\small\texttt{click}} event of the button.
 
 \keyideabox{\faLightbulbO}{Programming by Demonstration}{Denicek implements programming by
 demonstration (\S\ref{sec:impl-pbd}) by enabling the user to save and replay past interactions.
@@ -495,8 +496,8 @@ operation is used when handling user interaction (\S\ref{sec:impl-interaction}).
 
 \subsubsection*{\circled{F} Adding Budget Calculation} Juliana joins in and adds a budget calculation to
 the initial document. \diff{She uses the command toolbox to create document nodes representing
-formulas. Formulas are regular nodes with a special} {\small\Verb_x-formula_} \diff{tag and
-arguments as child nodes. To count the speakers, she uses the} {\small\Verb_count_} \diff{builtin
+formulas. Formulas are regular nodes with a special} {\small\texttt{x-formula}} \diff{tag and
+arguments as child nodes. To count the speakers, she uses the} {\small\texttt{count}} \diff{builtin
 with a reference to the node representing the speaker list as the argument.}\note{Modified to describe
 representation of formulas.}
 
@@ -565,10 +566,10 @@ this design choice is discussed in \S\ref{sec:discuss}.
 \sffamily\small{\bfseries Selector} & {\sffamily\footnotesize Notation} & \\[0.2em]
 \hline
 &&\\[-1em]
-\seltablecol{\Verb|..|}{Parent}{Refers to a parent of a node}
-\seltablecol{\Verb|field|}{Field}{Refers to record field of a given name}
-\seltablecol{\Verb|\#index|}{Index}{Refers to list element at a given index}
-\seltablecol{\Verb|*|}{Any}{Refers to all children of a list node}
+\seltablecol{\texttt{..}}{Parent}{Refers to a parent of a node}
+\seltablecol{\texttt{field}}{Field}{Refers to record field of a given name}
+\seltablecol{texttt{\textbackslash\#index}}{Index}{Refers to list element at a given index}
+\seltablecol{\texttt{*}}{Any}{Refers to all children of a list node}
 \hline
 \end{tabular}
 
@@ -583,11 +584,11 @@ this design choice is discussed in \S\ref{sec:discuss}.
 \hline
 &\\[-1em]
 \ndtablecol{\faListUl}{List}{tag, index$_1$, child$_1$, $\ldots$, index$_n$, child$_n$}
-  {Ordered list of nodes, addressable by \textit{index}. Renders as \Verb|<tag>| with children.}
+  {Ordered list of nodes, addressable by \textit{index}. Renders as \texttt{<tag>} with children.}
 \ndtablecol{\faFileO}{Record}{tag, field$_1$, child$_1$, $\ldots$, field$_n$, child$_n$}
-  {Record with children addressable by \textit{field}. Renders as \Verb|<tag>| with children.}
+  {Record with children addressable by \textit{field}. Renders as \texttt{<tag>} with children.}
 \ndtablecol{\faExternalLink}{Reference}{selectors}
-  {Reference to another document location. Displays the \Verb|selectors| as a link.}
+  {Reference to another document location. Displays the \texttt{selectors} as a link.}
 \ndtablecol{\faFont}{Primitive}{string \textnormal{or} number}
   {Numerical or textual primitive value. Renders as an HTML text node.}
 \hline
@@ -728,8 +729,8 @@ introduces a homogeneous list, initially containing a single element, and the up
 should point to all eventual list items.
 
 Note that the affected references in the document may be more specific than the edit target. For
-example, if we rename {\small\Verb|old|} to {\small\Verb|new|} at {\small\Verb|/foo/*|}, a reference
-{\small\Verb|/foo/3/old|} will become {\small\Verb|/foo/3/new|}. (A reference in the
+example, if we rename {\small\texttt{old}} to {\small\texttt{new}} at {\small\texttt{/foo/*}}, a reference
+{\small\texttt{/foo/3/old}} will become {\small\texttt{/foo/3/new}}. (A reference in the
 document cannot be more general; a more specific edit would have to contain the \ident{Index} selector
 and this would require setting reference behavior to not trigger reference update.) Finally,
 if the document contains a reference that would be invalidated by the \ident{Copy} or
@@ -793,16 +794,16 @@ There are two aspects of such reconciliation:
 % compatible with the MRDT data structure I'm trying to use.
 
 
-To illustrate merging, consider a case where we created a list of work items {\small\Verb|/todo|}.
+To illustrate merging, consider a case where we created a list of work items {\small\texttt{/todo}}.
 In one branch, we add an additional item to the list ($e_2$). In another branch, we wrap the
 list in an extra \ident{<div>} element ($e_1$) and add a checkbox to each work item ($e_1'$):
 %
 \begin{equation*}
 \arraycolsep=2pt
 \begin{array}{rcl}
-e_2 &=& \srckvd{Append}(\textnormal{\small\Verb|/todo|}, \#1, \#0, \srcid{<li>Do some work</li>})\\[0.5em]
-e_1 &=& \srckvd{WrapRecord}(\textnormal{\small\Verb|/todo|}, \srcid{<div>}, \srcid{items})\\
-e_1' &=& \srckvd{Add}(\textnormal{\small\Verb|/todo/items/*|}, \srcid{done}, \srckvd{nil}, \srcid{<input type="checkbox"/>})\\
+e_2 &=& \srckvd{Append}(\textnormal{\small\texttt{/todo}}, \#1, \#0, \srcid{<li>Do some work</li>})\\[0.5em]
+e_1 &=& \srckvd{WrapRecord}(\textnormal{\small\texttt{/todo}}, \srcid{<div>}, \srcid{items})\\
+e_1' &=& \srckvd{Add}(\textnormal{\small\texttt{/todo/items/*}}, \srcid{done}, \srckvd{nil}, \srcid{<input type="checkbox"/>})\\
 \end{array}
 \end{equation*}
 %
@@ -814,10 +815,10 @@ that target the newly wrapped list and add the checkbox to the added item:
 \begin{equation*}
 \arraycolsep=2pt
 \begin{array}{rcl}
-  e_1 &=& \srckvd{WrapRecord}(\textnormal{\small\Verb|/todo|}, \srcid{<div>}, \srcid{items})\\
-  e_1' &=& \srckvd{Add}(\textnormal{\small\Verb|/todo/items/*|}, \srcid{done}, \srckvd{nil}, \srcid{<input type="checkbox"/>})\\
-e_2'  &=& \srckvd{Append}(\textnormal{\small\Verb|/todo/items|}, \#1, \#0, \srcid{<li>Do some work</li>})\\
-e_2'' &=& \srckvd{Add}(\textnormal{\small\Verb|/todo/items/\#1|}, \srcid{done}, \srckvd{nil}, \srcid{<input type="checkbox"/>})\\
+  e_1 &=& \srckvd{WrapRecord}(\textnormal{\small\texttt{/todo}}, \srcid{<div>}, \srcid{items})\\
+  e_1' &=& \srckvd{Add}(\textnormal{\small\texttt{/todo/items/*}}, \srcid{done}, \srckvd{nil}, \srcid{<input type="checkbox"/>})\\
+e_2'  &=& \srckvd{Append}(\textnormal{\small\texttt{/todo/items}}, \#1, \#0, \srcid{<li>Do some work</li>})\\
+e_2'' &=& \srckvd{Add}(\textnormal{\small\texttt{/todo/items/\#1}}, \srcid{done}, \srckvd{nil}, \srcid{<input type="checkbox"/>})\\
 \end{array}
 \end{equation*}
 %
@@ -835,11 +836,11 @@ same.
 \begin{tabular}{|p{27em}|}
 \hline
 \\[-1em]
-\tttablecol{RenameField}{target, old field, new field}{\Verb|/target/old\_field/nested|}{\Verb|/target/new\_field/nested|}
+\tttablecol{RenameField}{target, old field, new field}{\texttt{/target/old\_field/nested}}{\texttt{/target/new\_field/nested}}
   {Replace Field for matching references.}
-\tttablecol{WrapRecord}{target, tag, field}{\Verb|/target/nested|}{\Verb|/target/field/nested|}
+\tttablecol{WrapRecord}{target, tag, field}{\texttt{/target/nested}}{\texttt{/target/field/nested}}
   {Insert extra Field selector after matching prefix.}
-\tttablecol{WrapList}{target, index, tag}{\Verb|/target/nested|}{\Verb|/target/*/nested|}
+\tttablecol{WrapList}{target, index, tag}{\texttt{/target/nested}}{\texttt{/target/*/nested}}
   {Insert extra All selector after matching prefix.}
 \hline
 \end{tabular}
@@ -1009,7 +1010,7 @@ in a domain such as data wrangling \cite{kandel-2011-wrangler}.
 
 There are two notable aspects of our implementation of programming by demonstration in Webnicek.
 First, Webnicek records the saved edits in the document itself (by representing individual edits
-as nodes and storing them in a list inside the {\small\Verb_/saved-interactions_} field).
+as nodes and storing them in a list inside the {\small\texttt{/saved-interactions}} field).
 This means that no other implementation mechanism outside of Denicek is needed and also
 that the stored edits can be modified by the user or tools working with the document.
 
@@ -1044,7 +1045,7 @@ The button replays the saved edits that wrap the current count in a formula~(5).
 \label{sec:impl-interaction}
 
 Programming by demonstration can be used to define interactive elements in the document. In a
-simple scenario, illustrated in Fig.~\ref{fig:interactive}~(1), the {\small\Verb_click_} event
+simple scenario, illustrated in Fig.~\ref{fig:interactive}~(1), the {\small\texttt{click}} event
 handler is set to a reference to a sequence of edits recorded in the document. Clicking the button
 executes the edits using the mechanism discussed in the previous section, i.e., Webnicek appends
 the edits to a history at the time when the edits were recorded and merges the edits with the
@@ -1061,12 +1062,12 @@ functionality.
 In addition to the core functionality provided by Denicek, the Webnicek system also makes it possible
 to generalize the interactions recorded through programming by demonstration. As shown
 in Fig.~\ref{fig:interactive}~(2), a button to remove all completed Todo items can be created by
-generalising the {\small\Verb_remove-item_} interaction, which removes the list item at the index 0.
+generalising the {\small\texttt{remove-item}} interaction, which removes the list item at the index 0.
 In addition to the recorded interaction, we manually specify (in the source view) that the edits
-should be applied to all elements selected by the {\small\Verb_/items/*_} selector, instead of
-the original {\small\Verb_/items/0_} selector (prefix) and that the edits should only be
+should be applied to all elements selected by the {\small\texttt{/items/*}} selector, instead of
+the original {\small\texttt{/items/0}} selector (prefix) and that the edits should only be
 applied to elements for which the formula (which tests if the checkbox is checked) specified by a
-relative selector {\small\Verb_./condition/comp/result_} evaluates to true.
+relative selector {\small\texttt{./condition/comp/result}} evaluates to true.
 
 Note that the generalization mechanism does not violate the Denicek principle that edits cannot
 depend on values (\S\ref{sec:system-defs}). Webnicek finds all nodes for which the condition
@@ -1109,13 +1110,13 @@ be expressed using document edits.
 
 Formula evaluation also leverages Denicek's ability to merge edit histories.
 As illustrated in Fig.~\ref{fig:counter}, formulas are represented as document nodes with a
-special tag ({\small\Verb_<x-formula>_}). They are recognized by a formula evaluator and
+special tag ({\small\texttt{<x-formula>}}). They are recognized by a formula evaluator and
 rendered in a special way (4), but they are created using ordinary
 edits and the Denicek substrate treats them as standard nodes.
 
-To evaluate formulas, the formula evaluator generates edits that turn the {\small\Verb_<x-formula>_} (2)
-record into {\small\Verb_<x-evaluated>_} (3), which keeps the previous
-formula state in the {\small\Verb_formula_} field and the evaluation result in the {\small\Verb_result_} field.
+To evaluate formulas, the formula evaluator generates edits that turn the {\small\texttt{<x-formula>}} (2)
+record into {\small\texttt{<x-evaluated>}} (3), which keeps the previous
+formula state in the {\small\texttt{formula}} field and the evaluation result in the {\small\texttt{result}} field.
 Keeping the previous state of the formula is not necessary, but it enables provenance analysis
 as discussed in \S\ref{sec:impl-provenance}. The way edits generated by evaluation are merged
 with the document is discussed in the next section.
@@ -1159,7 +1160,7 @@ The cost of speaker travel depends on the number of speakers, but the cost of re
 depends only on two constants. The edit that adds a speaker invalidates only the former computation.
 
 The evaluation mechanism is illustrated in Fig.~\ref{fig:eval}. When the formulas are evaluated,
-Denicek generates edits that wrap the formula in {\small\Verb_<x-evaluated>_} and set the result
+Denicek generates edits that wrap the formula in {\small\texttt{<x-evaluated>}} and set the result
 to the computed value. In Webnicek, those evaluated edits are kept in a separate list that is always
 appended to the top of the current edit history. When the user makes subsequent edits, the evaluated
 edits are pushed through the newly added edits using edit reconciliation. If the edits conflict
@@ -1234,11 +1235,11 @@ co-evolution \cite{edwards-2025-schema}. Formulas embedded in documents use refe
 nodes to refer to both data sources (in the document) and the results of other computations.
 Consequently, if the document structure changes, the formulas are automatically updated.
 
-Consider the example in Fig.~\ref{fig:coevolution}. The original list {\small\Verb_<ul>_} is
-turned into {\small\Verb_<tbody>_} using \ident{UpdateTag} and wrapped inside {\small\Verb_<table>_}
-with a field {\small\Verb_body_} using \ident{WrapRecord}. For the latter, Denicek updates the
-reference accordingly turning the original {\small\Verb_/speaker_} reference in the formula
-into {\small\Verb_/speaker/body_}.
+Consider the example in Fig.~\ref{fig:coevolution}. The original list {\small\texttt{<ul>}} is
+turned into {\small\texttt{<tbody>}} using \ident{UpdateTag} and wrapped inside {\small\texttt{<table>}}
+with a field {\small\texttt{body}} using \ident{WrapRecord}. For the latter, Denicek updates the
+reference accordingly turning the original {\small\texttt{/speaker}} reference in the formula
+into {\small\texttt{/speaker/body}}.
 
 \diff{Note that Denicek can only reflect schema changes explicitly represented by the document
 structure. If a formula depended on the structure of the original string representing speakers
@@ -1248,7 +1249,7 @@ transforming the new value back before applying the original formula.}
 \note{Added response to R3's question about schema change}
 
 Edits produced by document evaluation transform the formula structure (wrapping it in the
-{\small\Verb_<x-evaluated>_} record). However, the reference behaviour of those edits is set
+{\small\texttt{<x-evaluated>}} record). However, the reference behaviour of those edits is set
 to keep references unchanged (as discussed in \S\ref{sec:system-defs}) and so references to
 formulas are not transformed when the formula is evaluated (otherwise, references
 would be updated to point to the original unevaluated formulas).
@@ -1275,7 +1276,7 @@ mechanism that highlights document nodes that contributed to a specific computed
 illustrated in Figure~\ref{fig:provenance}.
 
 The implementation leverages the fact that evaluation wraps the previous state of the formula
-(\S\ref{sec:impl-eval}). When a formula is fully evaluated, the {\small\Verb_<x-evaluated>_}
+(\S\ref{sec:impl-eval}). When a formula is fully evaluated, the {\small\texttt{<x-evaluated>}}
 document node contains the result, but also a sub-tree with the full evaluation trace
 \cite{perera-2012-functional}. We analyse the trace, collect all reference nodes in the trace and
 highlight all nodes referred to in the computation. Denicek makes this easy as we
@@ -1315,7 +1316,7 @@ the error in the original formula and all its copies.
 
 \note{Modified figure to add call to read-csv}
 \diff{The functionality is illustrated in Fig.~\ref{fig:copypaste}, which uses the builtin operation}
-{\small\Verb_read-csv_} \diff{to load a table from a file. The operation imports the data as a
+{\small\texttt{read-csv}} \diff{to load a table from a file. The operation imports the data as a
 document table with rows that can be addressed by subsequent formulas. The then user writes two
 formulas to sum the rows and compute an average.}
 \note{Add explanation of a more complex builtin operation}
@@ -1381,8 +1382,8 @@ theoretical appeal and it simplifies aspects of the implementation, e.g. by remo
 control reference updating, but it makes working with the system less akin to document editing.
 
 The structural invariants are violated when constructing values gradually (e.g., when adding a new
-speaker to a table), as well as during evaluation (wrapping {\small\Verb_<x-formula>_}
-in {\small\Verb_<x-evaluated>_}). A system with static types could use a form of edit
+speaker to a table), as well as during evaluation (wrapping {\small\texttt{<x-formula>}}
+in {\small\texttt{<x-evaluated>}}). A system with static types could use a form of edit
 transactions, where structural invariants are reestablished after a sequence of edits.
 
 % A key design choice for a substrate like Denicek is whether to track the document structure
@@ -1408,7 +1409,7 @@ support conditional edits (applied only when a specific condition holds), becaus
 not be able to determine if two edits are conflicting. As a result, generalization of recorded
 interactions (\S\ref{sec:impl-interaction}) has to be done at a meta level and generates a series
 of individual edits. This design also limits the expressiveness of selectors. For example,
-an edit targeting nodes with a specific tag (e.g., all {\small\Verb_<h3>_} elements) would also be
+an edit targeting nodes with a specific tag (e.g., all {\small\texttt{<h3>}} elements) would also be
 conditional.
 
 \note{Respond to R3's question about avoiding edits depending on values and R1's concern about
@@ -1444,7 +1445,7 @@ but have not yet lifted this restriction in Denicek.}
 % We could support such selectors for those edits that do not affect the document
 % structure. However, supporting such conditional selectors in general is incompatible with our
 % design decision that merging should not depend on document state. (If an edit wraps the body of all
-% {\small\Verb_<h3>_} elements, we need to know the document state in order to determine whether
+% {\small\texttt{<h3>}} elements, we need to know the document state in order to determine whether
 % we need to modify the selector pointing to an item at a specific index.)
 
 
@@ -1645,16 +1646,16 @@ Bindings are represented as fields of a record and expressions use the formula r
 discussed in \S\ref{sec:impl-eval}. Operations and global values are identified by an absolute
 reference pointing to the special \ident{/\$datnicek} namespace. Chains of method calls are
 represented using nested formulas. Evaluation of formulas proceeds as in Webnicek
-and wraps {\small\Verb_<x-formula>_} in {\small\Verb_<x-evaluated>_}.
+and wraps {\small\texttt{<x-formula>}} in {\small\texttt{<x-evaluated>}}.
 The user interface displays the original formula alongside with the evaluated result, supporting
 tables and Compost data visualizations \cite{petricek-2021-compost}. Edits to the formula
 invalidate dependent results as discussed in \S\ref{sec:impl-incremental}.
 
 \subsubsection*{Interactive Grid Cells}
 Grid cells consist of a reference to the data source they edit and a collection of
-{\small\Verb_<transform>_} nodes that represent individual data transformations constructed via
+{\small\texttt{<transform>}} nodes that represent individual data transformations constructed via
 programming by demonstration. A transformation consists of metadata,
-a sequence of edits and a formula representing the transformation (with {\small\Verb_<x-hole>_}
+a sequence of edits and a formula representing the transformation (with {\small\texttt{<x-hole>}}
 standing for the data table to be transformed).
 
 A single transformation may correspond to multiple underlying Denicek edits. For example, splitting a
@@ -1666,7 +1667,7 @@ Interactive grid also supports transformations that affect rows satisfying a giv
 condition (e.g., deleting rows with a specific value in a given column). As discussed
 in \S\ref{sec:system-defs}, Denicek does not support conditional selectors.
 To implement conditional transformations, we add a special kind of (virtual) edit
-{\small\Verb_<x-expandable-edit>_} that stores the underlying edit and a condition.
+{\small\texttt{<x-expandable-edit>}} that stores the underlying edit and a condition.
 As in \S\ref{sec:impl-interaction}, when applying the edit, Datnicek finds all rows for which the
 condition holds and generates a single non-conditional edit for each such row.
 
@@ -1703,7 +1704,7 @@ effort. Denicek also provides a small and uniform set of primitives. In particul
 the implementation represents all non-transient changes to a notebook as Denicek edits.
 Code completions offered by the code editor are edits (wrapping a formula or appending a parameter),
 changing a primitive value is an edit, and recommendations in the interactive grid are also edits
-(appending a {\small\Verb_<transform>_} node).
+(appending a {\small\texttt{<transform>}} node).
 
 The uniform and dynamic nature makes the development experience of using Denicek more akin to dynamic
 object-oriented languages than to statically-typed functional languages. The system can quickly evolve,
