@@ -15,6 +15,7 @@
 \usepackage{tikz}
 %\usepackage[breakable,theorems,skins]{tcolorbox}
 %\usepackage{lettrine}
+\usepackage{float}
 \usepackage{hyperref}
 
 \setlength{\marginparwidth}{1.4cm}
@@ -42,7 +43,7 @@
 % \end{tcolorbox}
 % }
 \DeclareRobustCommand{\keyideabox}[3]
-{\vspace{\dimexpr\baselineskip/2\relax} \noindent\colorbox{gray!20}{
+{\vspace{\dimexpr\baselineskip\relax} \noindent\colorbox{gray!20}{
 \parbox{\dimexpr\columnwidth-\marginparsep+1pt\relax}
 {\small {#1} \textbf{#2.} #3}
 }}
@@ -358,7 +359,7 @@ a major engineering effort when using a conventional program representation.}
 
 \begin{figure*}[t]
 \includegraphics[width=0.95\textwidth,clip,trim=0cm 6cm 1.7cm 0cm]{fig/walkthrough.pdf}
-\vspace{-0.5em}
+% \vspace{-0.5em}
 \caption{Organizing a conference using Denicek. The Walkthrough shows construction of a user
   interface for adding speakers (A, B, C); refactoring of the list and merging edits (D, E); and
   formulas with schema and code co-evolution (F, G).}
@@ -475,6 +476,7 @@ Evelyn opens the history view, selects edits that added the speaker and saves th
 demonstration (\S\ref{sec:impl-pbd}) by enabling the user to save and replay past interactions.
 Past interactions can be replayed directly, or used as event handlers in order to construct interactive user
 interfaces (\S\ref{sec:impl-interaction}).}
+
 
 \subsubsection*{\circled{D} Refactoring Document Structure} Alfred starts with the initial
 version of the document (A) and turns the list into a table. He invokes a series of commands that
@@ -1200,7 +1202,7 @@ and use incremental recomputation for performance~reasons.}
 
 % --------------------------------------------------------------------------------------------------
 
-\begin{figure}[t]
+\begin{figure}[h]
 \centering
 \begin{minipage}{0.55\columnwidth}
   ~\\[1em]
@@ -1253,7 +1255,7 @@ would be updated to point to the original unevaluated formulas).
 
 % --------------------------------------------------------------------------------------------------
 
-\begin{figure}[t]
+\begin{figure}[h]
 \includegraphics[width=1\columnwidth,clip,trim=0cm 8cm 5cm 0cm]{fig/provenance.pdf}
 \vspace{-1em}
 \caption{Using provenance tracking to highlight document parts that contributed to the
