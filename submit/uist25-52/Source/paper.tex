@@ -18,6 +18,9 @@
 \usepackage{float}
 \usepackage{hyperref}
 
+\usepackage{acmart-taps}
+
+
 \setlength{\marginparwidth}{1.4cm}
 
 %\newcommand{\diff}[1]{{\textcolor{magenta}{#1}}}
@@ -46,7 +49,7 @@
 % \end{tcolorbox}
 % }
 \DeclareRobustCommand{\keyideabox}[3]
-{\vspace{\dimexpr\baselineskip\relax} \noindent\colorbox{gray!20}{
+{\vspace{\dimexpr\baselineskip\relax} \colorbox{gray!20}{
 \parbox{\dimexpr\columnwidth-\marginparsep+1pt\relax}
 {\small {#1} \textbf{#2.} #3}
 }}
@@ -90,7 +93,7 @@ User-centric programming research gave rise to a variety of compelling programmi
 including collaborative source code editing, programming by demonstration, incremental
 recomputation, schema change control, end-user debugging and concrete programming.
 Those experiences advance the state of the art of end-user programming, but they are hard to
-implement on the basis of established programming languages and system.
+implement on the basis of established programming languages and system.\enlargethispage{12pt}
 
 We contribute Denicek, a computational substrate that simplifies the implementation of the
 above programming experiences. Denicek represents a program as a series of edits
@@ -157,7 +160,7 @@ the design of rich, interactive end-user programming systems.
 % ==================================================================================================
 \section{Introduction}
 
-A computational substrate defines the structures with which programs are constructed, how
+A computational\enlargethispage{12pt} substrate defines the structures with which programs are constructed, how
 the program state is represented and how the state evolves during execution \cite{jakubovic-2022-ladder}.
 The choice of a substrate affects what programming experiences can be readily supported.
 For example, object-oriented programming has been historically linked to graphical user
@@ -475,6 +478,7 @@ and copies the speaker details from the textbox into the new element in the sour
 Evelyn opens the history view, selects edits that added the speaker and saves them as the
 {\small\texttt{add-speaker}} interaction. She attaches this interaction as an event handler for the
 {\small\texttt{click}} event of the button.
+
 
 \keyideabox{\faLightbulbO}{Programming by Demonstration}{Denicek implements programming by
 demonstration (\S\ref{sec:impl-pbd}) by enabling the user to save and replay past interactions.
@@ -804,7 +808,7 @@ list in an extra \ident{<div>} element ($e_1$) and add a checkbox to each work i
 \begin{equation*}
 \arraycolsep=2pt
 \begin{array}{rcl}
-e_2 &=& \srckvd{Append}(\textnormal{\small\texttt{/todo}}, \#1, \#0, \srcid{<li>Do some work</li>})\\[0.5em]
+e_2 &=& \srckvd{Append}(\textnormal{\small\texttt{/todo}}, \#1, \#0, \srcid{<li>Do some work</li>})\\
 e_1 &=& \srckvd{WrapRecord}(\textnormal{\small\texttt{/todo}}, \srcid{<div>}, \srcid{items})\\
 e_1' &=& \srckvd{Add}(\textnormal{\small\texttt{/todo/items/*}}, \srcid{done}, \srckvd{nil}, \srcid{<input type="checkbox"/>})\\
 \end{array}
@@ -941,13 +945,13 @@ a range of compelling user experiences. The experiences can be implemented by co
 primitive operations of the substrate, relying in particular on the operation for merging edits.
 We demonstrate this claim with the web-based Webnicek system, which uses Denicek to support:
 %
-\begin{enumerate}[itemsep=0pt,label=(\roman*),topsep=3pt,leftmargin=20pt]
-\item collaborative document editing (\S\ref{sec:impl-collab}),
-\item programming by demonstration (\S\ref{sec:impl-pbd} and \S\ref{sec:impl-interaction}),
-\item incremental recomputation (\S\ref{sec:impl-eval} and \S\ref{sec:impl-incremental}),
-\item schema change control (\S\ref{sec:impl-schema}),
-\item end-user debugging via provenance tracking (\S\ref{sec:impl-provenance}),
-\item concrete programming via managed copy \& paste (\S\ref{sec:impl-copy}).
+\begin{enumerate}%[itemsep=0pt,label=(\roman*),topsep=3pt,leftmargin=20pt]
+\item[(i)] collaborative document editing (\S\ref{sec:impl-collab}),
+\item[(ii)] programming by demonstration (\S\ref{sec:impl-pbd} and \S\ref{sec:impl-interaction}),
+\item[(iii)] incremental recomputation (\S\ref{sec:impl-eval} and \S\ref{sec:impl-incremental}),
+\item[(iv)] schema change control (\S\ref{sec:impl-schema}),
+\item[(v)] end-user debugging via provenance tracking (\S\ref{sec:impl-provenance}),
+\item[(vi)] concrete programming via managed copy \& paste (\S\ref{sec:impl-copy}).
 \end{enumerate}
 %
 We describe the programming experiences in isolation in the context of Webnicek in this section.
