@@ -49,9 +49,9 @@
 % \end{tcolorbox}
 % }
 \DeclareRobustCommand{\keyideabox}[3]
-{\vspace{\dimexpr\baselineskip\relax} \colorbox{gray!20}{
-\parbox{\dimexpr\columnwidth-\marginparsep-10pt\relax}
-{\small {#1} \textbf{#2.} #3}
+{\vspace{\dimexpr0.5\baselineskip\relax} \noindent\setlength\fboxsep{6pt}\colorbox{gray!20}{%
+\parbox{\dimexpr\columnwidth-\marginparsep\relax}
+{\small {#1}\; \textbf{#2.} #3}
 }}
 
 % \setlist{leftmargin=1.5em}
@@ -181,15 +181,15 @@ supporting diverse compelling programming experiences \cite{myers-2006-eup}:}
 
 \begin{itemize}
 \item \emph{Collaborative Editing.} Users should be able to locally modify a shared document
-  and merge their changes, preferably in a way that does not require a live connection to a central server~\cite{kleppmann-2019-local}.
-\item \emph{Programming by Demonstration.} Allow users to construct simple programs by
-  enacting the steps of the desired behavior using concrete examples and generalizing from the example~\cite{leiva-2021-rapido,cypher-1993-pbd}.
+  and merge their changes in a way that does not require a live connection to a central server~\cite{kleppmann-2019-local}.
+\item \emph{Programming by Demonstration.} Allow users to construct programs by
+  enacting the steps of the desired behavior using concrete examples and generalizing from those~\cite{leiva-2021-rapido,cypher-1993-pbd}.
 \item \emph{Incremental Recomputation.} When a part of a document changes, formulas whose result
   depends on the part are invalidated and, possibly automatically, recomputed \cite{teitelbaum-1981-cps,mcdirmid-2013-usable,horowitz-2023-engraft}.
 \item \emph{Schema Change Control.} When the user evolves the structure of the document, affected
   data and formulas should automatically co-evolve to match the new structure~\cite{litt-2020-cambria,edwards-2025-schema}.
-\item \emph{End-User Debugging.} The user should be able to ask provenance questions~\cite{cheney-2009-provenance} to understand
-  why a computation resulted in a particular value and what inputs contributed to the result \cite{ko-2009-whyline}.
+\item \emph{End-User Debugging.} The user should be able to ask about provenance~\cite{cheney-2009-provenance} to understand
+  why a computation resulted in a particular result and what inputs contributed to it \cite{ko-2009-whyline}.
 \item \emph{Concrete Programming.} It should be possible to reuse parts of program logic, or formulas,
   without introducing abstractions, that is, program against concrete values \cite{edwards-2006-copypaste,edwards-2022-copypaste}.
 \end{itemize}
@@ -259,11 +259,11 @@ The structure and contributions of this paper are:
 \item We illustrate a range of end-user programming experiences supported in Webnicek, a simple
   web-based prototype programming system (\S\ref{sec:walk}), and discuss how the experiences are
   implemented on top of the Denicek substrate (\S\ref{sec:impl}).
-\item We document important design decisions, alternatives and limitations (\S\ref{sec:discuss}).
-  The analysis shows that the desired functionality requires a careful choice among interconnected
+\item We analyse key design decisions, alternatives and limitations (\S\ref{sec:discuss}), showing
+  that the desired functionality requires a careful choice among interconnected
   design options.
 \item To evaluate how Denicek simplifies the development of program\-ming systems, we
-  build an innovative data science notebook Datnicek and assess its implementation
+  build an innovative data science notebook and assess its implementation
   complexity~(\S\ref{sec:case}). We also present heuristic evaluation of the system~(\S\ref{sec:eval}).
 \end{itemize}
 
@@ -462,19 +462,19 @@ collaboratively plan a conference.}
 \note{Turn this into a concrete user story consistent with the video. Also add more details about
 the edit operations and UI interactions.}
 
-\subsubsection*{\circled{A} Adding a Speaker}
+\subsubsection*{\raisebox{-0.2em}{\includegraphics[height=1em,clip,trim=0em 0em 30mm 0em]{fig/circled.pdf}} Adding a Speaker}
 Evelyn starts with an empty document, which is represented as a record. She adds a field for
 each heading and a field named {\small\texttt{speakers}}
 containing a list {\small\texttt{<ul>}}. \diff{She
 uses the command toolbox to issue edit commands that add the first speaker.}
 
-\subsubsection*{\circled{B} Creating a User Interface} To simplify adding of
+\subsubsection*{\raisebox{-0.2em}{\includegraphics[height=1em,clip,trim=5mm 0em 25mm 0em]{fig/circled.pdf}} Creating a User Interface} To simplify adding of
 further speakers, Evelyn creates a textbox and a button \diff{using the command toolbox}. She enters
 the details of another speaker \diff{into the textbox}, adds a new {\small\texttt{<li>}} element
 and copies the speaker details from the textbox into the new element in the source view,
 \diff{using a copy command}.
 
-\subsubsection*{\circled{C} Abstracting the Interaction} After adding the speaker,
+\subsubsection*{\raisebox{-0.2em}{\includegraphics[height=1em,clip,trim=10mm 0em 20mm 0em]{fig/circled.pdf}} Abstracting the Interaction} After adding the speaker,
 Evelyn opens the history view, selects edits that added the speaker and saves them as the
 {\small\texttt{add-speaker}} interaction. She attaches this interaction as an event handler for the
 {\small\texttt{click}} event of the button.
@@ -486,12 +486,12 @@ Past interactions can be replayed directly, or used as event handlers in order t
 interfaces (\S\ref{sec:impl-interaction}).}
 
 
-\subsubsection*{\circled{D} Refactoring Document Structure} Alfred starts with the initial
+\subsubsection*{\raisebox{-0.2em}{\includegraphics[height=1em,clip,trim=15mm 0em 15mm 0em]{fig/circled.pdf}} Refactoring Document Structure} Alfred starts with the initial
 version of the document (A) and turns the list into a table. He invokes a series of commands that
 \diff{rename tags, wrap elements, copy values and split strings using the comma as a separator}.
 \note{More concrete description of edits}
 
-\subsubsection*{\circled{E} Merging Edits}
+\subsubsection*{\raisebox{-0.2em}{\includegraphics[height=1em,clip,trim=20mm 0em 10mm 0em]{fig/circled.pdf}} Merging Edits}
 \diff{Alfred then merges the later edits (B, C) done by Evelyn into his version of the document.}
 The refactoring is applied to all speakers. New speakers added using the ``Add speaker!''
 button are also automatically transformed to the new format.
@@ -501,7 +501,7 @@ reapplies edits from another branch on top of the current history (\S\ref{sec:im
 Merging is asymmetric, but the order does not matter in the above scenario. The same merging
 operation is used when handling user interaction (\S\ref{sec:impl-interaction}).}
 
-\subsubsection*{\circled{F} Adding Budget Calculation} Juliana joins in and adds a budget calculation to
+\subsubsection*{\raisebox{-0.2em}{\includegraphics[height=1em,clip,trim=25mm 0em 5mm 0em]{fig/circled.pdf}} Adding Budget Calculation} Juliana joins in and adds a budget calculation to
 the initial document. \diff{She uses the command toolbox to create document nodes representing
 formulas. Formulas are regular nodes with a special} {\small\texttt{x-formula}} \diff{tag and
 arguments as child nodes. To count the speakers, she uses the} {\small\texttt{count}} \diff{builtin
@@ -514,7 +514,7 @@ Evaluating a formula yields edits that augment the document with the result
 removed in case of a conflict (\S\ref{sec:impl-incremental}), a logic that implements
 incremental recomputation using core Denicek operations.}
 
-\subsubsection*{\circled{G} Merging Formulas} When Juliana merges the budget calculation (F) with
+\subsubsection*{\raisebox{-0.2em}{\includegraphics[height=1em,clip,trim=30mm 0em 0mm 0em]{fig/circled.pdf}} Merging Formulas} When Juliana merges the budget calculation (F) with
 the earlier edits (E), references in formulas are automatically updated to point to the \diff{rows of the table}.
 Adding new speaker via the ``Add speaker!'' button \diff{invalidates results of only those formulas
 that depend on the number of speakers.}
@@ -773,9 +773,9 @@ There are two aspects of such reconciliation:
 
 \item \emph{Transform Matching References.} If $e_2$ targets a node that is inside a node
   whose structure is changed by $e_1$, the target reference in $e_2$ is updated in a way that
-  corresponds to the new structure. This is done using the rules shown in Fig.~\ref{fig:updates},
+  corresponds to the new structure. This is done using the rules in Fig.~\ref{fig:updates},
   that apply when transforming references inside a document, although we now also support the case
-  when $e1$ is \ident{Copy} (see \S\ref{app:merge-transform-refs} for details).
+  when $e1$ is \ident{Copy} (see \S\ref{app:merge-transform-refs}).
 \end{enumerate}
 
 % \note{I believe that in general a ``backwards'' form of merge is also needed, as in my
@@ -843,10 +843,10 @@ same.
 \begin{tabular}{|p{25.5em}|}
 \hline
 \\[-1em]
-\tttablecol{RenameField}{target, old field, new field}{\texttt{/target/old\_field/nested}}{\texttt{/target/new\_field/nested}}
+\tttablecol{RenameField}{target, old, new}{\texttt{/target/old\_field/nested}}{\texttt{/target/new\_field/nested}}
   {Replace Field for matching references.}
 \tttablecol{WrapRecord}{target, tag, field}{\texttt{/target/nested}}{\texttt{/target/field/nested}}
-  {Insert extra Field selector after matching prefix.}
+  {Insert Field selector after matching prefix.}
 \tttablecol{WrapList}{target, index, tag}{\texttt{/target/nested}}{\texttt{/target/*/nested}}
   {Insert extra All selector after matching prefix.}
 \hline
@@ -869,7 +869,7 @@ same.
 \\[-1em]
 \eftablecol{StructureEffect}{Affects fields or structure of the target node.}
   {\ident{RenameField}, \ident{DeleteField}, \ident{WrapRecord}, \ident{WrapList}, \ident{Copy}}
-\eftablecol{ValueEffect}{Transforms value, modifies list or adds an additional field.}
+\eftablecol{ValueEffect}{Transforms value, modifies list or adds a field.}
   {\ident{Add}, \ident{Append}, \ident{Reorder}, \ident{DeleteItem}, \ident{PrimitiveEdit}}
 \eftablecol{TagEffect}{Modifies the tag of the target node.}
   {\ident{UpdateTag}}
@@ -1264,8 +1264,8 @@ would be updated to point to the original unevaluated formulas).
 % --------------------------------------------------------------------------------------------------
 
 \begin{figure}[h]
+\vspace{0.5em}
 \includegraphics[width=1\columnwidth,clip,trim=0cm 8cm 5cm 0cm]{fig/provenance.pdf}
-\vspace{-1em}
 \caption{Using provenance tracking to highlight document parts that contributed to the
 calculation of refreshments costs (1), travel costs (2) and all costs (3).}
 \label{fig:provenance}
@@ -1298,9 +1298,10 @@ a linked visualization~\cite{perera-2022-linked}.}
 % --------------------------------------------------------------------------------------------------
 
 \begin{figure}[t]
-\includegraphics[width=0.9\columnwidth,clip,trim=0cm 9.5cm 8cm 0cm]{fig/coevolution.pdf}
+\includegraphics[width=1\columnwidth,clip,trim=0cm 9.5cm 8cm 0cm]{fig/coevolution.pdf}
 \caption{When an edit changes the document structure, references in formulas are updated accordingly.}
 \label{fig:coevolution}
+\vspace{0.5em}
 \end{figure}
 
 
@@ -1588,7 +1589,7 @@ construct data cleaning scripts. We aim to support the following features:
 \begin{itemize}
 \item \emph{Structure Editing.} Code in code cells should be edited through structure editor
   as in Histogram \cite{petricek-2019-histogram}. This allows Datnicek to keep track of the code
-  structure and potentially makes the system accessible to non-programmers \cite{mcnutt-2023-projectional}.
+  structure and can make the system accessible to non-programmers \cite{mcnutt-2023-projectional}.
   We do not initially aim to implement advanced keyboard-based editing \cite{moon-2022-tylr,beckman-2023-sandblocks}.
 
 \item \emph{Collaborative Editing.} It should be possible to merge independently done code changes
@@ -1597,7 +1598,7 @@ construct data cleaning scripts. We aim to support the following features:
 
 \item \emph{Code Completion.} During editing, code completion should offer available data
   transformations and operations as when using type providers \cite{syme-2013-inforich} or
-  iterative prompting in The Gamma \cite{petricek-2022-thegamma}.
+  when using iterative prompting in The~Gamma \cite{petricek-2022-thegamma}.
 
 \item \emph{Output Invalidation.} When code is edited, the previously evaluated results that
   depend on it, directly or transitively, should be invalidated as in Wrattler \cite{petricek-2018-wrattler,petricek-2020-live},
@@ -1608,7 +1609,7 @@ construct data cleaning scripts. We aim to support the following features:
   Wrangler or Vizier~\cite{kandel-2011-wrangler,kennedy-2022-vizier}.
 
 \item \emph{Wrangling Code Synthesis.} Interactively constructed data transformations should be
-  convertible into code that can be checked by the data scientist and further edited as in Wrex \cite{drossos-2020-wrex}.
+  convertible into code that can be checked and further edited as in Wrex \cite{drossos-2020-wrex}.
 \end{itemize}
 
 \noindent
@@ -1887,7 +1888,7 @@ contribution of our work is that it documents this existing but unwritten tacit 
 % ==================================================================================================
 
 \begin{acks}
-The authors thank Clemens Nylandsted Klokmose for research guidance and
+The authors thank Clemens Nylandsted Klokmose for research guidance,
 attendees of the IFIP WG 2.16 meeting in Serpiano, members of the Software Architecture Group at HPI
 and attendees of LIVE 2023 for feedback on the project.
 Anonymous reviewers provided invaluable actionable guidance for improving the final version
@@ -1905,51 +1906,6 @@ grant ERC-CZ \grantnum{erccz}{LL2325}.
 
 \appendix
 
-\begin{figure*}
-\newcommand{\extablecol}[5]{
-\small{\bfseries #1} #2\; --\; #3\\
-\quad \footnotesize #4 \\[-0.2em]
-\quad \footnotesize Programming experiences: \emph{#5} \\[0.6em]
-}
-\begin{tabular}{|l|}
-\hline
-\\[-1em]
-\extablecol{Counter App}{\cite{kiss-2014-7guis}}
-  {Counter with increment and decrement buttons.}
-  {The current count is represented by a formula that is modified by the buttons.
-  The user can inspect the evaluation trace to see how the count was modified.}
-  {Programming by Demonstration, Incremental Recomputation, End-User Debugging}
-\extablecol{Todo App}{\cite{osmani-2024-todomvc}}
-  {Todo with buttons to add an item and remove all completed items.}
-  {Adding an item must correctly merge with independently added functionality to
-   compute which items are completed and remove them based on a formula result.}
-  {Collaborative Editing, Programming by Demonstration, Incremental Recomputation, Schema Change Control}
-\extablecol{Conference List}{\cite{edwards-2025-schema}}
-  {Managing a list of invited conference speakers and schema change.}
-  {Adding speakers to a list through an in-document user interface merges with
-   refactoring that turns the list into a table and separates name from an email.}
-  {Collaborative Editing, Programming by Demonstration, Schema Change Control}
-\extablecol{Conference Budget}{\cite{edwards-2025-schema}}
-  {Calculate budget based on a speaker list or a table.}
-  {References are updated  when the list is refactored. Only affected formulas
-   are recomputed and the user can view elements on which the result depends.}
-  {Collaborative Editing, Incremental Recomputation, Schema Change Control, End-User Debugging}
-\extablecol{Hello World}{\cite{miller-2001-simult}}
-  {Normalize the capitalization of two word messages.}
-  {An operation to normalize the text in a list item can be recorded and applied to
-   all list items or, alternatively, applied directly to all list items.}
-  {Programming by Demonstration}
-\extablecol{Traffic Accidents}{\cite{edwards-2022-copypaste}}
-  {Compute statistics using two data sources.}
-  {Formula to compute statistics can be reused with a different data source;
-   error correction is propagated automatically to the copied version of the formula.}
-  {Concrete Programming, Incremental Recomputation}
-\hline
-\end{tabular}
-
-\caption{Formative examples used in Denicek design}
-\label{fig:examples}
-\end{figure*}
 
 \section{Formative Examples}
 \label{app:examples}
@@ -1999,6 +1955,56 @@ nodes newly added by $e_2$. The edit $e_2$ thus becomes a pair of edits $e_2, e_
 The final document will contain edits $e_1, e_2, e_1'$ -- that is, it will first apply the edit
 $e_1$ to nodes already in the document, then add new nodes and then apply the transformation
 represented by $e_1$ to the newly added nodes.
+
+
+\begin{figure}[t]
+\newcommand{\extablecolx}[6]{\hline\\[-0.8em]
+\small{\bfseries #1} #2\\[-0.1em] \small #3\\[0.3em]
+\quad \parbox{7cm}{\footnotesize #4}\\
+\quad \parbox{7cm}{\vspace{0.5em}\footnotesize #6: \emph{#5}} \\[1em]
+}
+\newcommand{\extablecol}[5]{\extablecolx{#1}{#2}{#3}{#4}{#5}{Programming experiences}}
+\begin{tabular}{|l|}
+\extablecol{Counter App}{\cite{kiss-2014-7guis}}
+  {Counter with increment and decrement buttons.}
+  {The current count is represented by a formula that is modified by the buttons.
+  Formula modification is shown once and then repeated on click.
+  The user can inspect the evaluation trace to see how the count was modified.}
+  {Programming by Demonstration, Incremental Recomputation, End-User Debugging}
+\extablecol{Todo App}{\cite{osmani-2024-todomvc}}
+  {Todo with buttons to add an item and remove all completed items.}
+  {Functionality to add an item is shown once and then recorded.
+   Adding an item must correctly merge with independently added functionality to
+   compute which items are completed and remove them based on a formula result.}
+  {Collaborative Editing, Programming by Demonstration, Incremental Recomputation, Schema Change Control}
+\extablecol{Conference List}{\cite{edwards-2025-schema}}
+  {Managing a list of invited conference speakers and schema change.}
+  {Adding speakers to a list through an in-document user interface merges with
+   refactoring that turns the list into a table and separates name from an email by
+   copying the value and removing a part of the string before/after a comma.}
+  {Collaborative Editing, Programming by Demonstration, Schema Change Control}
+\extablecol{Conference Budget}{\cite{edwards-2025-schema}}
+  {Calculate budget based on a speaker list or a table.}
+  {References are updated  when the list is refactored. Only affected formulas
+   are recomputed and the user can view elements on which the result depends.}
+  {Collaborative Editing, Incremental Recomputation, Schema Change Control, End-User Debugging}
+\extablecol{Hello World}{\cite{miller-2001-simult}}
+  {Normalize the capitalization of two word messages.}
+  {An operation to normalize the text in a list item can be recorded and applied to
+   all list items or, alternatively, applied directly to all list items.}
+  {Programming by Demonstration}
+\extablecolx{Traffic Accidents}{\cite{edwards-2022-copypaste}}
+  {Compute statistics using two data sources.}
+  {Formula to compute statistics can be reused with a different data source. If an error
+   in the formula is corrected, the correction is propagated automatically to the copied
+   version of the formula.}
+  {Concrete Programming, Incremental Recomputation}{Experiences}
+\hline
+\end{tabular}
+
+\caption{Formative examples used in Denicek design}
+\label{fig:examples}
+\end{figure}
 
 \subsection{Transform Matching References}
 \label{app:merge-transform-refs}

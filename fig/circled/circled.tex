@@ -1,0 +1,17 @@
+\documentclass{standalone}
+\usepackage{tikz}
+
+\newcommand*\circled[1]{\textnormal{\footnotesize\sffamily\bfseries\protect\tikz[baseline=(char.base)]{
+  \node[shape=circle,fill=black,text=white,draw,inner sep=1pt] (char) {#1};}}}
+
+\begin{document}
+\noindent
+\circled{A}
+\circled{B}
+\circled{C}
+\circled{D}
+\circled{E}
+\circled{F}
+\circled{G}
+
+\end{document}
